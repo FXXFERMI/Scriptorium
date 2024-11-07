@@ -29,7 +29,7 @@ const Navbar = () => {
     return (
         <nav className="bg-white shadow-md p-4">
             <div className="container mx-auto flex justify-between">
-                <div className="text-xl font-bold bg-rainbow-text text-transparent bg-clip-text">My Website</div>
+                <div className="text-xl font-bold bg-rainbow-text text-transparent bg-clip-text">Scriptorium</div>
                 <div className="space-x-4">
                     {isLoggedIn ? (
                         <>
