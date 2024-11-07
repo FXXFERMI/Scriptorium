@@ -9,8 +9,13 @@ const Navbar = () => {
     const router = useRouter();
 
     useEffect(() => {
-        const token = Cookies.get('accessToken');
-        setIsLoggedIn(!!token);
+        const checkAuth = () => {
+            const token = Cookies.get('accessToken');
+            setIsLoggedIn(!!token);
+        };
+
+        checkAuth(); // Initial check on mount
+
     }, []);
 
     const handleLogout = async () => {
