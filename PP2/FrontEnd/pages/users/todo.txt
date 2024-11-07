@@ -1,0 +1,2 @@
+connection with blogs and code templates
+To show personal blogs and code templates to the user.

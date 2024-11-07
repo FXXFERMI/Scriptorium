@@ -1,0 +1,6 @@
+Joyce
+general code templates show page
+
+- individual card for each code template: [component]
+    - click into the card to view the code template
+    - execution button to run the code template
