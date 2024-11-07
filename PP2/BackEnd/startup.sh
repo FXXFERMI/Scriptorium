@@ -27,17 +27,17 @@ ALLOWED_ORIGINS=https://black-sky-0d553331e.5.azurestaticapps.net,http://localho
 EOL
 
 # Reset the database
-echo "Resetting the database..."
-npx prisma migrate reset --force --skip-seed
+# echo "Resetting the database..."
+# npx prisma migrate reset --force --skip-seed
 
-# Run database migrations
-echo "Running database migrations..."
-npx prisma generate
-npx prisma migrate dev --name init
-# npx prisma migrate deploy
+# # Run database migrations
+# echo "Running database migrations..."
+# npx prisma generate
+# npx prisma migrate dev --name init
+# # npx prisma migrate deploy
 
-# Seed the database with an initial admin user test
-echo "Creating initial admin user..."
-node seedAdmin.js
+# # Seed the database with an initial admin user test
+# echo "Creating initial admin user..."
+# node seedAdmin.js
 
-echo "Setup complete. Use the email 'admin@example.com' and password 'securePassword123' to log in as an admin."
+echo "Setup complete."

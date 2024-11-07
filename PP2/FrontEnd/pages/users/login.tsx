@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import Navbar from '../../components/Navbar';
 
 const Login = () => {
   const [username, setUsername] = useState<string>('');
@@ -31,6 +32,7 @@ const Login = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <Navbar />
       <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">

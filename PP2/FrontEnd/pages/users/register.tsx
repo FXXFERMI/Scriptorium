@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import Navbar from '../../components/Navbar';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -58,6 +59,7 @@ const Register = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <Navbar />
       <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
       {success && <p className="text-green-500 text-center mb-4">{success}</p>}
