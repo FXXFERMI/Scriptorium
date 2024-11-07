@@ -1,5 +1,3 @@
-// THIS CODE IS BASED ON CHAT GPT AND NOT OUR ORIGINAL THOUGHTS 
-
 import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -14,18 +12,18 @@ const Register = () => {
     password: '',
     confirmPassword: '',
   });
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
 
   // Handle input changes
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Password confirmation check
@@ -52,82 +50,89 @@ const Register = () => {
       setTimeout(() => {
         router.push('/users/login');
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration failed:", error);
       setError(error.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div>
-      <h1>Register</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-      <form onSubmit={handleSubmit}>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {success && <p className="text-green-500 text-center mb-4">{success}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label>First Name:</label>
+          <label className="block font-medium mb-1">First Name:</label>
           <input
             type="text"
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
         <div>
-          <label>Last Name:</label>
+          <label className="block font-medium mb-1">Last Name:</label>
           <input
             type="text"
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
         <div>
-          <label>Username:</label>
+          <label className="block font-medium mb-1">Username:</label>
           <input
             type="text"
             name="username"
             value={formData.username}
             onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
         <div>
-          <label>Email:</label>
+          <label className="block font-medium mb-1">Email:</label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
         <div>
-          <label>Phone Number:</label>
+          <label className="block font-medium mb-1">Phone Number:</label>
           <input
             type="tel"
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
         <div>
-          <label>Password:</label>
+          <label className="block font-medium mb-1">Password:</label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
         <div>
-          <label>Confirm Password:</label>
+          <label className="block font-medium mb-1">Confirm Password:</label>
           <input
             type="password"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
+            className="w-full p-2 border rounded-md"
           />
         </div>
-        <button type="submit">Register</button>
+        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Register</button>
       </form>
     </div>
   );

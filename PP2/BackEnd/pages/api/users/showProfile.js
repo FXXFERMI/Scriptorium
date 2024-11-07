@@ -44,12 +44,13 @@ export default async function handler(req, res) {
 
     // Determine the full URL for the avatar
     const avatarUrl = profile.avatar.startsWith('/uploads/')
-      ? `${process.env.BASE_URL}/api/uploads${profile.avatar.replace('/uploads', '')}`
+      ? `${process.env.BASE_URL}${profile.avatar}`
       : profile.avatar;
 
+    // console.log("show backend changes:", profile);
     res.status(200).json({
       ...profile,
-      avatarUrl, // Send the complete avatar URL
+      avatarUrl,
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching profile' });
