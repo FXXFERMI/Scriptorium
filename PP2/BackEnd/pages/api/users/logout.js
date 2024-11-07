@@ -1,4 +1,5 @@
-import cookie from 'cookie';
+// import cookie from 'cookie';
+const cookie = require('cookie');
 import applyCors from '../../../utils/cors';
 
 export default async function handler(req, res) {
@@ -11,9 +12,11 @@ export default async function handler(req, res) {
 
   try {
     // Clear the access token and refresh token cookies by setting them with a maxAge of -1
+    // console.log('Clearing access and refresh tokens');
+    console.log('Cookie:', cookie);
     res.setHeader('Set-Cookie', [
       cookie.serialize('accessToken', '', {
-        httpOnly: true,
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         path: '/',
         maxAge: -1, // Expire the cookie immediately
@@ -30,6 +33,6 @@ export default async function handler(req, res) {
     res.status(200).json({ message: 'User logged out successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error logging out user' });
+    res.status(500).json({ message: 'Error logging out user', errorMessage: error.message });
   }
 }
