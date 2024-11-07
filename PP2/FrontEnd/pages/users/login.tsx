@@ -21,7 +21,8 @@ const Login = () => {
       Cookies.set('accessToken', response.data.accessToken, { path: '/' });
       
       // Redirect to profile page after successful login
-      router.push('/users/profile');
+      // router.push('/users/profile');
+      router.push('/');
     } catch (error: any) {
       console.error("Login failed:", error);
       setError(error.response?.data?.message || "Login failed");

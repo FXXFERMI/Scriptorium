@@ -12,6 +12,12 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      backgroundImage: {
+        'rainbow-text': 'linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red)',
+      },
+      backgroundClip: {
+        text: 'text',
+      },
     },
   },
   plugins: [],
