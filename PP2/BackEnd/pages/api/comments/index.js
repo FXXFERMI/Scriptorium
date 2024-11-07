@@ -1,9 +1,13 @@
 import prisma from "../../../utils/prisma";
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
+import applyCors from '../../../utils/cors';
 
 
 export default async function handler(req, res) {
+    // Apply CORS
+    await applyCors(req, res);
+    
     if (req.method === 'POST') {
         const { bid, content } = req.body;
         // Validate required fields
@@ -74,28 +78,28 @@ export default async function handler(req, res) {
 
         let token = null;
         if (req.headers.cookie) {
-        const cookies = cookie.parse(req.headers.cookie);
-        token = cookies.accessToken;
+            const cookies = cookie.parse(req.headers.cookie);
+            token = cookies.accessToken;
         }
 
         let user;
         try {
-        if (token) {
-            user = verifyAccessToken(token);
-        }
+            if (token) {
+                user = verifyAccessToken(token);
+            }
         } catch (error) {
-        user = null; // Visitor
+            user = null; // Visitor
         }
 
         // Set visibility filters based on user role
         if (user && user.role === "USER") {
-        filters.OR = [
-            { Hidden: false },
-            { uid: user.uid }, // Show all comments created by the user, including hidden ones
-        ];
+            filters.OR = [
+                { Hidden: false },
+                { uid: user.uid }, // Show all comments created by the user, including hidden ones
+            ];
         } else {
-        // For visitors, show only unhidden comments
-        filters.Hidden = false;
+            // For visitors, show only unhidden comments
+            filters.Hidden = false;
         }
 
         try {

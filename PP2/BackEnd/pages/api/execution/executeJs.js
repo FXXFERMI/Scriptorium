@@ -2,6 +2,8 @@ import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+// import applyCors from '../../../utils/cors';
+
 
 
 // THIS CODE IS INFLUECED BY CODE GENERATED FROM CHAT GPT PROMPS SUCH AS CHILD PROCESS LOGIC AND HOW TO CREATE TEMP FOLDERS

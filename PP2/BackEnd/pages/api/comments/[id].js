@@ -1,9 +1,14 @@
 import prisma from "../../../utils/prisma";
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
+import applyCors from '../../../utils/cors';
+
 
 
 export default async function handler(req, res) {
+    // Apply CORS
+    await applyCors(req, res);
+    
     const { id } = req.query;
 
     if (req.method === 'PUT') {

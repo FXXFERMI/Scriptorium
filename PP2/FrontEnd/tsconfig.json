@@ -21,7 +21,7 @@
     "FrontEnd/next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "next.config.js"  ],
   "exclude": [
     "BackEnd/node_modules"
   ]

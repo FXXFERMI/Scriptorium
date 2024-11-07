@@ -1,18 +1,20 @@
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
-
 import prisma from '../../../utils/prisma';
+import path from 'path';
+import applyCors from '../../../utils/cors';
 
 export default async function handler(req, res) {
+    // Apply CORS
+    await applyCors(req, res);
+
     if (req.method !== 'PUT') {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
-    // const token = req.headers.authorization?.split(' ')[1];
     const cookies = cookie.parse(req.headers.cookie || '');
     const token = cookies.accessToken;
 
-    console.log("token: ", token);
     if (!token) {
         return res.status(401).json({ message: 'Authentication token is required' });
     }
@@ -27,10 +29,13 @@ export default async function handler(req, res) {
     const uid = user.uid;
     const { avatar } = req.body;
 
-    // Validate avatar URL
+    // Validate that an avatar filename was provided
     if (!avatar) {
-        return res.status(400).json({ message: 'Avatar URL is required' });
+        return res.status(400).json({ message: 'Avatar filename is required' });
     }
+
+    // Construct the avatar URL
+    const avatarUrl = `/avatars/${avatar}`;
 
     try {
         // Check if the profile exists for the given `uid`
@@ -41,10 +46,11 @@ export default async function handler(req, res) {
         if (!existingProfile) {
             return res.status(404).json({ message: 'Profile not found' });
         }
+
         // Update the avatar in the Profile model
         const updatedProfile = await prisma.profile.update({
             where: { uid },
-            data: { avatar },
+            data: { avatar: avatarUrl }, // Store the path in the database
         });
 
         res.status(200).json({

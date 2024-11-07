@@ -1,8 +1,12 @@
 import prisma from '../../../utils/prisma';
+import applyCors from '../../../utils/cors';
 
 const bcrypt = require('bcrypt');
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }

@@ -1,9 +1,12 @@
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
-
+import applyCors from '../../../utils/cors';
 import prisma from "../../../utils/prisma";
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+
   // POST: Create a new code template
   if (req.method === "POST") {
     const { title, explanation, language, tags, code } = req.body;

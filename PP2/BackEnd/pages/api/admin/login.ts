@@ -3,8 +3,12 @@ import bcrypt from 'bcrypt';
 import prisma from '../../../utils/prisma';
 import { generateAccessToken, generateRefreshToken } from '../../../utils/jwt';
 import cookie from 'cookie';
+import applyCors from '../../../utils/cors';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
+  // Apply CORS
+  await applyCors(req, res);
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }

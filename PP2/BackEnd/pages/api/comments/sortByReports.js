@@ -1,12 +1,18 @@
 import prisma from "../../../utils/prisma";
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
+import applyCors from '../../../utils/cors';
+
 
 export default async function handler(req, res) {
+
+    // Apply CORS
+    await applyCors(req, res);
+    
     if (req.method !== 'GET') {
         res.status(405).json({ error: "Method not allowed" });
     }
-        
+
     const { bid, uid, commentId, page = 1, limit = 10 } = req.query;
 
     const filters = {};
@@ -25,7 +31,7 @@ export default async function handler(req, res) {
     const cookies = cookie.parse(req.headers.cookie || '');
     const token = cookies.accessToken;
     if (!token) {
-      return res.status(401).json({ error: 'Authentication token is required' });
+        return res.status(401).json({ error: 'Authentication token is required' });
     }
 
     // Verify the access token and decode the user info
@@ -34,7 +40,7 @@ export default async function handler(req, res) {
 
     // Check if the user has the ADMIN role
     if (role !== 'ADMIN') {
-      return res.status(403).json({ error: 'Forbidden: Only admins can hide content' });
+        return res.status(403).json({ error: 'Forbidden: Only admins can hide content' });
     }
 
     try {
@@ -65,5 +71,5 @@ export default async function handler(req, res) {
     } catch (error) {
         res.status(500).json({ error: "Something went wrong." });
     }
-    
+
 }

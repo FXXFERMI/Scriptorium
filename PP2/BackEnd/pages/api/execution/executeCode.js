@@ -3,6 +3,8 @@ import executeCppCode from "./executeCpp";
 import executeJavaCode from "./executeJava";
 import executeJavaScriptCode from "./executeJs";
 import executePythonCode from "./executePython";
+// import applyCors from '../../../utils/cors';
+
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

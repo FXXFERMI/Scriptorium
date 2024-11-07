@@ -1,14 +1,19 @@
 import prisma from "../../../utils/prisma";
+import applyCors from '../../../utils/cors';
+
 
 export default async function handler(req, res) {
-    if(req.method === 'GET'){
-        const { commentId, page = 1, limit = 10} = req.query;
+    // Apply CORS
+    await applyCors(req, res);
 
-        if (!commentId){
+    if (req.method === 'GET') {
+        const { commentId, page = 1, limit = 10 } = req.query;
+
+        if (!commentId) {
             res.status(405).json({ error: "Please provide commentId" });
         }
 
-        try{
+        try {
 
             const pageNumber = Number(page) > 0 ? Number(page) : 1;
             const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
@@ -16,7 +21,7 @@ export default async function handler(req, res) {
             const replies = await prisma.reply.findMany({
                 where: { commentId: Number(commentId) },
                 include: {
-                ratings: true,
+                    ratings: true,
                 },
             });
 
@@ -34,7 +39,7 @@ export default async function handler(req, res) {
 
             const finalFilterdList = filteredReplies.sort((a, b) => b.score - a.score);
 
-            const repliesByPage = finalFilterdList.slice((pageNumber -1)*itemsPerPage, pageNumber*itemsPerPage);
+            const repliesByPage = finalFilterdList.slice((pageNumber - 1) * itemsPerPage, pageNumber * itemsPerPage);
 
             return res.status(200).json(repliesByPage);
 

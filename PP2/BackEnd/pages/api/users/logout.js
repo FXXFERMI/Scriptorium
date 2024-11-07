@@ -1,12 +1,16 @@
-const cookie = require('cookie');
+import cookie from 'cookie';
+import applyCors from '../../../utils/cors';
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
   try {
-    // Clear the refresh token cookie
+    // Clear the access token and refresh token cookies by setting them with a maxAge of -1
     res.setHeader('Set-Cookie', [
       cookie.serialize('accessToken', '', {
         httpOnly: true,
@@ -22,6 +26,7 @@ export default async function handler(req, res) {
       })
     ]);
 
+    // Send success response
     res.status(200).json({ message: 'User logged out successfully' });
   } catch (error) {
     console.error(error);

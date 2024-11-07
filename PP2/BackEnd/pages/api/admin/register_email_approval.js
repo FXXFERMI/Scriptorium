@@ -2,6 +2,8 @@ import prisma from '../../../utils/prisma';
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import applyCors from '../../../utils/cors';
+
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -12,6 +14,9 @@ const transporter = nodemailer.createTransport({
 });
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

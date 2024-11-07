@@ -1,9 +1,12 @@
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
-
+import applyCors from '../../../utils/cors';
 import prisma from "../../../utils/prisma";
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+
   if (req.method === "POST") {
     // Verify the token from the Authorization header
     // const token = req.headers.authorization?.split(" ")[1];
@@ -27,7 +30,7 @@ export default async function handler(req, res) {
     const { cid } = req.body;
 
     // Validate required fields
-    if (!cid ) {
+    if (!cid) {
       return res.status(400).json({ error: "cid is required" });
     }
 

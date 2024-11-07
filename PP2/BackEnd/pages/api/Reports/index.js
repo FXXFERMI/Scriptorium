@@ -1,9 +1,14 @@
 import prisma from "../../../utils/prisma";
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
+import applyCors from '../../../utils/cors';
+
 
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+
   if (req.method === "POST") {
     const { bid, commentId, replyId, explanation } = req.body;
 
@@ -34,12 +39,12 @@ export default async function handler(req, res) {
     try {
       if (bid && !commentId && !replyId) {
         const blog = await prisma.blog.findUnique({
-            where: { bid: Number(bid) },
-          });
-    
-          if (!blog) {
-            return res.status(404).json({ error: "Blog not found" });
-          }
+          where: { bid: Number(bid) },
+        });
+
+        if (!blog) {
+          return res.status(404).json({ error: "Blog not found" });
+        }
 
         // create a report for the provided blog
         const report = await prisma.report.create({
@@ -54,12 +59,12 @@ export default async function handler(req, res) {
         res.status(201).json(report);
       } else if (!bid && commentId && !replyId) {
         const comment = await prisma.comment.findUnique({
-            where: {commentId: Number(commentId) },
-          });
-    
-          if (!comment) {
-            return res.status(404).json({ error: "comment not found" });
-          }
+          where: { commentId: Number(commentId) },
+        });
+
+        if (!comment) {
+          return res.status(404).json({ error: "comment not found" });
+        }
         // create a report for the provided comment
         const report = await prisma.report.create({
           data: {
@@ -73,12 +78,12 @@ export default async function handler(req, res) {
         res.status(201).json(report);
       } else if (!bid && !commentId && replyId) {
         const reply = await prisma.reply.findUnique({
-            where: {replyId: Number(replyId)  },
-          });
-    
-          if (!reply) {
-            return res.status(404).json({ error: "reply not found" });
-          }
+          where: { replyId: Number(replyId) },
+        });
+
+        if (!reply) {
+          return res.status(404).json({ error: "reply not found" });
+        }
 
         // create a report for the provided reply
         const report = await prisma.report.create({

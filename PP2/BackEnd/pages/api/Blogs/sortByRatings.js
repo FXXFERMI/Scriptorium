@@ -1,19 +1,22 @@
 import prisma from "../../../utils/prisma";
+import applyCors from '../../../utils/cors';
 
 export default async function handler(req, res) {
-    
-    if(req.method === 'GET'){
+    // Apply CORS
+    await applyCors(req, res);
 
-        const { page = 1, limit = 10} = req.query;
+    if (req.method === 'GET') {
 
-        try{
+        const { page = 1, limit = 10 } = req.query;
+
+        try {
 
             const pageNumber = Number(page) > 0 ? Number(page) : 1;
             const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
 
             const blogs = await prisma.blog.findMany({
                 include: {
-                ratings: true,
+                    ratings: true,
                 },
             });
 
@@ -31,7 +34,7 @@ export default async function handler(req, res) {
 
             const finalFilterdList = filteredBlogs.sort((a, b) => b.score - a.score);
 
-            const blogsByPage = finalFilterdList.slice((pageNumber -1)*itemsPerPage, pageNumber*itemsPerPage);
+            const blogsByPage = finalFilterdList.slice((pageNumber - 1) * itemsPerPage, pageNumber * itemsPerPage);
 
             return res.status(200).json(blogsByPage);
 

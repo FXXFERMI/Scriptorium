@@ -1,9 +1,13 @@
 import prisma from '../../../utils/prisma';
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
+import applyCors from '../../../utils/cors';
 
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+
   if (req.method !== 'PUT') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }

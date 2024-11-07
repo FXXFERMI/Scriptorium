@@ -1,6 +1,11 @@
+import applyCors from '../../../utils/cors';
+
 const cookie = require('cookie');
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }

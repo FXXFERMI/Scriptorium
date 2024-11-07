@@ -6,12 +6,12 @@ import path from 'path';
 import fs from 'fs';
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
-
+import applyCors from '../../../utils/cors';
 
 // Configure multer for file storage
 const upload = multer({
   storage: multer.diskStorage({
-    destination: './public/uploads', // Save files to this directory
+    destination: path.join(process.cwd(), 'public/uploads'), // Save files to this directory
     filename: (req, file, cb) => {
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       cb(null, `${uniqueSuffix}-${file.originalname}`);
@@ -30,6 +30,9 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+  // Apply CORS
+  await applyCors(req, res);
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }

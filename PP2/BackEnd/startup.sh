@@ -22,7 +22,8 @@ JWT_SECRET_REFRESH=f20b04d1951340674043dd6f76283dd86b52338a44a524e5a7d4d5c72650c
 EMAIL_USER=fxxfermi@gmail.com
 EMAIL_PASS=sqbs uafl ikgh vxbg
 MANAGER_EMAIL=fermi.fei@mail.utoronto.ca
-BASE_URL=http://localhost:3000
+BASE_URL=http://localhost:4000
+ALLOWED_ORIGINS=https://black-sky-0d553331e.5.azurestaticapps.net,http://localhost:3000
 EOL
 
 # Reset the database

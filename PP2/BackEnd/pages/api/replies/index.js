@@ -1,9 +1,14 @@
 import prisma from "../../../utils/prisma";
 import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
+import applyCors from '../../../utils/cors';
+
 
 
 export default async function handler(req, res) {
+    // Apply CORS
+    await applyCors(req, res);
+
     if (req.method === 'POST') {
         const { commentId, content } = req.body;
 
@@ -62,17 +67,17 @@ export default async function handler(req, res) {
 
         let token = null;
         if (req.headers.cookie) {
-        const cookies = cookie.parse(req.headers.cookie);
-        token = cookies.accessToken;
+            const cookies = cookie.parse(req.headers.cookie);
+            token = cookies.accessToken;
         }
 
         let user;
         try {
-        if (token) {
-            user = verifyAccessToken(token);
-        }
+            if (token) {
+                user = verifyAccessToken(token);
+            }
         } catch (error) {
-        user = null; // Visitor
+            user = null; // Visitor
         }
 
         // Set visibility filters based on user role
