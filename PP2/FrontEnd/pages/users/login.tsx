@@ -11,7 +11,6 @@ const Login = () => {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
@@ -32,7 +31,7 @@ const Login = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <Navbar />
+      < Navbar/>
       <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import Navbar from '../../components/Navbar';
+import  from '../../components/';
 
 const availableAvatars = [
     '/avatars/avatar1.png',
@@ -175,7 +175,7 @@ const Profile = () => {
 
     return (
         <div className="max-w-3xl mx-auto p-4 bg-white rounded-lg shadow-md" >
-            <Navbar />
+            < />
             <h1 className="text-2xl font-bold mb-4 text-center" > {profile.firstName} {profile.lastName} </h1>
             < div className="flex flex-col items-center mb-6" >
                 {/* <img src={profile.avatar} alt="Avatar" width={100} height={100} key={profile.avatar} /> */}

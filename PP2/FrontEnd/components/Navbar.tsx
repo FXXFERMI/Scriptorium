@@ -59,6 +59,9 @@ const Navbar = () => {
                             <Link href="/users/register" className="bg-rainbow-text text-transparent bg-clip-text">
                                 Register
                             </Link>
+                            <Link href="/execution/codeExecution" className="bg-rainbow-text text-transparent bg-clip-text">
+                                code Execution
+                            </Link>
                         </>
                     )}
                 </div>
