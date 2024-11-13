@@ -118,7 +118,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 where: filters,
                 skip: skip,
                 take: itemsPerPage,
-                include: { user: true, ratings: true, replies: true },
+                include: { user: {
+                    include: {
+                        profile: {
+                            select: {
+                                avatar: true, // Select the avatar URL
+                            },
+                        }, 
+                        ratings: {
+                            select: {
+                                upvote: true,
+                                downvote: true
+                            },
+                        },
+                    }, 
+                },
+                ratings: true, replies: {take: 1, include: {
+                    replier: {
+                        include: {
+                            profile: {
+                                select: {
+                                    avatar: true, // Select the avatar URL
+                                },
+                            }, 
+                            ratings: {
+                                select: {
+                                    upvote: true,
+                                    downvote: true
+                                },
+                            },
+                        }, 
+                    },
+                }} },
                 orderBy: { commentId: 'desc' },
             });
 
@@ -126,8 +157,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 where: filters,
             });
 
+            // Calculate upvotes and downvotes for each comment
+            const commentsWithVotes = comments.map(comment => {
+                const upvotes = comment.ratings.filter(rating => rating.upvote === true).length;
+                const downvotes = comment.ratings.filter(rating => rating.downvote === true).length;
+                return {
+                    ...comment,
+                    upvotes,
+                    downvotes,
+                };
+            });
+
             res.status(200).json({
-                comments,
+                comments: commentsWithVotes,
                 totalComments,
                 currentPage: pageNumber,
                 totalPages: Math.ceil(totalComments / itemsPerPage),

@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { useRouter } from 'next/router';
-import Navbar from '../../components/Navbar';
+import { useState } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
+import Navbar from "../../components/Navbar";
 
 const Login = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -17,13 +17,14 @@ const Login = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
         { username, password }
       );
-      
+
       // Set the access token in cookies
-      Cookies.set('accessToken', response.data.accessToken, { path: '/' });
-      
+      Cookies.set("accessToken", response.data.accessToken, { path: "/" });
+
       // Redirect to profile page after successful login
       // router.push('/users/profile');
-      router.push('/');
+      const returnUrl = (router.query.returnUrl as string) || "/";
+      router.push(returnUrl); // Redirect to the original URL or home page
     } catch (error: any) {
       console.error("Login failed:", error);
       setError(error.response?.data?.message || "Login failed");
@@ -54,7 +55,12 @@ const Login = () => {
             className="w-full p-2 border rounded-md"
           />
         </div>
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Login</button>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+        >
+          Login
+        </button>
       </form>
     </div>
   );

@@ -97,9 +97,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else if (req.method === "GET") {
     try {
       const blog = await prisma.blog.findUnique({
-        where: { bid: Number(id) },
+        where: { bid: Number(id)}, include: {
+          user: {
+            include: {
+                profile: {
+                    select: {
+                        avatar: true, // Select the avatar URL
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+            }, 
+          },
+        },
       });
-      return res.status(200).json(blog);
+
+      // Count upvotes and downvotes
+    const upvoteCount = await prisma.rating.count({
+      where: {
+        bid: Number(id),
+        upvote: true,
+      },
+    });
+
+    const downvoteCount = await prisma.rating.count({
+      where: {
+        bid: Number(id),
+        downvote: true,
+      },
+    });
+
+    // Attach upvote and downvote counts to the blog response
+    const blogWithVoteCounts = {
+      ...blog,
+      upvotes: upvoteCount,
+      downvotes: downvoteCount,
+    };
+
+      return res.status(200).json(blogWithVoteCounts);
     } catch (error) {
       return res.status(500).json({ error: "Something went wrong." });
     }

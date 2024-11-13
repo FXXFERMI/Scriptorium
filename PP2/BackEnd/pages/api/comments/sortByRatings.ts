@@ -21,9 +21,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const comments = await prisma.comment.findMany({
                 where: { bid: parseInt(bid) },
-                include: {
-                    ratings: true,
+                include: { user: {
+                    include: {
+                        profile: {
+                            select: {
+                                avatar: true, // Select the avatar URL
+                            },
+                        }, 
+                        ratings: {
+                            select: {
+                                upvote: true,
+                                downvote: true
+                            },
+                        },
+                    }, 
                 },
+                ratings: true, replies: true },
             });
 
             const filteredComments = comments.map((comment) => {
@@ -35,6 +48,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return {
                     ...comment,
                     score,
+                    upvotes,
+                    downvotes,
                 };
             })
 

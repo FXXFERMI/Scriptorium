@@ -183,6 +183,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }))
           }),
         },
+        include: {
+          user: {
+            include: {
+                profile: {
+                    select: {
+                        avatar: true, // Select the avatar URL
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+            }, 
+          },
+        },
         skip: skip,
         take: itemsPerPage,
       });
