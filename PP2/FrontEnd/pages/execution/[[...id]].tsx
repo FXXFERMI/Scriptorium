@@ -8,6 +8,7 @@ import { vscodeDark, vscodeLight } from '@uiw/codemirror-theme-vscode';
 import { EditorView } from '@codemirror/view'; 
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
+import { cookies } from "next/headers";
 //https://www.tailwindtoolbox.com/icons
 // if language changes -> create a new template redirect to execucation page with new id 
 // if signed out user tries saving give them sign up prompt then show promp for saving stuff
@@ -20,8 +21,8 @@ import { useRouter } from 'next/router';
 
 const CodeExecution: React.FC = () => {
     const [code, setCode] = useState<string>("");
-    const [language, setLanguage] = useState<string>("");
-    const [stdinInput, setStdinInput] = useState<string>("1\n2"); 
+    const [language, setLanguage] = useState<string>("Python");
+    const [stdinInput, setStdinInput] = useState<string>(""); 
     const [output, setOutput] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [fileName, setFileName] = useState<string>("");
@@ -128,22 +129,25 @@ const CodeExecution: React.FC = () => {
         }}, { dark: false });
 
     const execute = async (): Promise<void> => {
+        console.log("dsfjdfj",language)
         try {
             language.toLocaleLowerCase() === 'java' && boilerPlate();
             setLoading(true)
             fixInput(code)
+           
+            console.log(code, stdinInput, language)
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/execution/executeCode`,
                 { code, stdinInput, language }
             );
-           
+            
             response.data.output.stderr.length > 1 ? setOutput(response.data.output.stderr) :
             setOutput(response.data.output.stdout);
 
 
         } catch (e) {
-
-            setOutput(e.response.data)
+            console.log(e.response)
+            setOutput(e.response)
             
         } finally{
             setLoading(false)
@@ -193,6 +197,24 @@ const CodeExecution: React.FC = () => {
                 console.log('Updated successfully:', response.data);
             }
             else{
+                console.log(IsLoggedIn)
+                try {
+                    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/`, {updateData}, 
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            withCredentials: true,
+                        });
+              
+                    // Handle successful creation
+                    console.log("Template created:", response.data);
+                    alert("Template created successfully!");
+                  } catch (error) {
+                    console.error("Error creating template:", error.response?.data || error.message);
+                    alert("Error creating template.");
+                  }
 
             }
         
