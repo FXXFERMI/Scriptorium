@@ -42,3 +42,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+node_modules/
+.next/cache/
+.next/server/
+.next/static/
+out/
+.now/
+.now.json
+.now/cache/
+.now/store/
+.now/sessions/
+.now/bridge/
+.now/state.json
+.now/logs/
+.now/routes.json
