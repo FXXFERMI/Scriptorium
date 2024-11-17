@@ -30,11 +30,11 @@ export async function executeCppCode(code: string, stdinInput: string) {
     const executablePath = path.join(folderPath, 'program');
 
     // Compile the C++ code using g++
-    exec(`g++ ${filePath} -o ${executablePath}`, (compileErr) => {
+    exec(`g++ ${filePath} -o ${executablePath}`, (compileErr, compileStdout, compileStderr) => {
       if (compileErr) {
         // Cleanup on compilation failure
         fs.rmSync(folderPath, { recursive: true, force: true });
-        return resolve({error: `Compilation Error: ${compileErr.message}`});
+        return resolve({ error: `Compilation Error: ${compileErr.message}`, stdout: compileStdout, stderr: compileStderr });
       }
 
       // Run the compiled binary
@@ -47,14 +47,16 @@ export async function executeCppCode(code: string, stdinInput: string) {
 
           if (runErr) {
             if (runErr.killed) {
-              return resolve(
-                {error: 'Process timed out. Please optimize your code.'}
-              );
+              return resolve({
+                error: 'Process timed out. Please optimize your code.',
+                stdout,
+                stderr
+              });
             }
-            return resolve({error: stderr || runErr.message});
+            return resolve({ error: stderr || runErr.message, stdout, stderr });
           }
 
-          resolve(stdout);
+          resolve({ stdout, stderr });
         }
       );
 

@@ -197,23 +197,17 @@ const CodeExecution: React.FC = () => {
                 console.log('Updated successfully:', response.data);
             }
             else{
-                console.log(IsLoggedIn)
+                console.log(IsLoggedIn, updateData)
                 try {
-                    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/`, {updateData}, 
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                            },
-                            withCredentials: true,
-                        });
-              
+                    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/`, updateData);
+                      
+                    return 
                     // Handle successful creation
                     console.log("Template created:", response.data);
                     alert("Template created successfully!");
                   } catch (error) {
                     console.error("Error creating template:", error.response?.data || error.message);
-                    alert("Error creating template.");
+                    alert(error.response?.data || error.message);
                   }
 
             }
