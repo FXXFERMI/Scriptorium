@@ -1,0 +1,100 @@
+import PromiseQueue from 'next/dist/compiled/p-queue';
+import { InvariantError } from '../../shared/lib/invariant-error';
+import { isThenable } from '../../shared/lib/is-thenable';
+import { workAsyncStorage } from '../app-render/work-async-storage.external';
+import { withExecuteRevalidates } from './revalidation-utils';
+import { bindSnapshot } from '../app-render/async-local-storage';
+import { workUnitAsyncStorage } from '../app-render/work-unit-async-storage.external';
+export class AfterContext {
+    constructor({ waitUntil, onClose, onTaskError }){
+        this.workUnitStores = new Set();
+        this.waitUntil = waitUntil;
+        this.onClose = onClose;
+        this.onTaskError = onTaskError;
+        this.callbackQueue = new PromiseQueue();
+        this.callbackQueue.pause();
+    }
+    after(task) {
+        if (isThenable(task)) {
+            if (!this.waitUntil) {
+                errorWaitUntilNotAvailable();
+            }
+            this.waitUntil(task.catch((error)=>this.reportTaskError(error)));
+        } else if (typeof task === 'function') {
+            // TODO(after): implement tracing
+            this.addCallback(task);
+        } else {
+            throw new Error('`unstable_after()`: Argument must be a promise or a function');
+        }
+    }
+    addCallback(callback) {
+        // if something is wrong, throw synchronously, bubbling up to the `unstable_after` callsite.
+        if (!this.waitUntil) {
+            errorWaitUntilNotAvailable();
+        }
+        if (!this.onClose) {
+            throw new InvariantError('unstable_after: Missing `onClose` implementation');
+        }
+        const workUnitStore = workUnitAsyncStorage.getStore();
+        if (!workUnitStore) {
+            throw new InvariantError('Missing workUnitStore in AfterContext.addCallback');
+        }
+        this.workUnitStores.add(workUnitStore);
+        // this should only happen once.
+        if (!this.runCallbacksOnClosePromise) {
+            this.runCallbacksOnClosePromise = this.runCallbacksOnClose();
+            this.waitUntil(this.runCallbacksOnClosePromise);
+        }
+        // Bind the callback to the current execution context (i.e. preserve all currently available ALS-es).
+        // We do this because we want all of these to be equivalent in every regard except timing:
+        //   after(() => x())
+        //   after(x())
+        //   await x()
+        const wrappedCallback = bindSnapshot(async ()=>{
+            try {
+                await callback();
+            } catch (error) {
+                this.reportTaskError(error);
+            }
+        });
+        this.callbackQueue.add(wrappedCallback);
+    }
+    async runCallbacksOnClose() {
+        await new Promise((resolve)=>this.onClose(resolve));
+        return this.runCallbacks();
+    }
+    async runCallbacks() {
+        if (this.callbackQueue.size === 0) return;
+        for (const workUnitStore of this.workUnitStores){
+            workUnitStore.phase = 'after';
+        }
+        const workStore = workAsyncStorage.getStore();
+        if (!workStore) {
+            throw new InvariantError('Missing workStore in AfterContext.runCallbacks');
+        }
+        return withExecuteRevalidates(workStore, ()=>{
+            this.callbackQueue.start();
+            return this.callbackQueue.onIdle();
+        });
+    }
+    reportTaskError(error) {
+        // TODO(after): this is fine for now, but will need better intergration with our error reporting.
+        // TODO(after): should we log this if we have a onTaskError callback?
+        console.error('An error occurred in a function passed to `unstable_after()`:', error);
+        if (this.onTaskError) {
+            // this is very defensive, but we really don't want anything to blow up in an error handler
+            try {
+                this.onTaskError == null ? void 0 : this.onTaskError.call(this, error);
+            } catch (handlerError) {
+                console.error(new InvariantError('`onTaskError` threw while handling an error thrown from an `unstable_after` task', {
+                    cause: handlerError
+                }));
+            }
+        }
+    }
+}
+function errorWaitUntilNotAvailable() {
+    throw new Error('`unstable_after()` will not work correctly, because `waitUntil` is not available in the current environment.');
+}
+
+//# sourceMappingURL=after-context.js.map
