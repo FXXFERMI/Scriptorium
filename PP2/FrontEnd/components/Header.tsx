@@ -1,17 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from 'next/link';
-// import Cookies from 'js-cookie';
+import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 // import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import ModalLogin from './ModalLogin';
+import api from '../utils/axiosInstance';
+// import ModalLogin from './ModalLogin';
 
 const Header: React.FC = () => {
     const [navbarOpen, setNavbarOpen] = useState(false);
-    const [loginModalOpen, setLoginModalOpen] = useState(false);
-    const { isLoggedIn, logout } = useAuth();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    // const [loginModalOpen, setLoginModalOpen] = useState(false);
     // const [isClient, setIsClient] = useState(false);
     const router = useRouter();
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [loginError, setLoginError] = useState<string | null>(null);
+    const { isLoggedIn, logout, login } = useAuth();
 
     // console.log("login", isLoggedIn);
     // useEffect(() => {
@@ -38,13 +42,35 @@ const Header: React.FC = () => {
     //     router.push('/');
     // };
 
-    const openLoginModal = () => {
-        setLoginModalOpen(true);
+    // const openLoginModal = () => {
+    //     setLoginModalOpen(true);
+    // };
+
+    // const closeLoginModal = () => {
+    //     setLoginModalOpen(false);
+    // };
+
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
+        setLoginError(null);
     };
 
-    const closeLoginModal = () => {
-        setLoginModalOpen(false);
+    const handleClickOutside = (event: MouseEvent) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+            setDropdownOpen(false);
+        }
     };
+
+    useEffect(() => {
+        if (dropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [dropdownOpen]);
 
     return (
         <header className="fixed top-0 w-full clearNav z-50">
@@ -131,10 +157,68 @@ const Header: React.FC = () => {
                                             Login
                                         </a>
                                     </Link> */}
-                                    <button onClick={openLoginModal} className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                                    <button onClick={toggleDropdown} className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
                                         Login
                                     </button>
+                                    {dropdownOpen && (
+                                        <div ref={dropdownRef} className="absolute right-1/3 transform translate-x-1/2 mt-6 w-64 p-4 bg-white shadow-lg z-50">
+                                            <form
+                                                onSubmit={async (e) => {
+                                                    e.preventDefault();
+                                                    const form = e.target as HTMLFormElement;
 
+                                                    const username = (form.elements.namedItem('username') as HTMLInputElement).value;
+                                                    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+
+                                                    try {
+                                                        const response = await api.post(
+                                                            `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
+                                                            { username, password },
+                                                            { withCredentials: true }
+                                                        );
+                                                        Cookies.set('accessToken', response.data.accessToken, { path: '/' });
+                                                        login();
+                                                        setDropdownOpen(false);
+                                                        router.push('/');
+                                                    } catch (error: any) {
+                                                        // console.error("Login failed:", error);
+                                                        setLoginError(error.response?.data?.message || "Login failed");
+                                                    }
+                                                }}
+                                                className="flex flex-col items-center" // Ensure the form content is centered
+                                            >
+                                                {loginError && (
+                                                    <div className="mb-4 w-full text-center text-red-500 font-semibold">
+                                                        {loginError}
+                                                    </div>
+                                                )}
+                                                <div className="mb-4 w-full">
+                                                    <label className="block text-gray-700 font-semibold mb-2">Username:</label>
+                                                    <input
+                                                        type="text"
+                                                        name="username"
+                                                        className="w-full p-2 border rounded-md"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className="mb-4 w-full">
+                                                    <label className="block text-gray-700 font-semibold mb-2">Password:</label>
+                                                    <input
+                                                        type="password"
+                                                        name="password"
+                                                        className="w-full p-2 border rounded-md"
+                                                        required
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    className="inline-flex items-center justify-center py-3 px-14 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-gradient-to-r from-blue-500 to-blue-800 text-md focus:shadow-outline hover:from-blue-600 hover:to-blue-900 mt-4"
+                                                >
+                                                    Login
+                                                </button>
+                                            </form>
+                                        </div>
+                                    )}
                                     <Link href="/users/register" className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
                                         Register
                                     </Link>
@@ -144,7 +228,7 @@ const Header: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <ModalLogin isOpen={loginModalOpen} onClose={closeLoginModal} />
+            {/* <ModalLogin isOpen={loginModalOpen} onClose={closeLoginModal} /> */}
         </header>
     );
 };
