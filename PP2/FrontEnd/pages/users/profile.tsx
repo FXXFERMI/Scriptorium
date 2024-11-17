@@ -1,19 +1,10 @@
 import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
 import Cookies from 'js-cookie';
 import Header from '../../components/Header';
 import Head from "next/head";
 import Footer from "../../components/Footer";
 import { NextSeo } from "next-seo";
-// import { FC } from "react";
 import api from '../../utils/axiosInstance';
-// import { useAuth } from '../../contexts/AuthContext';
-// import createApiInstance from '../../utils/axiosInstance';
-// import { NextPage } from 'next';
-// import dynamic from 'next/dynamic';
-
-// const Header = dynamic(() => import('../../components/Header'), { ssr: false });
-
 
 const availableAvatars = [
     '/avatars/avatar1.png',
@@ -44,22 +35,11 @@ const Profile = () => {
     const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState<string>('');
     const [refreshKey, setRefreshKey] = useState<number>(0);
 
-    // const authContext = useAuth();
-    // const api = createApiInstance(authContext);
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const token = Cookies.get('accessToken');
-                // if (!token) {
-                //     console.error("Access token is missing");
-                //     return;
-                // }
-
-                // const response = await axios.get(
-                //     `${process.env.NEXT_PUBLIC_API_URL}/api/users/showProfile`,
-                //     { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
-                // );
                 const response = await api.get('/api/users/showProfile');
 
                 setProfile(response.data);

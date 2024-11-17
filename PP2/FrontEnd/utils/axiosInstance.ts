@@ -1,9 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-// import { useAuth } from '../contexts/AuthContext';
-// import { AuthContextType } from '../contexts/AuthContext';
 
-// const createApiInstance = (authContext: AuthContextType) => {
   const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     withCredentials: true,
@@ -61,9 +58,9 @@ import Cookies from 'js-cookie';
         } catch (err) {
           // Handle refresh token expiry or failure to refresh
           console.error(err, error.response);
-          // Cookies.remove('accessToken');
-          // Cookies.remove('refreshToken');
-          // window.location.href = '/users/login'; // Redirect to login page
+          Cookies.remove('accessToken');
+          Cookies.remove('refreshToken');
+          window.location.href = '/users/login'; // Redirect to login page
         }
       }
 
