@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import { useRouter } from 'next/router';
 import Header from '../../components/Header';
+import api from '../../utils/axiosInstance';
+
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -34,7 +36,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/register`, {
+      const response = await api.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/register`, {
         username: formData.username,
         email: formData.email,
         password: formData.password,
@@ -52,8 +54,29 @@ const Register = () => {
         router.push('/users/login');
       }, 2000);
     } catch (error: any) {
-      console.error("Registration failed:", error);
-      setError(error.response?.data?.message || "Registration failed");
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            const errorMessage = error.response.data.message;
+            if (errorMessage === 'Username, email, phone number, and password are required') {
+              setError('All fields are required. Please complete all fields.');
+            } else if (errorMessage === 'Username already exists') {
+              setError('The username you entered is already in use. Please choose a different username.');
+            } else if (errorMessage === 'Email already exists') {
+              setError('The email you entered is already in use. Please use a different email address.');
+            } else {
+              setError(errorMessage);
+            }
+            break;
+          case 500:
+            setError('Internal server error. Please try again later.');
+            break;
+          default:
+            setError('An unexpected error occurred. Please try again.');
+        }
+      } else {
+        setError('Network error. Please check your internet connection.');
+      }
     }
   };
 

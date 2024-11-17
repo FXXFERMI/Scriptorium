@@ -68,7 +68,4 @@ import Cookies from 'js-cookie';
     }
   );
 
-//   return api;
-// };
-// export default createApiInstance;
 export default api;

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Link from 'next/link';
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 // import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-
+import ModalLogin from './ModalLogin';
 
 const Header: React.FC = () => {
     const [navbarOpen, setNavbarOpen] = useState(false);
-    const {isLoggedIn, logout} = useAuth();
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
+    const { isLoggedIn, logout } = useAuth();
     // const [isClient, setIsClient] = useState(false);
     const router = useRouter();
 
@@ -36,6 +37,14 @@ const Header: React.FC = () => {
     //     setIsLoggedIn(false);
     //     router.push('/');
     // };
+
+    const openLoginModal = () => {
+        setLoginModalOpen(true);
+    };
+
+    const closeLoginModal = () => {
+        setLoginModalOpen(false);
+    };
 
     return (
         <header className="fixed top-0 w-full clearNav z-50">
@@ -110,9 +119,22 @@ const Header: React.FC = () => {
                                     {/* <Link href="/" className="bg-rainbow-text text-transparent bg-clip-text">
                                         Home
                                     </Link> */}
-                                    <Link href="/users/login" className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                                    {/* <Link href="/users/login" className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
                                         Login
-                                    </Link>
+                                    </Link> */}
+                                    {/* <Link href="/users/login" legacyBehavior>
+                                        <a
+                                            className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Login
+                                        </a>
+                                    </Link> */}
+                                    <button onClick={openLoginModal} className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                                        Login
+                                    </button>
+
                                     <Link href="/users/register" className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
                                         Register
                                     </Link>
@@ -122,6 +144,7 @@ const Header: React.FC = () => {
                     </div>
                 </div>
             </div>
+            <ModalLogin isOpen={loginModalOpen} onClose={closeLoginModal} />
         </header>
     );
 };

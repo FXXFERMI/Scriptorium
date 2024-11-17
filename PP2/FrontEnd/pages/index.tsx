@@ -78,7 +78,7 @@ const Home: FC = () => {
             controls
             autoPlay
             loop
-            // muted
+            muted
             playsInline
           >
             Your browser does not support the video tag.
