@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         'custom-dark-blue': '#0A0A1E',
+        'custom-gray': '#D2D4D6',
         background: "var(--background)",
         foreground: "var(--foreground)",
       },

@@ -47,9 +47,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         maxAge: 7 * 24 * 60 * 60, // 7 days for refresh token
       })
     ]);
-
+  
     res.status(200).json({ message: 'Login successful', accessToken, refreshToken });
   } catch (error) {
+
+
     res.status(500).json({ message: 'Internal server error' });
   }
 }
