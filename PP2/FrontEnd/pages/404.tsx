@@ -8,7 +8,7 @@ const Contact: FC = () => {
   return (
     <div className="text-black bg-black">
       <NextSeo
-        title="404: nine4"
+        title="404: Scriptorium"
         description="404 page for all our missing pages"
         canonical="https://nine4-3.vercel.app/404"
         openGraph={{
@@ -16,8 +16,8 @@ const Contact: FC = () => {
         }}
       />
       <Head>
-        <title>nine4</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>SFJ Scriptorium</title>
+        <link rel="icon" href="/favicon.png" />
       </Head>
       <Header />
       <div className="flex flex-col justify-center mx-auto mt-52 text-center max-w-2x1">

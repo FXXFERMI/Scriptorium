@@ -1,4 +1,5 @@
 import { FC } from "react";
+// import Link from 'next/link';
 
 const Footer: FC = () => {
   return (
@@ -142,7 +143,7 @@ const Footer: FC = () => {
           <ul className="flex flex-col space-y-2 lg:mb-0 sm:space-y-0 sm:space-x-5 sm:flex-row">
             <li>
               <a
-                href="/"
+                href="/about/contact"
                 className="text-md text-gray-200 hover:text-white transition-colors duration-300 hover:text-deep-purple-accent-400 font-semibold"
               >
                 Contact
@@ -150,7 +151,7 @@ const Footer: FC = () => {
             </li>
             <li>
               <a
-                href="/"
+                href="/about/terms-of-service"
                 className="text-md text-gray-200 hover:text-white transition-colors duration-300 hover:text-deep-purple-accent-400 font-semibold"
               >
                 Terms of Service
@@ -158,7 +159,7 @@ const Footer: FC = () => {
             </li>
             <li>
               <a
-                href="/"
+                href="/about/privacy-policy"
                 className="text-md text-gray-200 hover:text-white transition-colors duration-300 hover:text-deep-purple-accent-400 font-semibold"
               >
                 Privacy Policy
@@ -174,20 +175,20 @@ const Footer: FC = () => {
             </li> */}
             <li>
               <a
-                href="/"
+                href="/about/cookies-policy"
                 className="text-md text-gray-200 hover:text-white transition-colors duration-300 hover:text-deep-purple-accent-400 font-semibold"
               >
                 Cookie Policy
               </a>
             </li>
-            <li>
+            {/* <li>
               <a
                 href="/"
                 className="text-md text-gray-200 hover:text-white transition-colors duration-300 hover:text-deep-purple-accent-400 font-semibold"
               >
                 Partners
               </a>
-            </li>
+            </li> */}
           </ul>
           <ul className="flex flex-col mb-3 space-y-2 lg:mb-0 sm:space-y-0 sm:space-x-5 sm:flex-row">
             <a
