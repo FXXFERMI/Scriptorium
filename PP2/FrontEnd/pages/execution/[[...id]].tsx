@@ -9,15 +9,20 @@ import { EditorView } from '@codemirror/view';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import { cookies } from "next/headers";
+import { list } from "postcss";
+import { List } from "postcss/lib/list";
+import toast, { Toaster } from "react-hot-toast";
+
 //https://www.tailwindtoolbox.com/icons
 // if language changes -> create a new template redirect to execucation page with new id 
 // if signed out user tries saving give them sign up prompt then show promp for saving stuff
-// fix maintaining new line characters in output and input
 // fix stdin
 // add tags
-// add saving logic change backend to check if the user editing an existing 
+// fork 
 // handle java shit file names 
 // handle all languages on code mirror 
+// change backend to work in isolation
+// responsive 
 
 const CodeExecution: React.FC = () => {
     const [code, setCode] = useState<string>("");
@@ -26,10 +31,9 @@ const CodeExecution: React.FC = () => {
     const [output, setOutput] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [fileName, setFileName] = useState<string>("");
-    const[explanation, setExplanation] = useState<string>("");
-    const[tags, setTags] = useState<string>("");
-    const[uid, setUid] = useState<number>(0);
-    const [title, setTitle] = useState<string>("");
+    const[explanation, setExplanation] = useState<string>("dsnsnfsdn");
+    const[tags, setTags] = useState<string[]>(["Python", "fngn"]);
+    const [title, setTitle] = useState<string>("ndsfnsd");
     const [IsLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [ctNameInput, setCtNameInput] = useState<boolean>(false);
     const [tempName, setTempName] = useState<string>("");
@@ -144,6 +148,7 @@ const CodeExecution: React.FC = () => {
             response.data.output.stderr.length > 1 ? setOutput(response.data.output.stderr) :
             setOutput(response.data.output.stdout);
 
+            console.log(response.data.output)
 
         } catch (e) {
             console.log(e.response)
@@ -171,43 +176,60 @@ const CodeExecution: React.FC = () => {
         const { id } = router.query; 
 
         try {
-            const updateData = {
-              title,
-              explanation,
-              language,
-              tags,
-              code
-            };
+           
             const token = Cookies.get("accessToken"); 
             if (!token) {
                 alert("Access token is missing");
                 return;
             }
+            const jsonTags = JSON.stringify(tags);  
+            const escapedJsonTags =  jsonTags.replace(/"/g, '\"');
+            const updateData = {
+                title,
+                explanation,
+                language,
+                tags: escapedJsonTags,
+                code
+              };
+
             if (id){
-            
-                const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/${id}`, {updateData}, 
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json',
+
+                try{
+                    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/${id}`, updateData, 
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            withCredentials: true,
                         },
-                        withCredentials: true,
-                    },
-                );
-                console.log('Updated successfully:', response.data);
+                    );
+                    toast.success('Updated successfully')
+                } catch(error){
+                    toast.error(error.response?.data || error.message)
+                }
+            
             }
             else{
                 console.log(IsLoggedIn, updateData)
                 try {
-                    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/`, updateData);
-                      
-                    return 
-                    // Handle successful creation
-                    console.log("Template created:", response.data);
-                    alert("Template created successfully!");
+                    
+                    const response2 = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates`, updateData,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            withCredentials: true,
+                        },
+                
+                    );
+                    console.log(response2.data)
+                    router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/execution/${response2.data.cid}`);
+                    //redict to page NEXT_PUBLIC_BASE_URL/execution/{response2.id} 
                   } catch (error) {
                     console.error("Error creating template:", error.response?.data || error.message);
-                    alert(error.response?.data || error.message);
+                    toast.error(error.response?.data || error.message);
                   }
 
             }
@@ -292,9 +314,13 @@ const CodeExecution: React.FC = () => {
                         <button className="border border-gray-600 p-2">Fork?</button>
                     </div>
                 </div>
-                <div className="p-5 font-mono text-gray-500">
-                    {loading ? <div>Compiling...</div> : <div className="break-words">{output}</div>}
+                <div className="p-5 font-mono text-gray-500 ">
+                    {loading ? <div>Compiling...</div> :<pre className="whitespace-pre-wrap break-words w-full">{output}</pre>}
                 </div>
+                <Toaster
+                    position="bottom-right"
+                    reverseOrder={false}
+                />
             </div>
         </div>
     </div>
