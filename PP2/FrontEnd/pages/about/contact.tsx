@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Header from "../../components/Header";
-import Footer from "../../components/Footer";
+// import Footer from "../../components/Footer";
 import { NextSeo } from "next-seo";
 import { FC } from "react";
 
@@ -40,7 +40,7 @@ const Contact: FC = () => {
                             alt="Suhani Patel"
                             className="w-32 h-32 rounded-full mb-4 border shadow-md"
                         />
-                        <h3 className="text-lg font-semibold text-white">Suhani Patel</h3>
+                        <h3 className="text-lg font-semibold text-white">Suhani Paul</h3>
                         <p className="text-gray-300 text-md mb-2">Founder & Developer & Designer</p>
                         <a
                             href="https://www.linkedin.com/in/suhanip/"
@@ -98,7 +98,7 @@ const Contact: FC = () => {
                     </a>.
                 </p>
             </section>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 };

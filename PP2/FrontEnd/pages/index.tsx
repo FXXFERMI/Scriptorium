@@ -1,7 +1,7 @@
 import Head from "next/head";
 // import Header from "../components/Header";
 // import Main from "../components/Main";
-import Footer from "../components/Footer";
+// import Footer from "../components/Footer";
 import { NextSeo } from "next-seo";
 import { FC } from "react";
 import { NextPage } from 'next';
@@ -200,7 +200,7 @@ const Home: FC = () => {
                 </div>
             </section> */}
       </section>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

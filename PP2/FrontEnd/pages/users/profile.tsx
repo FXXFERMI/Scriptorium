@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import Header from '../../components/Header';
 import Head from "next/head";
-import Footer from "../../components/Footer";
+// import Footer from "../../components/Footer";
 import { NextSeo } from "next-seo";
 import api from '../../utils/axiosInstance';
 
@@ -189,7 +189,7 @@ const Profile = () => {
                 <title>Profile - SFJ Scriptorium</title>
                 <link rel="icon" href="/favicon.png" />
             </Head>
-            <Header />
+            {/* <Header /> */}
             <section className="text-gray-600 body-font">
 
                 <div className="max-w-5xl pt-52 pb-24 mx-auto">
@@ -338,7 +338,7 @@ const Profile = () => {
                             </div>
                         )}
                 </div>
-                <Footer />
+                {/* <Footer /> */}
 
             </section >
         </div>

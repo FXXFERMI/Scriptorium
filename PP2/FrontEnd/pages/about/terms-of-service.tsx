@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Header from "../../components/Header";
-import Footer from "../../components/Footer";
+// import Footer from "../../components/Footer";
 import { NextSeo } from "next-seo";
 import { FC } from "react";
 
@@ -59,7 +59,7 @@ const TermsOfService: FC = () => {
           </div>
         </div>
       </section>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };
