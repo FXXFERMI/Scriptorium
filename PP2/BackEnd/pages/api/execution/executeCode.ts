@@ -77,8 +77,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const folderPath = path.join(os.tmpdir(), `Code_${timestamp}`);
   fs.mkdirSync(folderPath, { recursive: true });
 
-  // Write the code to the file
-  const filePath = path.join(folderPath, `program.${language === 'python' ? 'py' : 'txt'}`);
+  // Map language to file extensions and Docker images
+  const langConfig = {
+    python: { filename: 'program.py', image: 'python-app' },
+    java: { filename: 'Main.java', image: 'java-app' },
+    c: { filename: 'program.c', image: 'c-app' },
+    cpp: { filename: 'program.cpp', image: 'cpp-app' },
+    javascript: { filename: 'program.js', image: 'node-app' },
+    ruby: { filename: 'program.rb', image: 'ruby-app' },
+    rust: { filename: 'program.rs', image: 'rust-app' }, 
+    go: { filename: 'program.go', image: 'go-app' }, 
+    php: { filename: 'program.php', image: 'php-app' }, 
+    elixir: {filename: 'elixir.ex', image: 'elixir-app'},
+    chash: {filename: 'program.c', image: 'chash-app'},
+  };
+
+  const lang = language.toLowerCase();
+
+  if (!langConfig[lang]) {
+    return res.status(400).json({ message: `Unsupported language: ${language}` });
+  }
+
+  const { filename, image } = langConfig[lang];
+
+  const MAX_EXECUTION_TIME = 20000;
+
+
+  // Write the code to a file
+  const filePath = path.join(folderPath, `${filename}`);
   fs.writeFileSync(filePath, code);
 
   // Write stdinInput to a separate file to be used in the container
@@ -88,14 +114,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Run the docker command with interactive mode
-    const dockerCommand = `docker run -i --rm -v ${folderPath}:/code code-exec-python python3 /code/program.py`;
+    const dockerCommand = `
+      docker run -i --rm \
+      --memory="512m" \
+      --cpus="1.0" \
+      --memory-swap="1g" \
+      --cpuset-cpus="0,1" \
+      --net=none \
+      -v ${folderPath}:/code \
+      ${image} 
+    `;
+  
 
-    const child = exec(dockerCommand, (err, stdout, stderr) => {
+    // Execute the Docker command
+    const child = exec(dockerCommand, { timeout: MAX_EXECUTION_TIME }, (err, stdout, stderr) => {
       // Cleanup the temporary folder after execution
       fs.rmSync(folderPath, { recursive: true, force: true });
 
       if (err) {
+        if (err.killed) {
+          return res.status(500).json({
+            error: 'Process timed out. Please optimize your code.',
+          });
+        }
         return res.status(500).json({ error: err.message, stderr });
       }
 
@@ -105,10 +146,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Write stdinInput to the Docker container's stdin
     if (stdinInput) {
       child.stdin.write(stdinInput);
-      child.stdin.end();  // End the input
+      child.stdin.end(); // End the input
     }
 
   } catch (error) {
+    // Cleanup in case of an error
+    fs.rmSync(folderPath, { recursive: true, force: true });
     res.status(500).json({ message: error.message });
   }
 }

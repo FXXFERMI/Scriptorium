@@ -39,5 +39,26 @@ EOL
 # # Seed the database with an initial admin user test
 # echo "Creating initial admin user..."
 # node seedAdmin.js
+cd dockerFiles
 
+echo "Building elixir image..."
+docker build -t elixir-app -f Dockerfile.elixir .
+echo "Building c image..."
+docker build -t c-app -f Dockerfile.c .
+echo "Building cpp image..."
+docker build -t cpp-app -f Dockerfile.cpp .
+echo "Building go image..."
+docker build -t go-app -f Dockerfile.go .
+echo "Building java image..."
+docker build -t java-app -f Dockerfile.elixir .
+echo "Building js image..."
+docker build -t js-app -f Dockerfile.js .
+echo "Building php image..."
+docker build -t php-app -f Dockerfile.php .
+echo "Building python image..."
+docker build -t python-app -f Dockerfile.python .
+echo "Building ruby image..."
+docker build -t ruby-app -f Dockerfile.ruby .
+echo "Building rust image..."
+docker build -t rust-app -f Dockerfile.rust .
 echo "Setup complete."
