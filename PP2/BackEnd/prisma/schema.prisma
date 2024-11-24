@@ -53,7 +53,7 @@ model CodeTemplate{
   title String
   explanation String?
   language String 
-  tags String 
+  tags Tag[] @relation("TagCodeTemplates")
   code String
   uid Int
   
@@ -73,7 +73,7 @@ model Blog{
   bid Int  @id @default(autoincrement())
   title String
   description String
-  tags String  
+  tags Tag[] @relation("TagBlog")
   Hidden Boolean @default(false)
   uid Int
 
@@ -84,6 +84,15 @@ model Blog{
   reports Report[]
 
   codeTemplates CodeTemplate[] @relation("BlogCodeTemplates")
+}
+
+model Tag{
+  tagId Int @id @default(autoincrement())
+  name String 
+
+  blogs Blog[] @relation("TagBlog")
+  codeTemplates CodeTemplate[] @relation("TagCodeTemplates")
+
 }
 
 model Comment{
