@@ -51,11 +51,15 @@ async function executePythonCode(code: string, stdinInput: string) {
 
         if (error) {
           if (error.killed) {
-            return resolve({error: 'Process timed out. Please optimize your code.'});
+            return resolve({
+              error: 'Process timed out. Please optimize your code.',
+              stdout,
+              stderr
+            });
           }
-          return resolve({error: stderr || error.message});
+          return resolve({ error: stderr || error.message, stdout, stderr });
         }
-        resolve(stdout);
+        resolve({ stdout, stderr });
       }
     );
 

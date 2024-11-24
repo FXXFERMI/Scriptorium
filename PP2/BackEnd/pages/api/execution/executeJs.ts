@@ -35,12 +35,15 @@ async function executeJavaScriptCode(code: string, stdinInput: string) {
 
       if (err) {
         if (err.killed) {
-          return resolve({error: 'Process timed out. Please optimize your code.'});
+          return resolve({
+            error: 'Process timed out. Please optimize your code.',
+            stdout,
+            stderr
+          });
         }
-        return resolve({error: stderr || err.message});
+        return resolve({ error: stderr || err.message, stdout, stderr });
       }
-
-      resolve(stdout);
+      resolve({ stdout, stderr });
     });
 
     if (stdinInput) {

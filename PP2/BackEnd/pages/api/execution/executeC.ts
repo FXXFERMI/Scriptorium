@@ -1,14 +1,9 @@
-import { exec } from 'child_process';
+import { exec } from 'child_process'; 
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-// import applyCors from '../../../utils/cors';
 
-
-
-// THIS CODE IS INFLUECED BY CODE GENERATED FROM CHAT GPT PROMPS SUCH AS CHILD PROCESS LOGIC AND HOW TO CREATE TEMP FOLDERS
-
-async function executeCCode(code: string,  stdinInput: string) {
+async function executeCCode(code: string, stdinInput: string) {
   let fileName, filePath;
   const timestamp = Date.now();
   const folderPath = path.join(os.tmpdir(), `CCode_${timestamp}`);
@@ -28,11 +23,11 @@ async function executeCCode(code: string,  stdinInput: string) {
     const executablePath = path.join(folderPath, 'program');
 
     // Compile the C code
-    exec(`gcc ${filePath} -o ${executablePath}`, (compileErr) => {
+    exec(`gcc ${filePath} -o ${executablePath}`, (compileErr, compileStdout, compileStderr) => {
       if (compileErr) {
         // Cleanup on compilation failure
         fs.rmSync(folderPath, { recursive: true, force: true });
-        return resolve({error: `Compilation Error: ${compileErr.message}`});
+        return resolve({ error: `Compilation Error: ${compileErr.message}`, stdout: compileStdout, stderr: compileStderr });
       }
 
       // Run the compiled binary
@@ -45,14 +40,16 @@ async function executeCCode(code: string,  stdinInput: string) {
 
           if (runErr) {
             if (runErr.killed) {
-              return resolve(
-                {error: 'Process timed out. Please optimize your code.'}
-              );
+              return resolve({
+                error: 'Process timed out. Please optimize your code.',
+                stdout,
+                stderr
+              });
             }
-            return resolve({error: stderr || runErr.message});
+            return resolve({ error: stderr || runErr.message, stdout, stderr });
           }
 
-          resolve(stdout);
+          resolve({ stdout, stderr });
         }
       );
 
@@ -60,15 +57,14 @@ async function executeCCode(code: string,  stdinInput: string) {
         child.stdin.write(stdinInput);
         child.stdin.end();
       }
-  
+
       child.on('error', (err) => {
         console.error('Process error:', err);
         reject(new Error('Failed to execute code.'));
       });
-  
+
     });
   });
 }
 
 export default executeCCode;
-
