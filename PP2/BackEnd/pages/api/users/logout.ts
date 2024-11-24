@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Clear the access token and refresh token cookies by setting them with a maxAge of -1
     // console.log('Clearing access and refresh tokens');
-    console.log('Cookie:', cookie);
+    // console.log('Cookie:', cookie);
     res.setHeader('Set-Cookie', [
       cookie.serialize('accessToken', '', {
         httpOnly: false,

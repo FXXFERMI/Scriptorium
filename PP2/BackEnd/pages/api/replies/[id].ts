@@ -54,7 +54,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(500).json({ error: 'Failed to delete reply.' });
     }
 
-  } else if (req.method === 'PUT') {
+  } else if (req.method === 'GET') {
+    try {
+      let token = null;
+        if (req.headers.cookie) {
+            const cookies = cookie.parse(req.headers.cookie);
+            token = cookies.accessToken;
+        }
+
+        let user;
+        try {
+            if (token) {
+                user = verifyAccessToken(token);
+            }
+        } catch (error) {
+            user = null; // Visitor
+        }
+
+        const reply = await prisma.reply.findUnique({
+            where: {replyId: Number(id)},
+            include: {
+              owner: true, 
+              replier: {
+                  include: {
+                      profile: {
+                          select: {
+                              avatar: true, // Select the avatar URL
+                          },
+                      }, 
+                  
+                  }, 
+              },
+              ratings: true
+          },
+        });
+
+        // Calculate upvotes and downvotes for each comment
+        const upvotes = reply.ratings.filter(rating => rating.upvote === true).length;
+        const downvotes = reply.ratings.filter(rating => rating.downvote === true).length;
+        // Check if the logged-in user voted on this comment
+        const userVote = reply.ratings.find(rating => rating.uid === user?.uid);
+        const hasUpvoted = userVote?.upvote === true;
+        const hasDownvoted = userVote?.downvote === true;
+
+
+        res.status(200).json({...reply,
+            upvotes,
+            downvotes,
+            hasUpvoted,
+            hasDownvoted});
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+else if (req.method === 'PUT') {
     const { newReplyContent } = req.body;
 
     // Verify the token from the Authorization header

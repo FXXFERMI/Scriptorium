@@ -107,16 +107,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 where: filters,
                 skip,
                 take: itemsPerPage,
-                include: { owner: true, replier: true },
-                orderBy: { replyId: 'desc' },
+                include: {
+                    owner: true, 
+                    replier: {
+                        include: {
+                            profile: {
+                                select: {
+                                    avatar: true, // Select the avatar URL
+                                },
+                            }, 
+                        
+                        }, 
+                    },
+                    ratings: true
+                },
             });
 
             const totalReplies = await prisma.reply.count({
                 where: filters,
             });
 
+            // Calculate upvotes and downvotes for each comment
+            const repliesWithVotes = replies.map(reply => {
+                const upvotes = reply.ratings.filter(rating => rating.upvote === true).length;
+                const downvotes = reply.ratings.filter(rating => rating.downvote === true).length;
+
+                // Check if the logged-in user voted on this comment
+                const userVote = reply.ratings.find(rating => rating.uid === user?.uid);
+                const hasUpvoted = userVote?.upvote === true;
+                const hasDownvoted = userVote?.downvote === true;
+                return {
+                    ...reply,
+                    upvotes,
+                    downvotes,
+                    hasUpvoted,
+                    hasDownvoted
+                };
+            });
+
+
             res.status(200).json({
-                replies,
+                repliesWithVotes,
                 totalReplies,
                 currentPage: pageNumber,
                 totalPages: Math.ceil(totalReplies / itemsPerPage),

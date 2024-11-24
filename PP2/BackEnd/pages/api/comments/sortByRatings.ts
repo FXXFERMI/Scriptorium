@@ -28,15 +28,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                 avatar: true, // Select the avatar URL
                             },
                         }, 
-                        ratings: {
-                            select: {
-                                upvote: true,
-                                downvote: true
-                            },
-                        },
                     }, 
                 },
-                ratings: true, replies: true },
+                ratings: true,
+                _count: {
+                    select: {
+                        replies: true, // Count the number of replies
+                    },
+                },},
             });
 
             const filteredComments = comments.map((comment) => {

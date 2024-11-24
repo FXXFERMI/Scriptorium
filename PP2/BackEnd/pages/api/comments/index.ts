@@ -93,6 +93,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             if (token) {
                 user = verifyAccessToken(token);
+                
             }
         } catch (error) {
             user = null; // Visitor
@@ -125,31 +126,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                                 avatar: true, // Select the avatar URL
                             },
                         }, 
-                        ratings: {
-                            select: {
-                                upvote: true,
-                                downvote: true
-                            },
-                        },
                     }, 
                 },
-                ratings: true, replies: {take: 1, include: {
-                    replier: {
-                        include: {
-                            profile: {
-                                select: {
-                                    avatar: true, // Select the avatar URL
-                                },
-                            }, 
-                            ratings: {
-                                select: {
-                                    upvote: true,
-                                    downvote: true
-                                },
-                            },
-                        }, 
+                ratings: true, 
+                _count: {
+                    select: {
+                        replies: true, // Count the number of replies
                     },
-                }} },
+                },},
                 orderBy: { commentId: 'desc' },
             });
 
@@ -161,12 +145,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const commentsWithVotes = comments.map(comment => {
                 const upvotes = comment.ratings.filter(rating => rating.upvote === true).length;
                 const downvotes = comment.ratings.filter(rating => rating.downvote === true).length;
+
+                // Check if the logged-in user voted on this comment
+                const userVote = comment.ratings.find(rating => rating.uid === user?.uid);
+                const hasUpvoted = userVote?.upvote === true;
+                const hasDownvoted = userVote?.downvote === true;
                 return {
                     ...comment,
                     upvotes,
                     downvotes,
+                    hasUpvoted,
+                    hasDownvoted,
                 };
             });
+
 
             res.status(200).json({
                 comments: commentsWithVotes,
