@@ -34,12 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // console.log("Login test2")
     // Set both access and refresh tokens in cookies
     res.setHeader('Set-Cookie', [
-      cookie.serialize('accessToken', accessToken, {
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 15 * 60, // 15 minutes expiration for access token
-      }),
+ 
       cookie.serialize('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -48,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     ]);
 
-    res.status(200).json({ message: 'Login successful', accessToken, refreshToken });
+    res.status(200).json({ message: 'Login successful', accessToken });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
   }

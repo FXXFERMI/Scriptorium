@@ -51,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader(
       'Set-Cookie',
       cookie.serialize('accessToken', newAccessToken, {
-        httpOnly: true,
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         path: '/',
         maxAge: 15 * 60, // Set expiration (e.g., 15 minutes)
