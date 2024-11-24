@@ -1,23 +1,111 @@
 import prisma from "../../../utils/prisma";
 import applyCors from '../../../utils/cors';
+import { verifyAccessToken } from '../../../utils/jwt';
+import * as cookie from 'cookie';
+
+interface Filters {
+    title?: { contains: string};
+    description?: { contains: string};
+    codeTemplates?: {
+        some: {
+            cid: { in: number[] }
+        }
+    };
+    AND?: Array<{
+      tags?: {
+        some: {
+          name: {contains: string}; // This will check for each tag specifically
+        };
+      };
+    }>;
+    OR?: Array<{ Hidden?: boolean; uid?: number }>;
+    Hidden?: boolean;
+  }
 
 export default async function handler(req, res) {
     // Apply CORS
     await applyCors(req, res);
+    
 
     if (req.method === 'GET') {
 
-        const { page = 1, limit = 10 } = req.query as {page?: string, limit?: string};
+        const {title,
+            description,
+            tags, page = 1, limit = 10 } = req.query as {title?: string, description?: string, tags?: string, page?: string, limit?: string};
 
+        const filters: Filters = {};
+        if (title) {
+            filters.title = { contains: title };
+        }
+        if (description) {
+            filters.description = { contains: description };
+        }
+
+        let tagsArray: string[];
+        if (tags) {
+          try {
+            tagsArray = JSON.parse(tags);
+          } catch {
+            tagsArray = [tags]; // Handle cases where it's a single tag string
+          }
+    
+    
+          filters.AND = tagsArray.map(tag => ({
+            tags: {
+              some: { name: {contains: tag.toLowerCase(),
+                } }, // This will check for each tag
+            },
+          }))
+        }
+
+        let token = null;
+        if (req.headers.cookie) {
+          const cookies = cookie.parse(req.headers.cookie);
+          token = cookies.accessToken;
+        }
+    
+        let user;
+        try {
+          if (token) {
+            user = verifyAccessToken(token);
+          }
+        } catch (error) {
+          user = null; // Visitor
+        }
+    
+        // Set visibility filters based on user role
+        if (user && user.role === "USER") {
+          filters.OR = [
+            { Hidden: false },
+            { uid: user.uid }, // Show all blogs created by the user, including hidden ones
+          ];
+        } else {
+          // For visitors, show only unhidden blogs
+          filters.Hidden = false;
+        }
+        
         try {
 
             const pageNumber = Number(page) > 0 ? Number(page) : 1;
             const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
 
             const blogs = await prisma.blog.findMany({
+                where: filters,
                 include: {
                     ratings: true,
-                },
+                    user: {
+                      include: {
+                          profile: {
+                              select: {
+                                  avatar: true, // Select the avatar URL
+                                  firstName: true,
+                                  lastName: true,
+                              },
+                          },
+                      }, 
+                    },
+                    tags: true
+                  },
             });
 
             const filteredBlogs = blogs.map((blog) => {

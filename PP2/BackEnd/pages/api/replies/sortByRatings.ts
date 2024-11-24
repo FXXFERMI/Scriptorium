@@ -22,6 +22,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const replies = await prisma.reply.findMany({
                 where: { commentId: Number(commentId) },
                 include: {
+                    owner: true, 
+                    replier: {
+                        include: {
+                            profile: {
+                                select: {
+                                    avatar: true, // Select the avatar URL
+                                },
+                            }, 
+                        
+                        }, 
+                    },
                     ratings: true,
                 },
             });
@@ -35,14 +46,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return {
                     ...reply,
                     score,
+                    upvotes,
+                    downvotes,
                 };
             })
 
             const finalFilterdList = filteredReplies.sort((a, b) => b.score - a.score);
 
-            const repliesByPage = finalFilterdList.slice((pageNumber - 1) * itemsPerPage, pageNumber * itemsPerPage);
+            const repliesWithVotes = finalFilterdList.slice((pageNumber - 1) * itemsPerPage, pageNumber * itemsPerPage);
 
-            return res.status(200).json(repliesByPage);
+            console.log(repliesWithVotes)
+            return res.status(200).json(repliesWithVotes);
 
         }
         catch (error) {

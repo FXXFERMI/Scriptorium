@@ -34,6 +34,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
+      // Convert tags to unique JSON array
+      const uniqueTagsArray: string[] = Array.from(new Set(tags));
+      // Ensure all tags exist in the database
+      const existingTags = await prisma.tag.findMany({
+        where: {
+          OR: uniqueTagsArray.map(tag => ({
+            name: {contains: tag.toLowerCase(),
+                } 
+          })), // Check for existing tags
+        },
+      });
+
+      // Find tags that do not exist
+      const existingTagNames = existingTags.map(tag => tag.name);
+      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag));
+
+      // Create new tags if needed
+      await prisma.tag.createMany({
+        data: newTagNames.map(tag => ({ name: tag })),
+      });
+
+      const newTagsArray = await prisma.tag.findMany({
+        where: {
+          name: { in: newTagNames }, // Check for existing tags
+        },
+      });
+
+      // Combine existing and newly created tags
+      const allTags = [...existingTags, ...newTagsArray];
+
+      const tagsId = allTags.map(tag => (tag.tagId))
+
       const blog = await prisma.blog.findUnique({
         where: { bid: Number(id) },
       });
@@ -71,9 +103,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const updatedData = {
         title,
         description,
-        tags,
-        ...(codeTemplateIds &&
-          codeTemplateIds.length > 0 && {
+        ... (tagsId && {
+          tags: {
+            connect: tagsId.map((tag) => ({ tagId: tag })),
+          }
+        }),
+        ...(codeTemplateIds && {
           codeTemplates: {
             connect: codeTemplateIds.map((id) => ({ cid: id })),
           },
@@ -96,10 +131,69 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // GET: Retrieve a single blog
   } else if (req.method === "GET") {
     try {
+      let token = null;
+      if (req.headers.cookie) {
+        const cookies = cookie.parse(req.headers.cookie);
+        token = cookies.accessToken;
+      }
+
+      let user;
+      try {
+        if (token) {
+          user = verifyAccessToken(token);
+        }
+      } catch (error) {
+        user = null; // Visitor
+      }
+
       const blog = await prisma.blog.findUnique({
-        where: { bid: Number(id) },
+        where: { bid: Number(id)}, include: {
+          user: {
+            include: {
+                profile: {
+                    select: {
+                        avatar: true, // Select the avatar URL
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+            }, 
+          },
+          tags: true,
+          ratings: true
+        },
       });
-      return res.status(200).json(blog);
+
+      // Count upvotes and downvotes
+    const upvoteCount = await prisma.rating.count({
+      where: {
+        bid: Number(id),
+        upvote: true,
+      },
+    });
+
+    const downvoteCount = await prisma.rating.count({
+      where: {
+        bid: Number(id),
+        downvote: true,
+      },
+    });
+
+    // Check if the logged-in user voted on this comment
+    const userVote = blog.ratings.find(rating => rating.uid === user?.uid);
+    const hasUpvoted = userVote?.upvote === true;
+    const hasDownvoted = userVote?.downvote === true;
+
+    // Attach upvote and downvote counts to the blog response
+    const blogWithVoteCounts = {
+      ...blog,
+      upvotes: upvoteCount,
+      downvotes: downvoteCount,
+      hasUpvoted,
+      hasDownvoted
+    };
+
+      return res.status(200).json(blogWithVoteCounts);
     } catch (error) {
       return res.status(500).json({ error: "Something went wrong." });
     }

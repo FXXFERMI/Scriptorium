@@ -6,8 +6,8 @@ import Header from '../../components/Header';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { login } = useAuth();  // Use the login function from AuthContext
@@ -63,7 +63,12 @@ const Login = () => {
             className="w-full p-2 border rounded-md"
           />
         </div>
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Login</button>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+        >
+          Login
+        </button>
       </form>
     </div>
   );

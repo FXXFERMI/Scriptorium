@@ -14,9 +14,17 @@ interface Filters {
           cid: { in: number[] }
       }
   };
+  AND?: Array<{
+    tags?: {
+      some: {
+        name: {contains: string}; // This will check for each tag specifically
+      };
+    };
+  }>;
+
   OR?: Array<{ Hidden?: boolean; uid?: number }>;
   Hidden?: boolean;
-}
+};
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -61,10 +69,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Convert tags to unique JSON array
     const tagsArray = JSON.parse(tags);
-    const uniqueTagsJson = JSON.stringify(Array.from(new Set(tagsArray)));
+    const uniqueTagsArray: string[] = Array.from(new Set(tagsArray));
+
 
     // Create new blog post
     try {
+      // Ensure all tags exist in the database
+      const existingTags = await prisma.tag.findMany({
+        where: {
+          OR: uniqueTagsArray.map(tag => ({
+            name: {contains: tag.toLowerCase(),
+                } 
+          })), // Check for existing tags
+        },
+      });
+
+      // Find tags that do not exist
+      const existingTagNames = existingTags.map(tag => tag.name);
+      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag));
+
+      // Create new tags if needed
+      await prisma.tag.createMany({
+        data: newTagNames.map(tag => ({ name: tag })),
+      });
+
+      const newTagsArray = await prisma.tag.findMany({
+        where: {
+          name: { in: newTagNames }, // Check for existing tags
+        },
+      });
+
+      // Combine existing and newly created tags
+      const allTags = [...existingTags, ...newTagsArray];
+
+      const tagsId = allTags.map(tag => (tag.tagId))
       // Check if all code template IDs exist
       const existingCodeTemplates = await prisma.codeTemplate.findMany({
         where: {
@@ -81,7 +119,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         data: {
           title,
           description,
-          tags: uniqueTagsJson,
+          tags: {
+            connect: tagsId.map((id) => ({ tagId: id })),
+          },
           user: {
             connect: { uid: Number(user.uid) },
           },
@@ -104,10 +144,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       description,
       tags,
       uid,
-      codeTemplateIds,
+      codeTemplateNames,
       page = 1,
       limit = 10,
-    } = req.query  as { bid?: string, title?: string, description?: string, tags?: string, uid?: string, codeTemplateIds?: string, page: string, limit: string};
+    } = req.query  as { bid?: string, title?: string, description?: string, tags?: string, uid?: string, codeTemplateNames?: string, page: string, limit: string};
 
     // Build filters based on query parameters
     const filters: Filters = {};
@@ -123,24 +163,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } catch {
         tagsArray = [tags]; // Handle cases where it's a single tag string
       }
-    }
 
-    let codeTemplateIdsArray;
-    if (codeTemplateIds) {
-      try {
-        codeTemplateIdsArray = JSON.parse(codeTemplateIds).map(Number);
-      } catch {
-        codeTemplateIdsArray = [Number(codeTemplateIds)];// Handle single ID cases
-      }
-    }
 
-    if (codeTemplateIdsArray && codeTemplateIdsArray.length > 0) {
-      filters.codeTemplates = {
-        some: {
-          cid: { in: codeTemplateIdsArray },
+      filters.AND = tagsArray.map(tag => ({
+        tags: {
+          some: { name: {contains: tag.toLowerCase(),
+            } }, // This will check for each tag
         },
-      };
+      }))
     }
+
+
+    let codeTemplateNameArray;
+    if (codeTemplateNames) {
+      try {
+        codeTemplateNameArray = JSON.parse(codeTemplateNames);
+      } catch {
+        codeTemplateNameArray = [codeTemplateNames];// Handle single ID cases
+      }
+
+      const codeTemplateFilter = codeTemplateNameArray.map(codeTemplateName =>({
+        codeTemplates: {
+          some: {title: codeTemplateName}
+        }
+      }) )
+
+      if (filters.AND) {
+        filters.AND = filters.AND.concat(codeTemplateFilter)
+      } else {
+        filters.AND = codeTemplateFilter
+      }
+
+    }
+
+
 
     let token = null;
     if (req.headers.cookie) {
@@ -175,19 +231,54 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const skip = (pageNumber - 1) * itemsPerPage;
 
       const blogs = await prisma.blog.findMany({
-        where: {
-          ...filters,
-          ...(tagsArray && tagsArray.length > 0 && {
-            OR: tagsArray.map(tag => ({
-              tags: { contains: tag }
-            }))
-          }),
+        where: filters,
+        include: {
+          user: {
+            include: {
+                profile: {
+                    select: {
+                        avatar: true, // Select the avatar URL
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+                
+            }, 
+          },
+          
+          tags: true,
+          ratings: true
         },
         skip: skip,
         take: itemsPerPage,
       });
 
-      return res.status(200).json(blogs);
+      const totalBlogs = await prisma.blog.count({
+        where: filters,
+    });
+
+    // Calculate upvotes and downvotes for each comment
+    const blogsWithVotes = blogs.map(blog => {
+        const upvotes = blog.ratings.filter(rating => rating.upvote === true).length;
+        const downvotes = blog.ratings.filter(rating => rating.downvote === true).length;
+
+        // Check if the logged-in user voted on this comment
+        const userVote = blog.ratings.find(rating => rating.uid === user?.uid);
+        const hasUpvoted = userVote?.upvote === true;
+        const hasDownvoted = userVote?.downvote === true;
+        return {
+            ...blog,
+            upvotes,
+            downvotes,
+            hasUpvoted,
+            hasDownvoted,
+        };
+    });
+
+      return res.status(200).json({blogs: blogsWithVotes,
+        totalBlogs,
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalBlogs / itemsPerPage),});
     } catch (error) {
       console.error("Error fetching blogs:", error);
       return res.status(500).json({ error: error.message });

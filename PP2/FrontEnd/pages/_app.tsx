@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { AuthProvider } from '../contexts/AuthContext';
 import Footer from '../components/Footer';

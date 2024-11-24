@@ -55,6 +55,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } catch (error) {
             res.status(500).json({ error: 'Error updating comment' });
         }
+    } else if (req.method === 'GET') {
+        try {
+            let token = null;
+            if (req.headers.cookie) {
+                const cookies = cookie.parse(req.headers.cookie);
+                token = cookies.accessToken;
+            }
+
+            let user;
+            try {
+                if (token) {
+                    user = verifyAccessToken(token);
+                    
+                }
+            } catch (error) {
+                user = null; // Visitor
+            }
+
+
+            const comment = await prisma.comment.findUnique({
+                where: {commentId: Number(id)},
+                include: { user: {
+                    include: {
+                        profile: {
+                            select: {
+                                avatar: true, // Select the avatar URL
+                            },
+                        }, 
+                    }, 
+                },
+                ratings: true, 
+                },
+            });
+
+            // Calculate upvotes and downvotes for each comment
+            const upvotes = comment.ratings.filter(rating => rating.upvote === true).length;
+            const downvotes = comment.ratings.filter(rating => rating.downvote === true).length;
+            // Check if the logged-in user voted on this comment
+            const userVote = comment.ratings.find(rating => rating.uid === user?.uid);
+            const hasUpvoted = userVote?.upvote === true;
+            const hasDownvoted = userVote?.downvote === true;
+
+
+            res.status(200).json({...comment,
+                upvotes,
+                downvotes,
+                hasUpvoted,
+                hasDownvoted,});
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     } else if (req.method === 'DELETE') {
         // Verify the token from the Authorization header
         // const token = req.headers.authorization?.split(" ")[1];

@@ -6,12 +6,17 @@ import { NextApiRequest, NextApiResponse } from 'next';
 interface Filters {
   cid?: number;
   title?: { contains: string };
-  tags?: { contains: string };
+  AND?: Array<{
+    tags?: {
+      some: {
+        name: {contains: string}; // This will check for each tag specifically
+      };
+    };
+  }>;
   code?: { contains: string };
   language?: { contains: string };
   uid?: number;
 }
-
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Apply CORS
@@ -46,9 +51,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (title) {
       filters.title = { contains: title };
     }
+    let tagsArray: string[];
     if (tags) {
-      filters.tags = { contains: tags };
+      try {
+        tagsArray = JSON.parse(tags);
+      } catch {
+        tagsArray = [tags]; // Handle cases where it's a single tag string
+      }
+
+
+      filters.AND = tagsArray.map(tag => ({
+        tags: {
+          some: { name: {contains: tag.toLowerCase(),
+            } }, // This will check for each tag
+        },
+      }))
     }
+
     if (code) {
       filters.code = { contains: code };
     }
