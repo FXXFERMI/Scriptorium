@@ -1,14 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
+import CreateReport from "./CreateReport";
 
-const ReportButton = ({ onClick }: { onClick: () => void }) => {
+const ReportButton = ({ id, type }: { id: number; type: string }) => {
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const openPopup = () => setIsPopupOpen(true);
+  const closePopup = () => setIsPopupOpen(false);
+
   return (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-    >
-      <span className="text-lg font-bold">!</span>
-      <span>Report</span>
-    </button>
+    <div>
+      <button
+        onClick={openPopup}
+        className="flex items-center gap-2 text-white px-2 py-1 rounded-md hover:bg-white-600 hover:text-red-600 focus:outline-none"
+      >
+        <span className="text-lg font-bold">! </span>
+      </button>
+
+      {isPopupOpen && <CreateReport id={id} type={type} onClose={closePopup} />}
+    </div>
   );
 };
 

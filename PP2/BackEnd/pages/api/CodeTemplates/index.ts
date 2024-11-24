@@ -160,7 +160,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       });
 
-      return res.status(200).json(codeTemplates);
+      const totalTemplates = await prisma.codeTemplate.count({
+        where: filters,
+    });
+
+      return res.status(200).json({codeTemplates, totalTemplates,  currentPage: pageNumber,
+        totalPages: Math.ceil(totalTemplates / itemsPerPage)});
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
