@@ -133,22 +133,29 @@ const CodeExecution: React.FC = () => {
         }}, { dark: false });
 
     const execute = async (): Promise<void> => {
-        console.log("dsfjdfj",language)
         try {
             language.toLocaleLowerCase() === 'java' && boilerPlate();
             setLoading(true)
             fixInput(code)
            
-            console.log(code, stdinInput, language)
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/execution/executeCode`,
                 { code, stdinInput, language }
             );
+            console.log("enfnf", response.data)
             
-            response.data.output.stderr.length > 1 ? setOutput(response.data.output.stderr) :
-            setOutput(response.data.output.stdout);
+            if(response.data.stderr.length > 1){
+                setOutput(response.data.stderr)
+            }
+            else if(response.data.stdout.length > 1){
+                setOutput(response.data.stdout)
+            }
+            else{
+                console.log(response.data)
+                setOutput(response.data.error);
+            }
 
-            console.log(response.data.output)
+            console.log(response.data, 'bhhh')
 
         } catch (e) {
             console.log(e.response)
