@@ -133,8 +133,8 @@ const Header: React.FC = () => {
                                     {/* <Link href="/" className="bg-rainbow-text text-transparent bg-clip-text">
                                         Home
                                     </Link> */}
-                                    <Link href="/users/profile" className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
-                                        Profile
+                                    <Link href="/users/user-center" className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                                        User Center
                                     </Link>
                                     <button onClick={handleLogout} className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
                                         Logout
