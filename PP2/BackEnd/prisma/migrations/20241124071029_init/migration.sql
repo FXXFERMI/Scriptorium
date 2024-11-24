@@ -40,7 +40,6 @@ CREATE TABLE "CodeTemplate" (
     "title" TEXT NOT NULL,
     "explanation" TEXT,
     "language" TEXT NOT NULL,
-    "tags" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "uid" INTEGER NOT NULL,
     "isForked" BOOLEAN NOT NULL DEFAULT false,
@@ -54,10 +53,15 @@ CREATE TABLE "Blog" (
     "bid" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "tags" TEXT NOT NULL,
     "Hidden" BOOLEAN NOT NULL DEFAULT false,
     "uid" INTEGER NOT NULL,
     CONSTRAINT "Blog_uid_fkey" FOREIGN KEY ("uid") REFERENCES "User" ("uid") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Tag" (
+    "tagId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -114,6 +118,22 @@ CREATE TABLE "Report" (
 );
 
 -- CreateTable
+CREATE TABLE "_TagCodeTemplates" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+    CONSTRAINT "_TagCodeTemplates_A_fkey" FOREIGN KEY ("A") REFERENCES "CodeTemplate" ("cid") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_TagCodeTemplates_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag" ("tagId") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "_TagBlog" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+    CONSTRAINT "_TagBlog_A_fkey" FOREIGN KEY ("A") REFERENCES "Blog" ("bid") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_TagBlog_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag" ("tagId") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "_BlogCodeTemplates" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL,
@@ -147,6 +167,18 @@ CREATE UNIQUE INDEX "Rating_uid_commentId_key" ON "Rating"("uid", "commentId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Rating_uid_replyId_key" ON "Rating"("uid", "replyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_TagCodeTemplates_AB_unique" ON "_TagCodeTemplates"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_TagCodeTemplates_B_index" ON "_TagCodeTemplates"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_TagBlog_AB_unique" ON "_TagBlog"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_TagBlog_B_index" ON "_TagBlog"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_BlogCodeTemplates_AB_unique" ON "_BlogCodeTemplates"("A", "B");

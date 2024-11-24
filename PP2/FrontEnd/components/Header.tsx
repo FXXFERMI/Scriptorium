@@ -179,7 +179,7 @@ const Header: React.FC = () => {
                                                         Cookies.set('accessToken', response.data.accessToken, { path: '/' });
                                                         login();
                                                         setDropdownOpen(false);
-                                                        router.push('/');
+                                                        // router.push('/');
                                                     } catch (error: any) {
                                                         // console.error("Login failed:", error);
                                                         setLoginError(error.response?.data?.message || "Login failed");
