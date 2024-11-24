@@ -11,6 +11,13 @@ interface Filters {
             cid: { in: number[] }
         }
     };
+    AND?: Array<{
+      tags?: {
+        some: {
+          name: {contains: string}; // This will check for each tag specifically
+        };
+      };
+    }>;
     OR?: Array<{ Hidden?: boolean; uid?: number }>;
     Hidden?: boolean;
   }
@@ -34,13 +41,21 @@ export default async function handler(req, res) {
             filters.description = { contains: description };
         }
 
-        let tagsArray;
+        let tagsArray: string[];
         if (tags) {
-            try {
-                tagsArray = JSON.parse(tags);
-            } catch {
-                tagsArray = [tags]; // Handle cases where it's a single tag string
-            }
+          try {
+            tagsArray = JSON.parse(tags);
+          } catch {
+            tagsArray = [tags]; // Handle cases where it's a single tag string
+          }
+    
+    
+          filters.AND = tagsArray.map(tag => ({
+            tags: {
+              some: { name: {contains: tag.toLowerCase(),
+                } }, // This will check for each tag
+            },
+          }))
         }
 
         let token = null;
@@ -75,14 +90,7 @@ export default async function handler(req, res) {
             const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
 
             const blogs = await prisma.blog.findMany({
-                where: {
-                    ...filters,
-                    ...(tagsArray && tagsArray.length > 0 && {
-                      OR: tagsArray.map(tag => ({
-                        tags: { contains: tag }
-                      }))
-                    }),
-                  },
+                where: filters,
                 include: {
                     ratings: true,
                     user: {
@@ -96,6 +104,7 @@ export default async function handler(req, res) {
                           },
                       }, 
                     },
+                    tags: true
                   },
             });
 

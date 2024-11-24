@@ -6,7 +6,13 @@ import { NextApiRequest, NextApiResponse } from 'next';
 interface Filters {
   cid?: number;
   title?: { contains: string };
-  tags?: { contains: string };
+  AND?: Array<{
+    tags?: {
+      some: {
+        name: {contains: string}; // This will check for each tag specifically
+      };
+    };
+  }>;
   code?: { contains: string };
   language?: { contains: string };
   uid?: number;
@@ -19,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // POST: Create a new code template
   if (req.method === "POST") {
-    const { title, explanation, language, tags, code } = req.body as {title: string, explanation: string, language: string, tags: string, code: string};
+    const { title, explanation, language, tags, code } = req.body as {title: string, explanation: string, language: string, tags: string[], code: string};
 
     // Validate required fields
     if (!title || !tags || !code || !language) {
@@ -45,17 +51,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Process tags and ensure uniqueness
-    const tagsArray = JSON.parse(tags);
-    const uniqueTagsArray = Array.from(new Set(tagsArray));
-    const uniqueTagsJson = JSON.stringify(uniqueTagsArray);
+    const uniqueTagsArray:string[] = Array.from(new Set(tags));
 
     try {
+      // Ensure all tags exist in the database
+      const existingTags = await prisma.tag.findMany({
+        where: {
+          OR: uniqueTagsArray.map(tag => ({
+            name: {contains: tag.toLowerCase(),
+                } 
+          })), // Check for existing tags
+        },
+      });
+
+      // Find tags that do not exist
+      const existingTagNames = existingTags.map(tag => tag.name);
+      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag));
+
+      // Create new tags if needed
+      await prisma.tag.createMany({
+        data: newTagNames.map(tag => ({ name: tag })),
+      });
+
+      const newTagsArray = await prisma.tag.findMany({
+        where: {
+          name: { in: newTagNames }, // Check for existing tags
+        },
+      });
+
+      // Combine existing and newly created tags
+      const allTags = [...existingTags, ...newTagsArray];
+
+      const tagsId = allTags.map(tag => (tag.tagId))
+
       const codeTemplate = await prisma.codeTemplate.create({
         data: {
           title,
           explanation,
           language,
-          tags: uniqueTagsJson,
+          tags: {
+            connect: tagsId.map((id) => ({ tagId: id })),
+          },
           code,
           user: {
             connect: { uid: Number(user.uid) },
@@ -72,11 +108,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } else if (req.method === "GET") {
     const { cid, title, language, tags, code, uid, page = 1, limit = 10 } = req.query as {cid?: string, title?: string, language?: string, tags?: string, code?: string, uid?: string, page?: string, limit?: string};
 
-    // Parse tags if provided
-    let tagsArray;
-    if (tags) {
-      tagsArray = JSON.parse(tags);
-    }
 
     // Set up query filters
     const filters: Filters = {};
@@ -95,24 +126,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (uid) {
       filters.uid = Number(uid);
     }
+    let tagsArray: string[];
+    if (tags) {
+      try {
+        tagsArray = JSON.parse(tags);
+      } catch {
+        tagsArray = [tags]; // Handle cases where it's a single tag string
+      }
+
+
+      filters.AND = tagsArray.map(tag => ({
+        tags: {
+          some: { name: {contains: tag.toLowerCase(),
+            } }, // This will check for each tag
+        },
+      }))
+    }
+
 
     try {
       const pageNumber = Number(page) > 0 ? Number(page) : 1;
       const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
       const skip = (pageNumber - 1) * itemsPerPage;
+      
 
       // Retrieve code templates, with filters applied
       const codeTemplates = await prisma.codeTemplate.findMany({
-        where: {
-          ...filters,
-          ...(tagsArray && tagsArray.length > 0 && {
-            OR: tagsArray.map(tag => ({
-              tags: { contains: tag }
-            }))
-          }),
-        },
+        where: filters,
         skip,
         take: itemsPerPage,
+        include: {
+          tags: true
+        }
       });
 
       return res.status(200).json(codeTemplates);
