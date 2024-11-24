@@ -73,7 +73,7 @@ const MyBlogs: React.FC = () => {
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <p className="text-gray-700">No blogs found.</p>
         ) : blogs.length > 0 ? (
           <div className="space-y-6">
             {blogs.map((blog) => (

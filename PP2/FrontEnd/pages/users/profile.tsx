@@ -36,12 +36,10 @@ const Profile = () => {
     const [refreshKey, setRefreshKey] = useState<number>(0);
 
 
-
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const token = Cookies.get('accessToken');
-                const response = await api.get('/api/users/showProfile');
                 const response = await api.get('/api/users/showProfile');
 
                 setProfile(response.data);
@@ -59,16 +57,7 @@ const Profile = () => {
             //     console.error("Access token is missing");
             //     return;
             // }
-            // const token = Cookies.get('accessToken');
-            // if (!token) {
-            //     console.error("Access token is missing");
-            //     return;
-            // }
 
-            // await axios.put(
-            // `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateProfile`,
-            await api.put(
-                '/api/users/updateProfile',
             // await axios.put(
             // `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateProfile`,
             await api.put(
@@ -77,13 +66,6 @@ const Profile = () => {
                     firstName: updatedFirstName || profile?.firstName,
                     lastName: updatedLastName || profile?.lastName,
                     phoneNumber: updatedPhoneNumber || profile?.phoneNumber,
-                    // },
-                    // {
-                    //     headers: {
-                    //         Authorization: `Bearer ${token}`,
-                    //         'Content-Type': 'application/json',
-                    //     },
-                    //     withCredentials: true,
                     // },
                     // {
                     //     headers: {
@@ -111,26 +93,8 @@ const Profile = () => {
             //     console.error("Access token is missing");
             //     return;
             // }
-            // const token = Cookies.get('accessToken');
-            // if (!token) {
-            //     console.error("Access token is missing");
-            //     return;
-            // }
 
             const avatarFilename = selectedAvatar.split('/').pop();
-            await api.put(
-                '/api/users/updateAvatar',
-                { avatar: avatarFilename }
-                // await axios.put(
-                //     `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateAvatar`,
-                //     { avatar: avatarFilename },
-                //     {
-                //         headers: {
-                //             Authorization: `Bearer ${token}`,
-                //             'Content-Type': 'application/json',
-                //         },
-                //         withCredentials: true,
-                //     }
             await api.put(
                 '/api/users/updateAvatar',
                 { avatar: avatarFilename }
@@ -171,11 +135,6 @@ const Profile = () => {
         //     console.error("Access token is missing");
         //     return;
         // }
-        // const token = Cookies.get('accessToken');
-        // if (!token) {
-        //     console.error("Access token is missing");
-        //     return;
-        // }
 
         const fileInput = document.getElementById('avatarUpload') as HTMLInputElement;
         if (!fileInput.files || fileInput.files.length === 0) {
@@ -191,17 +150,11 @@ const Profile = () => {
             //     `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateProfilePhoto`,
             const response = await api.post(
                 '/api/users/updateProfilePhoto',
-            // const response = await axios.post(
-            //     `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateProfilePhoto`,
-            const response = await api.post(
-                '/api/users/updateProfilePhoto',
                 formData, {
                 headers: {
                     // Authorization: `Bearer ${token}`,
-                    // Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
                 },
-                // withCredentials: true,
                 // withCredentials: true,
             }
             );
@@ -220,7 +173,6 @@ const Profile = () => {
         }
     };
 
-    if (!profile) return <p className="text-center text-gray-300">Loading...</p>;
     if (!profile) return <p className="text-center text-gray-300">Loading...</p>;
 
     return (
@@ -278,73 +230,7 @@ const Profile = () => {
                             Change Avatar
                         </button>
                     </div>
-                    {/* < div className="flex justify-center gap-4 mb-6" >
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => setEditMode(true)}> Edit Profile </button>
-                    < button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => setShowAvatarSelection(true)}> Change Avatar </button>
-                </div> */}
 
-                    <div className="flex justify-center gap-4 mb-6">
-                        <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                            onClick={() => setEditMode(true)}
-                        >
-                            Edit Profile
-                        </button>
-                        <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                            onClick={() => setShowAvatarSelection(true)}
-                        >
-                            Change Avatar
-                        </button>
-                    </div>
-
-                    {
-                        editMode && (
-                            <div className="p-6 bg-gray-800 rounded-lg shadow-md mb-6" >
-                                <h2 className="text-2xl font-semibold mb-4" > Edit Profile Information </h2>
-                                < div className="space-y-4" >
-                                    <input
-                                        type="text"
-                                        placeholder="First Name"
-                                        defaultValue={profile.firstName}
-                                        onChange={(e) => setUpdatedFirstName(e.target.value)}
-                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Last Name"
-                                        defaultValue={profile.lastName}
-                                        onChange={(e) => setUpdatedLastName(e.target.value)}
-                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Phone Number"
-                                        defaultValue={profile.phoneNumber}
-                                        onChange={(e) => setUpdatedPhoneNumber(e.target.value)}
-                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
-                                    />
-                                </div>
-                                {/* < div className="flex gap-4 mt-4" >
-                                <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleProfileUpdate} > Save Changes </button>
-                                < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setEditMode(false)}> Cancel </button>
-                            </div> */}
-                                <div className="flex justify-end mt-4 gap-4">
-                                    <button
-                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                                        onClick={handleProfileUpdate}
-                                    >
-                                        Save Changes
-                                    </button>
-                                    <button
-                                        className="bg-gray-600 text-gray-300 px-4 py-2 rounded hover:bg-gray-500"
-                                        onClick={() => setEditMode(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     {
                         editMode && (
                             <div className="p-6 bg-gray-800 rounded-lg shadow-md mb-6" >
@@ -411,41 +297,7 @@ const Profile = () => {
                                             />
                                         ))}
                                 </div>
-                    {
-                        showAvatarSelection && (
-                            <div className="p-6 bg-gray-800 rounded-lg shadow-md" >
-                                <h2 className="text-2xl font-semibold mb-4" > Select an Avatar </h2>
-                                < div className="flex flex-wrap gap-4 justify-center" >
-                                    {
-                                        availableAvatars.map((avatar) => (
-                                            <img
-                                                key={avatar}
-                                                src={avatar}
-                                                alt="Available Avatar"
-                                                className={`w-16 h-16 rounded-full cursor-pointer border-2 ${avatar === selectedAvatar ? 'border-blue-500' : 'border-transparent'}`}
-                                                onClick={() => setSelectedAvatar(avatar)
-                                                }
-                                            />
-                                        ))}
-                                </div>
 
-                                < div className="mt-4 flex justify-end gap-4" >
-                                    {/* <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleAvatarUpdate} disabled={!selectedAvatar}> Save Selected Avatar </button>
-                                < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setShowAvatarSelection(false)}> Cancel </button> */}
-                                    <button
-                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                                        onClick={handleAvatarUpdate}
-                                        disabled={!selectedAvatar}
-                                    >
-                                        Save Selected Avatar
-                                    </button>
-                                    <button
-                                        className="bg-gray-600 text-gray-300 px-4 py-2 rounded hover:bg-gray-500"
-                                        onClick={() => setShowAvatarSelection(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
                                 < div className="mt-4 flex justify-end gap-4" >
                                     {/* <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleAvatarUpdate} disabled={!selectedAvatar}> Save Selected Avatar </button>
                                 < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setShowAvatarSelection(false)}> Cancel </button> */}

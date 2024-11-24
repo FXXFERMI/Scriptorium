@@ -10,33 +10,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const Header = dynamic(() => import('../components/Header'), { ssr: false }); // Dynamic import for client-side rendering only
-import dynamic from 'next/dynamic';
-import dotenv from 'dotenv';
-dotenv.config();
 
-const Header = dynamic(() => import('../components/Header'), { ssr: false }); // Dynamic import for client-side rendering only
-
-const Home: FC = () => {
 const Home: FC = () => {
   return (
-    <div className="text-black bg-black">
-      <NextSeo
-        title="Home: SFJ Scriptorium "
-        description="Welcome to SFJ Scriptorium homepage."
-        canonical={`${process.env.NEXT_PUBLIC_BASE_URL}/`}
-        openGraph={{
-          url: `${process.env.NEXT_PUBLIC_BASE_URL}/`,
-        }}
-      />
-      <Head>
-        <title>SFJ Scriptorium</title>
-        <link rel="icon" href="/favicon.png" />
-      </Head>
-      <Header />
-      <section className="text-gray-600 body-font">
-        <div className="max-w-5xl pt-52 pb-24 mx-auto">
-          <h1 className="text-80 text-center font-4 lh-6 ld-04 font-bold text-white mb-6">
-            Welcome to Scriptorium: the new way of writing codes!
     <div className="text-black bg-black">
       <NextSeo
         title="Home: SFJ Scriptorium "
@@ -230,31 +206,6 @@ const Home: FC = () => {
 };
 
 export default Home;
-
-// import { NextPage } from 'next';
-// import Navbar from '../components/Navbar'; // Make sure the path is correct based on your file structure
-
-// const Home: NextPage = () => {
-//   return (
-//     <div className="h-screen bg-gray-100">
-//       <Navbar /> {/* Using the Navbar component */}
-//       <div className="flex items-center justify-center h-full">
-//         <div className="text-center">
-//           <h1 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500">
-//             This is the Home Page and Hard Working Fermi
-//           </h1>
-//           <img 
-//             src="/cats-cat.gif" 
-//             alt="Animated GIF" 
-//             className="w-64 h-64 mx-auto rounded-lg shadow-md"
-//           />
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Home;
 
 // import { NextPage } from 'next';
 // import Navbar from '../components/Navbar'; // Make sure the path is correct based on your file structure
