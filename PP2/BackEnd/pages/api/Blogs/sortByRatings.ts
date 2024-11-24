@@ -4,23 +4,22 @@ import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
 
 interface Filters {
-    title?: { contains: string};
-    description?: { contains: string};
-    codeTemplates?: {
-        some: {
-            cid: { in: number[] }
-        }
-    };
-    AND?: Array<{
-      tags?: {
-        some: {
-          name: {contains: string}; // This will check for each tag specifically
-        };
+  bid?: number;
+  title?: { contains: string};
+  description?: { contains: string};
+  uid?: number;
+  AND?: Array<{
+    tags?: {
+      some: {
+        name: {contains: string}; // This will check for each tag specifically
       };
-    }>;
-    OR?: Array<{ Hidden?: boolean; uid?: number }>;
-    Hidden?: boolean;
-  }
+    };
+  }>;
+
+  OR?: Array<{ Hidden?: boolean; uid?: number }>;
+  Hidden?: boolean;
+};
+
 
 export default async function handler(req, res) {
     // Apply CORS
@@ -31,7 +30,7 @@ export default async function handler(req, res) {
 
         const {title,
             description,
-            tags, page = 1, limit = 10 } = req.query as {title?: string, description?: string, tags?: string, page?: string, limit?: string};
+            tags, codeTemplateNames, page = 1, limit = 10 } = req.query as {title?: string, description?: string, tags?: string, codeTemplateNames?: string, page?: string, limit?: string};
 
         const filters: Filters = {};
         if (title) {
@@ -57,6 +56,32 @@ export default async function handler(req, res) {
             },
           }))
         }
+    
+    
+        let codeTemplateNameArray;
+        if (codeTemplateNames) {
+          try {
+            codeTemplateNameArray = JSON.parse(codeTemplateNames);
+          } catch {
+            codeTemplateNameArray = [codeTemplateNames];// Handle single ID cases
+          }
+    
+          const codeTemplateFilter = codeTemplateNameArray.map(codeTemplateName =>({
+            codeTemplates: {
+              some: {title: codeTemplateName}
+            }
+          }) )
+    
+          if (filters.AND) {
+            filters.AND = filters.AND.concat(codeTemplateFilter)
+          } else {
+            filters.AND = codeTemplateFilter
+          }
+    
+        }
+    
+    
+    
 
         let token = null;
         if (req.headers.cookie) {

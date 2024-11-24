@@ -9,11 +9,6 @@ interface Filters {
   title?: { contains: string};
   description?: { contains: string};
   uid?: number;
-  codeTemplates?: {
-      some: {
-          cid: { in: number[] }
-      }
-  };
   AND?: Array<{
     tags?: {
       some: {

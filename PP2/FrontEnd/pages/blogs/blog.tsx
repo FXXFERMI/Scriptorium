@@ -37,8 +37,8 @@ const DisplayBlog = () => {
   >(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortComment, setSortComment] = useState(""); // Sort state (by rating)
-  const [sortReply, setSortReply] = useState(""); // Sort state (by rating)
+  const [sortComment, setSortComment] = useState("default"); // Sort state (by rating)
+  const [sortReply, setSortReply] = useState("default"); // Sort state (by rating)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [commentsFetched, setCommentsFetched] = useState(false);
@@ -158,7 +158,38 @@ const DisplayBlog = () => {
         setCommentsFetched(true); // Mark comments as fetched
         setLoading(false);
       } catch (err) {
-        setError("Failed to load the blog.");
+        setError("Failed to load the comments.");
+        setLoading(false);
+      }
+    };
+
+    const fetchReportSortedComments = async () => {
+      try {
+        const token = Cookies.get("accessToken");
+
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          params: { bid: id, page, limit: 10 },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
+        }
+
+        const response = await api.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/comments/sortByReports`,
+          config
+        );
+        setComments(response.data);
+        setCommentsFetched(true); // Mark comments as fetched
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load the comments.");
         setLoading(false);
       }
     };
@@ -166,8 +197,10 @@ const DisplayBlog = () => {
     if (blog) {
       if (sortComment === "rating_desc") {
         fetchSortedComments();
-      } else {
+      } else if (sortComment === "default") {
         fetchComments();
+      } else {
+        fetchReportSortedComments();
       }
     }
   }, [blog, page, commentUpdate, sortComment, sortReply]);
@@ -263,16 +296,13 @@ const DisplayBlog = () => {
           config
         );
 
-        console.log(response.data);
-
         const updatedComments = [...comments]; // Create a copy of the comments array
         updatedComments[commentIndex].replies = response.data;
-        console.log(updatedComments);
         setComments(updatedComments);
       } catch (err) {
         setError("Failed to load more replies.");
       }
-    } else {
+    } else if (sortReply === "default") {
       try {
         const token = Cookies.get("accessToken");
 
@@ -300,6 +330,39 @@ const DisplayBlog = () => {
 
         const updatedComments = [...comments]; // Create a copy of the comments array
         updatedComments[commentIndex].replies = response.data.repliesWithVotes;
+        setComments(updatedComments);
+      } catch (err) {
+        setError("Failed to load more replies.");
+      }
+    } else {
+      try {
+        const token = Cookies.get("accessToken");
+
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          params: {
+            commentId,
+            limit: numDisplay,
+          },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
+        }
+
+        response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/replies/sortByReports`,
+          config
+        );
+
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[commentIndex].replies = response.data;
+        console.log(updatedComments);
         setComments(updatedComments);
       } catch (err) {
         setError("Failed to load more replies.");
@@ -724,7 +787,7 @@ const DisplayBlog = () => {
                   {" "}
                   {blog.user.profile.firstName} {blog.user.profile.lastName}{" "}
                 </h2>
-                <p className="text-lg"> {blog.user.username} </p>
+                <p className="text-lg"> @{blog.user.username} </p>
               </div>
             </div>
 

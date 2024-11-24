@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import Header from "../../components/Header";
 import Pagination from "../../components/pagination";
 import CreateBlogButton from "../../components/CreateBlogButton";
+import api from "../../utils/axiosInstance";
 
 export default function Example() {
   const [posts, setPosts] = useState([]);
@@ -17,7 +18,7 @@ export default function Example() {
     description: "",
     tags: "",
   }); // Filter state
-  const [sort, setSort] = useState(""); // Sort state (by rating)
+  const [sort, setSort] = useState("default"); // Sort state (by rating)
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalBlogs, setTotalBlogs] = useState(0);
@@ -184,12 +185,51 @@ export default function Example() {
         }
       };
 
+      const fetchSortByReports = async () => {
+        try {
+          const codeTemplateNames = selectedCodeTemplates.map((name) => name);
+
+          const token = Cookies.get("accessToken");
+
+          // Base configuration
+          const config: AxiosRequestConfig = {
+            params: {
+              title: filter.title,
+              description: filter.description,
+              tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
+              codeTemplateNames: JSON.stringify(codeTemplateNames),
+            },
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+
+          // Add Authorization header and withCredentials only if token exists
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+            config.withCredentials = true;
+          }
+
+          const response = await api.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/sortByReports`,
+            config
+          );
+          setPosts(response.data);
+          setLoading(false);
+        } catch (err) {
+          setError("Failed to load the blog.");
+          setLoading(false);
+        }
+      };
+
       fetchCodeTemplates();
 
       if (sort === "rating_desc") {
         fetchSortedBlogs();
-      } else {
+      } else if (sort === "default") {
         fetchBlogs();
+      } else {
+        fetchSortByReports();
       }
     }
 
@@ -291,7 +331,7 @@ export default function Example() {
                 type="text"
                 name="title"
                 placeholder="Search by title"
-                value={filter.title}
+                value={filter.title === null ? "" : filter.title}
                 onChange={handleFilterChange}
                 className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               />
@@ -447,7 +487,7 @@ export default function Example() {
                           {post.user.profile.lastName}
                         </a>
                       </p>
-                      <p className="text-gray-200">{post.user.username}</p>
+                      <p className="text-gray-200">@{post.user.username}</p>
                     </div>
                   </div>
                 </article>
