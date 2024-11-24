@@ -1,10 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import Navbar from "../../components/Navbar"; // Assuming you have a Navbar component
+import Header from "../../components/Header"; // Assuming you have a Navbar component
 import { blogType } from "../../interfaces/blog";
 import { userProfileType } from "../../interfaces/user";
 import Cookies from "js-cookie";
+import api from "../../utils/axiosInstance";
+import Pagination from "../../components/pagination";
+
+// https://tailwindui.com/components/application-ui/navigation/pagination
+
+type ProfileType = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  avatarUrl: string;
+};
 
 const DisplayBlog = () => {
   const router = useRouter();
@@ -13,23 +25,36 @@ const DisplayBlog = () => {
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [error, setError] = useState<string>(""); // Error state
   const [comments, setComments] = useState([]);
+  const [totalComments, setTotalComments] = useState(0);
   const [newComment, setNewComment] = useState<string>(""); // State for new comment input
   const [commentUpdate, setCommentUpdate] = useState<boolean>(false); // State for new comment input
   const [blogUpdate, setBlogUpdate] = useState<boolean>(false); // State for new comment input
   const [replyingTo, setReplyingTo] = useState<number | null>(null); // State for tracking comment being replied to
+  const [replyingToName, setReplyingToName] = useState<string>("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sort, setSort] = useState(""); // Sort state (by rating)
-  const [curUser, setCurUser] = useState(null);
+  const [sortComment, setSortComment] = useState(""); // Sort state (by rating)
+  const [sortReply, setSortReply] = useState(""); // Sort state (by rating)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profile, setProfile] = useState<ProfileType | null>(null);
+  const [commentsFetched, setCommentsFetched] = useState(false);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null); // Reference to the textarea
 
   useEffect(() => {
-    const token = Cookies.get("accessToken");
-    if (!token) {
-      console.error("Access token is missing");
-      return;
-    }
+    const fetchProfile = async () => {
+      try {
+        const token = Cookies.get("accessToken");
+        if (token) {
+          const response = await api.get("/api/users/showProfile");
+          setIsLoggedIn(!!token);
+          setProfile(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+    fetchProfile();
   }, []);
 
   useEffect(() => {
@@ -37,8 +62,17 @@ const DisplayBlog = () => {
 
     const fetchBlog = async () => {
       try {
+        const token = Cookies.get("accessToken");
+
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
         );
         let blog = response.data;
         setBlog(blog);
@@ -54,17 +88,26 @@ const DisplayBlog = () => {
 
   // Fetch comments based on blog ID and page
   useEffect(() => {
+    if (commentsFetched) return;
     const fetchComments = async () => {
       try {
+        const token = Cookies.get("accessToken");
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
           {
             params: { bid: id, page, limit: 10 },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
           }
         );
-        const { comments, totalPages } = response.data;
+        const { comments, totalComments, totalPages } = response.data;
         setComments(comments);
+        setCommentsFetched(true); // Mark comments as fetched
         setTotalPages(totalPages);
+        setTotalComments(totalComments);
       } catch (err) {
         setError("Failed to load comments.");
       }
@@ -73,18 +116,20 @@ const DisplayBlog = () => {
     const fetchSortedComments = async () => {
       try {
         const token = Cookies.get("accessToken");
-        if (!token) {
-          console.error("Access token is missing");
-          return;
-        }
 
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/comments/sortByRatings`,
           {
-            params: { bid: id },
+            params: { bid: id, page, limit: 10 },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
           }
         );
         setComments(response.data);
+        setCommentsFetched(true); // Mark comments as fetched
         setLoading(false);
       } catch (err) {
         setError("Failed to load the blog.");
@@ -93,13 +138,14 @@ const DisplayBlog = () => {
     };
 
     if (blog) {
-      if (sort === "rating_desc") {
+      if (sortComment === "rating_desc") {
         fetchSortedComments();
       } else {
         fetchComments();
       }
+      console.log(comments);
     }
-  }, [blog, page, commentUpdate, sort]);
+  }, [blog, page, commentUpdate, sortComment, sortReply]);
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return; // empty string
@@ -111,7 +157,7 @@ const DisplayBlog = () => {
         return;
       }
       if (replyingTo) {
-        const response = await axios.post(
+        const response = await api.post(
           `${process.env.NEXT_PUBLIC_API_URL}/api/replies`,
           { commentId: replyingTo, content: newComment },
           {
@@ -123,7 +169,7 @@ const DisplayBlog = () => {
           }
         );
       } else {
-        const response = await axios.post(
+        const response = await api.post(
           `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
           { bid: id, content: newComment },
           {
@@ -136,16 +182,93 @@ const DisplayBlog = () => {
         );
       }
       setReplyingTo(null);
+      setReplyingToName("");
       setCommentUpdate((prev) => !prev);
+      setCommentsFetched(false); // Mark comments as not fetched
       setNewComment(""); // Clear the input after submission
     } catch (err) {
       setError("Failed to add comment.");
     }
   };
 
+  const handleLoadReplies = async (commentId: number, commentIndex: number) => {
+    const displayedReplies = comments[commentIndex].replies;
+    let numDisplay;
+    if (comments[commentIndex].replies) {
+      numDisplay = displayedReplies.length + 5;
+    } else {
+      numDisplay = 5;
+    }
+    let response;
+
+    if (sortReply === "rating_desc") {
+      try {
+        const token = Cookies.get("accessToken");
+        if (!token) {
+          console.error("Access token is missing");
+          return;
+        }
+
+        response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/replies/sortByRatings`,
+          {
+            params: {
+              commentId,
+              limit: numDisplay,
+            },
+
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+
+        console.log(response.data);
+
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[commentIndex].replies = response.data;
+        console.log(updatedComments);
+        setComments(updatedComments);
+      } catch (err) {
+        setError("Failed to load more replies.");
+      }
+    } else {
+      try {
+        const token = Cookies.get("accessToken");
+        if (!token) {
+          console.error("Access token is missing");
+          return;
+        }
+        response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/replies`,
+          {
+            params: {
+              commentId,
+              limit: numDisplay,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[commentIndex].replies = response.data.repliesWithVotes;
+        setComments(updatedComments);
+      } catch (err) {
+        setError("Failed to load more replies.");
+      }
+    }
+  };
+
   // Handle clicking on the reply button
   const handleReply = (commentId: number, username: string) => {
     setReplyingTo(commentId); // Set the comment being replied to
+    setReplyingToName(`@${username} `);
     setNewComment(`@${username} `); // Set the reply format
     if (textAreaRef.current) {
       textAreaRef.current.focus(); // Focus the textarea
@@ -155,15 +278,23 @@ const DisplayBlog = () => {
   // Upvote handler for blog
   const handleBlogUpvote = async (bid) => {
     try {
+      let upvote;
+      let downvote;
+      if (blog.hasUpvoted) {
+        upvote = false;
+        downvote = false;
+      } else {
+        upvote = true;
+        downvote = false;
+      }
       const token = Cookies.get("accessToken");
       if (!token) {
         console.error("Access token is missing");
         return;
       }
-      console.log(token);
-      await axios.post(
+      const response = await api.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/${bid}/rate`,
-        { upvote: true, downvote: false },
+        { upvote, downvote },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -172,7 +303,8 @@ const DisplayBlog = () => {
           withCredentials: true,
         }
       );
-      setBlogUpdate((prev) => !prev); // Trigger re-fetch of comments
+
+      setBlogUpdate((prev) => !prev); // Trigger re-fetch of blog
     } catch (err) {
       setError("Failed to upvote.");
     }
@@ -181,14 +313,24 @@ const DisplayBlog = () => {
   // Downvote handler for blog
   const handleBlogDownvote = async (bid) => {
     try {
+      let upvote;
+      let downvote;
+      if (blog.hasDownvoted) {
+        upvote = false;
+        downvote = false;
+      } else {
+        upvote = false;
+        downvote = true;
+      }
+
       const token = Cookies.get("accessToken");
       if (!token) {
         console.error("Access token is missing");
         return;
       }
-      await axios.post(
+      await api.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/${bid}/rate`,
-        { upvote: false, downvote: true },
+        { upvote, downvote },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -197,24 +339,32 @@ const DisplayBlog = () => {
           withCredentials: true,
         }
       );
-      setBlogUpdate((prev) => !prev); // Trigger re-fetch of comments
+      setBlogUpdate((prev) => !prev); // Trigger re-fetch of blog
     } catch (err) {
       setError("Failed to downvote.");
     }
   };
 
   // Upvote handler for comments
-  const handleCommentUpvote = async (commentId) => {
+  const handleCommentUpvote = async (commentId: number, index: number) => {
     try {
+      let upvote;
+      let downvote;
+      if (comments[index].hasUpvoted) {
+        upvote = false;
+        downvote = false;
+      } else {
+        upvote = true;
+        downvote = false;
+      }
       const token = Cookies.get("accessToken");
       if (!token) {
         console.error("Access token is missing");
         return;
       }
-      console.log(token);
-      await axios.post(
+      await api.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}/rate`,
-        { upvote: true, downvote: false },
+        { upvote, downvote },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -223,23 +373,49 @@ const DisplayBlog = () => {
           withCredentials: true,
         }
       );
-      setCommentUpdate((prev) => !prev); // Trigger re-fetch of comments
+
+      const response = await api.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      const updatedComments = [...comments]; // Create a copy of the comments array
+      updatedComments[index].upvotes = response.data.upvotes;
+      updatedComments[index].downvotes = response.data.downvotes;
+      updatedComments[index].hasUpvoted = response.data.hasUpvoted;
+      updatedComments[index].hasDownvoted = response.data.hasDownvoted;
+      setComments(updatedComments);
     } catch (err) {
       setError("Failed to upvote.");
     }
   };
 
   // Downvote handler for comments
-  const handleCommentDownvote = async (commentId) => {
+  const handleCommentDownvote = async (commentId: number, index: number) => {
     try {
+      let upvote;
+      let downvote;
+      if (comments[index].hasDownvoted) {
+        upvote = false;
+        downvote = false;
+      } else {
+        upvote = false;
+        downvote = true;
+      }
       const token = Cookies.get("accessToken");
       if (!token) {
         console.error("Access token is missing");
         return;
       }
-      await axios.post(
+      await api.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}/rate`,
-        { upvote: false, downvote: true },
+        { upvote, downvote },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -248,14 +424,201 @@ const DisplayBlog = () => {
           withCredentials: true,
         }
       );
-      setCommentUpdate((prev) => !prev); // Trigger re-fetch of comments
+      const response = await api.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/comments/${commentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      const updatedComments = [...comments]; // Create a copy of the comments array
+      updatedComments[index].upvotes = response.data.upvotes;
+      updatedComments[index].downvotes = response.data.downvotes;
+      updatedComments[index].hasUpvoted = response.data.hasUpvoted;
+      updatedComments[index].hasDownvoted = response.data.hasDownvoted;
+      setComments(updatedComments);
     } catch (err) {
       setError("Failed to downvote.");
     }
   };
+
+  // Upvote handler for comments
+  const handleReplyUpvote = async (
+    replyId: number,
+    replyIndex: number,
+    commentId: number,
+    commentIndex: number
+  ) => {
+    try {
+      let upvote;
+      let downvote;
+      if (comments[commentIndex].replies[replyIndex].hasUpvoted) {
+        upvote = false;
+        downvote = false;
+      } else {
+        upvote = true;
+        downvote = false;
+      }
+
+      const token = Cookies.get("accessToken");
+      if (!token) {
+        console.error("Access token is missing");
+        return;
+      }
+      await api.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}/rate`,
+        { upvote, downvote },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      const response = await api.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`
+      );
+
+      const updatedComments = [...comments]; // Create a copy of the comments array
+      const replyLength = updatedComments[commentIndex].replies.length;
+      if (sortReply === "rating_desc") {
+        const sortedResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/replies/sortByRatings`,
+          {
+            params: {
+              commentId,
+              limit: replyLength,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[commentIndex].replies = sortedResponse.data;
+        console.log(updatedComments);
+        setComments(updatedComments);
+      } else {
+        updatedComments[commentIndex].replies[replyIndex].upvotes =
+          response.data.upvotes;
+        updatedComments[commentIndex].replies[replyIndex].downvotes =
+          response.data.downvotes;
+        updatedComments[commentIndex].replies[replyIndex].hasUpvoted =
+          response.data.hasUpvoted;
+        updatedComments[commentIndex].replies[replyIndex].hasDownvoted =
+          response.data.hasDownvoted;
+        setComments(updatedComments);
+      }
+    } catch (err) {
+      setError("Failed to upvote.");
+    }
+  };
+
+  // Downvote handler for comments
+  const handleReplyDownvote = async (
+    replyId: number,
+    replyIndex: number,
+    commentId: number,
+    commentIndex: number
+  ) => {
+    try {
+      let upvote;
+      let downvote;
+      if (comments[commentIndex].replies[replyIndex].hasDownvoted) {
+        upvote = false;
+        downvote = false;
+      } else {
+        upvote = false;
+        downvote = true;
+      }
+
+      const token = Cookies.get("accessToken");
+      if (!token) {
+        console.error("Access token is missing");
+        return;
+      }
+      await api.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}/rate`,
+        { upvote, downvote },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      const response = await api.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`
+      );
+
+      const updatedComments = [...comments]; // Create a copy of the comments array
+      const replyLength = updatedComments[commentIndex].replies.length;
+
+      if (sortReply === "rating_desc") {
+        const sortedResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/replies/sortByRatings`,
+          {
+            params: {
+              commentId,
+              limit: replyLength,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[commentIndex].replies = sortedResponse.data;
+        console.log(updatedComments);
+        setComments(updatedComments);
+      } else {
+        updatedComments[commentIndex].replies[replyIndex].upvotes =
+          response.data.upvotes;
+        updatedComments[commentIndex].replies[replyIndex].downvotes =
+          response.data.downvotes;
+        updatedComments[commentIndex].replies[replyIndex].hasUpvoted =
+          response.data.hasUpvoted;
+        updatedComments[commentIndex].replies[replyIndex].hasDownvoted =
+          response.data.hasDownvoted;
+        setComments(updatedComments);
+      }
+    } catch (err) {
+      setError("Failed to upvote.");
+    }
+  };
+
   // Handle sorting changes
-  const handleSortChange = (e) => {
-    setSort(e.target.value);
+  const handleSortCommentChange = (e) => {
+    setSortComment(e.target.value);
+    setCommentsFetched(false); // Mark comments as not fetched
+  };
+
+  const handleSortReplyChange = (e) => {
+    setSortReply(e.target.value);
+    setCommentsFetched(false); // Mark comments as not fetched
+  };
+
+  const removeReplying = () => {
+    setReplyingTo(null);
+    setNewComment("");
+  };
+
+  const hanglePageChange = (page: number) => {
+    setPage(page);
+    setCommentsFetched(false);
   };
 
   if (loading) return <div>Loading...</div>; // Show loading state
@@ -264,20 +627,22 @@ const DisplayBlog = () => {
 
   return (
     <div>
-      <Navbar />
-      <div className="container mx-auto p-8">
+      <Header />
+      <div className="container mx-auto p-8 mt-20">
         {blog ? (
           <>
-            <h1 className="text-3xl font-bold mb-6">{blog.title}</h1>
-            <div className="flex flex-wrap mb-6">
+            <h1 className="text-5xl font-4 lh-6 ld-04 font-bold text-white mb-6">
+              {blog.title}
+            </h1>
+            <div className="text-gray-300 flex flex-wrap mb-6">
               tags:
               {blog.tags && blog.tags.length > 0 ? (
-                JSON.parse(blog.tags).map((tag: string, index: number) => (
+                blog.tags.map((tag, index) => (
                   <span
                     key={index}
                     className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm ml-2 mr-2 mb-2"
                   >
-                    {tag}
+                    {tag.name.charAt(0).toUpperCase() + tag.name.slice(1)}
                   </span>
                 ))
               ) : (
@@ -285,8 +650,11 @@ const DisplayBlog = () => {
               )}
             </div>
             {/* add author section*/}
-            <h1 className="text-1.5xl font-bold mb-4"> Written by:</h1>
-            <div className="flex flex-row items-center mb-6">
+            <h1 className="text-gray-200 text-1.5xl font-bold mb-4">
+              {" "}
+              Written by:
+            </h1>
+            <div className="text-gray-200 flex flex-row items-center mb-6">
               <img
                 src={
                   blog.user.profile.avatar.startsWith("/uploads/")
@@ -301,7 +669,7 @@ const DisplayBlog = () => {
                     ? `${process.env.NEXT_PUBLIC_API_URL}${blog.user.profile.avatar}`
                     : blog.user.profile.avatar
                 }
-                className="w-14 h-14 rounded-full"
+                className="text-gray-200 w-14 h-14 rounded-full"
               />
               <div className="flex flex-col ml-4">
                 <h2>
@@ -312,46 +680,69 @@ const DisplayBlog = () => {
               </div>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-lg shadow-md">
-              <h2 className="text-xl text-black font-semibold mb-4">
-                Blog Description
-              </h2>
-              <p className="text-gray-700">{blog.description}</p>
-            </div>
+            <p className="text-gray-300 text-lg font-normal">
+              {blog.description}
+            </p>
             <div className="flex items-center space-x-2 mt-2">
               {/* Upvote button */}
               <button
                 onClick={() => handleBlogUpvote(blog.bid)}
-                className="text-gray-500 hover:text-blue-500"
+                className={`mr-2 ${
+                  blog.hasUpvoted
+                    ? "text-blue-500 font-bold" // Highlighted when upvoted
+                    : "text-gray-500 hover:text-blue-500" // Default state
+                }`}
               >
                 ▲
               </button>
-              <span>{blog.upvotes}</span>
+              <span className="text-gray-100">{blog.upvotes}</span>
               {/* Downvote button */}
               <button
                 onClick={() => handleBlogDownvote(blog.bid)}
-                className="text-gray-500 hover:text-red-500"
+                className={`mr-2 ml-2 ${
+                  blog.hasDownvoted
+                    ? "text-red-500 font-bold" // Highlighted when downvoted
+                    : "text-gray-500 hover:text-red-500" // Default state
+                }`}
               >
                 ▼
               </button>
-              <span>{blog.downvotes}</span>
+              <span className="text-gray-100">{blog.downvotes}</span>
             </div>
             {/* Add code Template links */}
+            <hr className="mt-8" />
             {/* Add comments */}
             <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Comments</h2>
+              <h2 className="text-xl text-gray-100 font-semibold mb-4">
+                Comments
+              </h2>
               {/* Sort by ratings */}
-              <select
-                name="sortBy"
-                value={sort}
-                onChange={handleSortChange}
-                className="border p-2 mb-4"
-              >
-                <option value="default">Sort by default</option>
-                <option value="rating_desc">Sort by rating (descending)</option>
-              </select>
+              <div className="flex space-x-4">
+                <select
+                  name="sortBy"
+                  value={sortComment}
+                  onChange={handleSortCommentChange}
+                  className="border p-2 mb-4 bg-gray-900 text-gray-300 rounded-md "
+                >
+                  <option value="default">Sort comments by default</option>
+                  <option value="rating_desc">
+                    Sort comments by rating (descending)
+                  </option>
+                </select>
+                <select
+                  name="sortBy"
+                  value={sortReply}
+                  onChange={handleSortReplyChange}
+                  className="border p-2 mb-4 bg-gray-900 text-gray-300 rounded-md "
+                >
+                  <option value="default">Sort replies by default</option>
+                  <option value="rating_desc">
+                    Sort replies by rating (descending)
+                  </option>
+                </select>
+              </div>
               {comments.length > 0 ? (
-                comments.map((comment) => (
+                comments.map((comment, index) => (
                   <div
                     key={comment.commentId}
                     className="border-b border-gray-300 mb-6 pb-4"
@@ -372,8 +763,12 @@ const DisplayBlog = () => {
                           className="w-14 h-14 rounded-full"
                         />
                         <div className="flex flex-col ml-4 w-full">
-                          <p className="text-m">{comment.user.username}</p>
-                          <p className="break-words">{comment.content}</p>
+                          <p className="text-m text-gray-200">
+                            {comment.user.username}
+                          </p>
+                          <p className="break-words text-gray-200">
+                            {comment.content}
+                          </p>
 
                           {/* Align the button to the left */}
                           <button
@@ -395,29 +790,45 @@ const DisplayBlog = () => {
                         <div className="flex flex-row items-center">
                           <button
                             onClick={() =>
-                              handleCommentUpvote(comment.commentId)
+                              handleCommentUpvote(comment.commentId, index)
                             }
-                            className="text-gray-500 hover:text-blue-500 mr-2"
+                            className={`mr-2 ${
+                              comment.hasUpvoted
+                                ? "text-blue-500 font-bold" // Highlighted when upvoted
+                                : "text-gray-500 hover:text-blue-500" // Default state
+                            }`}
                           >
                             ▲
                           </button>
-                          <span>{comment.upvotes}</span>
+                          <span className="text-gray-100">
+                            {comment.upvotes}
+                          </span>
                           <button
                             onClick={() =>
-                              handleCommentDownvote(comment.commentId)
+                              handleCommentDownvote(comment.commentId, index)
                             }
-                            className="text-gray-500 hover:text-red-500 mr-2 ml-2"
+                            className={`mr-2 ml-2 ${
+                              comment.hasDownvoted
+                                ? "text-red-500 font-bold" // Highlighted when downvoted
+                                : "text-gray-500 hover:text-red-500" // Default state
+                            }`}
                           >
                             ▼
                           </button>
-                          <span>{comment.downvotes}</span>
+                          <span className="text-gray-100">
+                            {comment.downvotes}
+                          </span>
                         </div>
                       </div>
                     </div>
                     <div className="pl-10">
-                      {comment.replies.length > 0 &&
-                        comment.replies.map((reply) => (
-                          <div className="flex flex-row justify-between items-center">
+                      {comment.replies &&
+                        comment.replies.length > 0 &&
+                        comment.replies.map((reply, replyIndex) => (
+                          <div
+                            className="flex flex-row justify-between items-center"
+                            key={reply.replyId}
+                          >
                             {/* Left Section: Avatar and reply Content */}
 
                             <div className="flex flex-row items-center w-3/4">
@@ -435,10 +846,12 @@ const DisplayBlog = () => {
                                 className="w-12 h-12 rounded-full"
                               />
                               <div className="flex flex-col ml-4 w-full">
-                                <p className="text-m">
+                                <p className="text-m text-gray-200">
                                   {reply.replier.username}
                                 </p>
-                                <p className="break-words">{reply.content}</p>
+                                <p className="break-words text-gray-200">
+                                  {reply.content}
+                                </p>
 
                                 {/* Align the button to the left */}
                                 <button
@@ -460,77 +873,136 @@ const DisplayBlog = () => {
                               <div className="flex flex-row items-center">
                                 <button
                                   onClick={() =>
-                                    handleCommentUpvote(reply.commentId)
+                                    handleReplyUpvote(
+                                      reply.replyId,
+                                      replyIndex,
+                                      comment.commentId,
+                                      index
+                                    )
                                   }
-                                  className="text-gray-500 hover:text-blue-500 mr-2"
+                                  className={`mr-2 ${
+                                    reply.hasUpvoted
+                                      ? "text-blue-500 font-bold" // Highlighted when upvoted
+                                      : "text-gray-500 hover:text-blue-500" // Default state
+                                  }`}
                                 >
                                   ▲
                                 </button>
-                                <span>{reply.upvotes}</span>
+                                <span className="text-gray-100">
+                                  {reply.upvotes}
+                                </span>
                                 <button
                                   onClick={() =>
-                                    handleCommentDownvote(reply.commentId)
+                                    handleReplyDownvote(
+                                      reply.replyId,
+                                      replyIndex,
+                                      comment.commentId,
+                                      index
+                                    )
                                   }
-                                  className="text-gray-500 hover:text-red-500 mr-2 ml-2"
+                                  className={`mr-2 ml-2 ${
+                                    reply.hasDownvoted
+                                      ? "text-red-500 font-bold" // Highlighted when downvoted
+                                      : "text-gray-500 hover:text-red-500" // Default state
+                                  }`}
                                 >
                                   ▼
                                 </button>
-                                <span>{reply.downvotes}</span>
+                                <span className="text-gray-100">
+                                  {reply.downvotes}
+                                </span>
                               </div>
                             </div>
                           </div>
                         ))}
                     </div>
-                    {comment.replies.length > 0 && (
+                    {comment.replies &&
+                      comment._count.replies > comment.replies.length && (
+                        <div>
+                          <button
+                            onClick={() =>
+                              handleLoadReplies(comment.commentId, index)
+                            }
+                            className="text-gray-500 hover:text-blue-500 ml-10"
+                          >
+                            View more replies
+                          </button>
+                        </div>
+                      )}
+
+                    {!comment.replies && comment._count.replies > 0 && (
                       <div>
                         <button
-                          // onClick={() => handleLoadReplies(comment.commentId)}
+                          onClick={() =>
+                            handleLoadReplies(comment.commentId, index)
+                          }
                           className="text-gray-500 hover:text-blue-500 ml-10"
                         >
-                          View more replies
+                          View replies
                         </button>
                       </div>
                     )}
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500">No comments available</p>
+                <p className="text-gray-500 mb-6 pb-4">No comments available</p>
               )}
 
               {/* Pagination Controls */}
-              <div className="flex justify-center mt-4 mb-4">
-                <button
-                  onClick={() => setPage(page - 1)}
-                  disabled={page === 1}
-                  className="px-4 py-2 bg-blue-500 text-white rounded mr-2 disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => setPage(page + 1)}
-                  disabled={page === totalPages}
-                  className="px-4 py-2 bg-blue-500 text-white rounded ml-2 disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-              {/* New Comment Input */}
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                totalItems={totalComments}
+                itemsPerPage={10}
+                onPageChange={hanglePageChange}
+              />
 
-              <div className="mb-6">
-                <textarea
-                  ref={textAreaRef}
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="w-full p-2 border rounded"
-                />
-                <button
-                  onClick={handleAddComment}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  Submit Comment
-                </button>
-              </div>
+              {/* New Comment Input */}
+              {replyingTo && isLoggedIn && (
+                <span className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm ml-2 mr-2 mb-2">
+                  replying to {replyingToName}
+                  <button
+                    onClick={() => removeReplying()}
+                    className="ml-2 text-blue-800 hover:text-red-600 focus:outline-none"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {isLoggedIn && (
+                <div className="flex items-start gap-4 rounded-lg p-4 shadow-sm">
+                  {/* User Avatar */}
+                  <img
+                    src={profile.avatarUrl}
+                    alt="User Avatar"
+                    className="h-10 w-10 rounded-full"
+                  />
+
+                  {/* Comment Input Area */}
+
+                  <div className="flex-1">
+                    <textarea
+                      ref={textAreaRef}
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Add your comment..."
+                      className="w-full h-16 p-3 border border-gray-300 bg-gray-900 rounded-lg resize-none text-white focus:outline-none focus:ring focus:ring-blue-300"
+                    ></textarea>
+                    <div className="mt-2 flex justify-between items-center">
+                      {/* Icons */}
+                      <div className="flex items-center gap-3"></div>
+
+                      {/* Post Button */}
+                      <button
+                        onClick={handleAddComment}
+                        className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded hover:bg-blue-700"
+                      >
+                        Post
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         ) : (

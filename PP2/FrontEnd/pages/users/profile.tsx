@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Cookies from 'js-cookie';
-import Navbar from '../../components/Navbar';
+import Header from '../../components/Header';
+import Head from "next/head";
+import Footer from "../../components/Footer";
+import { NextSeo } from "next-seo";
+import api from '../../utils/axiosInstance';
 
 const availableAvatars = [
     '/avatars/avatar1.png',
@@ -32,19 +35,12 @@ const Profile = () => {
     const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState<string>('');
     const [refreshKey, setRefreshKey] = useState<number>(0);
 
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const token = Cookies.get('accessToken');
-                if (!token) {
-                    console.error("Access token is missing");
-                    return;
-                }
-
-                const response = await axios.get(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/users/showProfile`,
-                    { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
-                );
+                const response = await api.get('/api/users/showProfile');
 
                 setProfile(response.data);
             } catch (error) {
@@ -56,25 +52,27 @@ const Profile = () => {
 
     const handleProfileUpdate = async () => {
         try {
-            const token = Cookies.get('accessToken');
-            if (!token) {
-                console.error("Access token is missing");
-                return;
-            }
+            // const token = Cookies.get('accessToken');
+            // if (!token) {
+            //     console.error("Access token is missing");
+            //     return;
+            // }
 
-            await axios.put(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateProfile`,
+            // await axios.put(
+            // `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateProfile`,
+            await api.put(
+                '/api/users/updateProfile',
                 {
                     firstName: updatedFirstName || profile?.firstName,
                     lastName: updatedLastName || profile?.lastName,
                     phoneNumber: updatedPhoneNumber || profile?.phoneNumber,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    withCredentials: true,
+                    // },
+                    // {
+                    //     headers: {
+                    //         Authorization: `Bearer ${token}`,
+                    //         'Content-Type': 'application/json',
+                    //     },
+                    //     withCredentials: true,
                 }
             );
 
@@ -90,24 +88,26 @@ const Profile = () => {
 
     const handleAvatarUpdate = async () => {
         try {
-            const token = Cookies.get('accessToken');
-            if (!token) {
-                console.error("Access token is missing");
-                return;
-            }
+            // const token = Cookies.get('accessToken');
+            // if (!token) {
+            //     console.error("Access token is missing");
+            //     return;
+            // }
 
             const avatarFilename = selectedAvatar.split('/').pop();
-
-            await axios.put(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateAvatar`,
-                { avatar: avatarFilename },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    withCredentials: true,
-                }
+            await api.put(
+                '/api/users/updateAvatar',
+                { avatar: avatarFilename }
+                // await axios.put(
+                //     `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateAvatar`,
+                //     { avatar: avatarFilename },
+                //     {
+                //         headers: {
+                //             Authorization: `Bearer ${token}`,
+                //             'Content-Type': 'application/json',
+                //         },
+                //         withCredentials: true,
+                //     }
             );
 
             setProfile((prevProfile) => ({
@@ -130,11 +130,11 @@ const Profile = () => {
     };
 
     const handleFileUpload = async () => {
-        const token = Cookies.get('accessToken');
-        if (!token) {
-            console.error("Access token is missing");
-            return;
-        }
+        // const token = Cookies.get('accessToken');
+        // if (!token) {
+        //     console.error("Access token is missing");
+        //     return;
+        // }
 
         const fileInput = document.getElementById('avatarUpload') as HTMLInputElement;
         if (!fileInput.files || fileInput.files.length === 0) {
@@ -146,14 +146,16 @@ const Profile = () => {
         formData.append('profilePhoto', fileInput.files[0]);
 
         try {
-            const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateProfilePhoto`,
+            // const response = await axios.post(
+            //     `${process.env.NEXT_PUBLIC_API_URL}/api/users/updateProfilePhoto`,
+            const response = await api.post(
+                '/api/users/updateProfilePhoto',
                 formData, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    // Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
                 },
-                withCredentials: true,
+                // withCredentials: true,
             }
             );
 
@@ -171,98 +173,174 @@ const Profile = () => {
         }
     };
 
-    if (!profile) return <p>Loading...</p>;
+    if (!profile) return <p className="text-center text-gray-300">Loading...</p>;
 
     return (
-        <div className="max-w-3xl mx-auto p-4 bg-white rounded-lg shadow-md" >
-            <Navbar />
-            <h1 className="text-2xl font-bold mb-4 text-center" > {profile.firstName} {profile.lastName} </h1>
-            < div className="flex flex-col items-center mb-6" >
-                {/* <img src={profile.avatar} alt="Avatar" width={100} height={100} key={profile.avatar} /> */}
-                < img src={profile.avatarUrl} alt="Avatar" width={100} height={100} key={profile.avatarUrl} className="w-24 h-24 rounded-full mb-4" />
-                <p className="text-lg" > Email: {profile.email} </p>
-                < p className="text-lg" > Phone: {profile.phoneNumber} </p>
-            </div>
+        <div className="text-black bg-black">
+            <NextSeo
+                title="About Us: SFJ Scriptorium"
+                description="Learn more about SFJ Scriptorium: the new way of writing code."
+                canonical={`${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`}
+                openGraph={{
+                    url: `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`,
+                }}
+            />
+            <Head>
+                <title>Profile - SFJ Scriptorium</title>
+                <link rel="icon" href="/favicon.png" />
+            </Head>
+            <Header />
+            <section className="text-gray-600 body-font">
 
-            < div className="flex justify-center gap-4 mb-6" >
-                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => setEditMode(true)}> Edit Profile </button>
-                < button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => setShowAvatarSelection(true)}> Change Avatar </button>
-            </div>
-
-            {
-                editMode && (
-                    <div className="mt-6 p-4 border rounded-md bg-gray-50" >
-                        <h2 className="text-xl font-semibold mb-4" > Edit Profile Information </h2>
-                        < div className="flex flex-col gap-4" >
-                            <input
-                                type="text"
-                                placeholder="First Name"
-                                defaultValue={profile.firstName}
-                                onChange={(e) => setUpdatedFirstName(e.target.value)
-                                }
-                                className="p-2 border rounded-md"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Last Name"
-                                defaultValue={profile.lastName}
-                                onChange={(e) => setUpdatedLastName(e.target.value)}
-                                className="p-2 border rounded-md"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Phone Number"
-                                defaultValue={profile.phoneNumber}
-                                onChange={(e) => setUpdatedPhoneNumber(e.target.value)}
-                                className="p-2 border rounded-md"
-                            />
-                        </div>
-                        < div className="flex gap-4 mt-4" >
-                            <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleProfileUpdate} > Save Changes </button>
-                            < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setEditMode(false)}> Cancel </button>
-                        </div>
+                <div className="max-w-5xl pt-52 pb-24 mx-auto">
+                    <h1 className="text-4xl font-bold text-center mb-6" >
+                        {profile.firstName} {profile.lastName}
+                    </h1>
+                    {/* < div className="flex flex-col items-center mb-6" >
+                    < img src={profile.avatarUrl} alt="Avatar" width={100} height={100} key={profile.avatarUrl} className="w-24 h-24 rounded-full mb-4" />
+                    <p className="text-lg" > Email: {profile.email} </p>
+                    < p className="text-lg" > Phone: {profile.phoneNumber} </p>
+                </div> */}
+                    <div className="flex flex-col items-center mb-6">
+                        <img
+                            src={profile.avatarUrl}
+                            alt="Avatar"
+                            className="w-24 h-24 rounded-full mb-4 border shadow-md"
+                        />
+                        <p className="text-lg mb-2">Email: {profile.email}</p>
+                        <p className="text-lg">Phone: {profile.phoneNumber}</p>
                     </div>
-                )}
 
+                    {/* < div className="flex justify-center gap-4 mb-6" >
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => setEditMode(true)}> Edit Profile </button>
+                    < button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={() => setShowAvatarSelection(true)}> Change Avatar </button>
+                </div> */}
 
-            {
-                showAvatarSelection && (
-                    <div className="mt-6 p-4 border rounded-md bg-gray-50" >
-                        <h2 className="text-xl font-semibold mb-4" > Select an Avatar </h2>
-                        < div className="flex flex-wrap gap-4 justify-center mb-4" >
-                            {
-                                availableAvatars.map((avatar) => (
-                                    <img
-                                        key={avatar}
-                                        src={avatar}
-                                        alt="Available Avatar"
-                                        className={`w-20 h-20 rounded-full cursor-pointer ${avatar === selectedAvatar ? 'ring-4 ring-blue-500' : 'ring-2 ring-transparent'}`}
-                                        onClick={() => setSelectedAvatar(avatar)
-                                        }
+                    <div className="flex justify-center gap-4 mb-6">
+                        <button
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            onClick={() => setEditMode(true)}
+                        >
+                            Edit Profile
+                        </button>
+                        <button
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            onClick={() => setShowAvatarSelection(true)}
+                        >
+                            Change Avatar
+                        </button>
+                    </div>
+
+                    {
+                        editMode && (
+                            <div className="p-6 bg-gray-800 rounded-lg shadow-md mb-6" >
+                                <h2 className="text-2xl font-semibold mb-4" > Edit Profile Information </h2>
+                                < div className="space-y-4" >
+                                    <input
+                                        type="text"
+                                        placeholder="First Name"
+                                        defaultValue={profile.firstName}
+                                        onChange={(e) => setUpdatedFirstName(e.target.value)}
+                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
                                     />
-                                ))}
-                        </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Last Name"
+                                        defaultValue={profile.lastName}
+                                        onChange={(e) => setUpdatedLastName(e.target.value)}
+                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Phone Number"
+                                        defaultValue={profile.phoneNumber}
+                                        onChange={(e) => setUpdatedPhoneNumber(e.target.value)}
+                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
+                                    />
+                                </div>
+                                {/* < div className="flex gap-4 mt-4" >
+                                <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleProfileUpdate} > Save Changes </button>
+                                < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setEditMode(false)}> Cancel </button>
+                            </div> */}
+                                <div className="flex justify-end mt-4 gap-4">
+                                    <button
+                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                                        onClick={handleProfileUpdate}
+                                    >
+                                        Save Changes
+                                    </button>
+                                    <button
+                                        className="bg-gray-600 text-gray-300 px-4 py-2 rounded hover:bg-gray-500"
+                                        onClick={() => setEditMode(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
-                        < div className="flex gap-4" >
-                            <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleAvatarUpdate} disabled={!selectedAvatar}> Save Selected Avatar </button>
-                            < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setShowAvatarSelection(false)}> Cancel </button>
-                        </div>
 
-                        < div className="mt-4" >
-                            <input
-                                type="file"
-                                id="avatarUpload"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="mb-2"
-                            />
-                            {uploadedAvatar && (
-                                <img src={uploadedAvatar} alt="Uploaded Avatar Preview" className="w-20 h-20 rounded-full mb-2" />
-                            )}
-                            <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleFileUpload} > Upload and Save </button>
-                        </div>
-                    </div>
-                )}
+                    {
+                        showAvatarSelection && (
+                            <div className="p-6 bg-gray-800 rounded-lg shadow-md" >
+                                <h2 className="text-2xl font-semibold mb-4" > Select an Avatar </h2>
+                                < div className="flex flex-wrap gap-4 justify-center" >
+                                    {
+                                        availableAvatars.map((avatar) => (
+                                            <img
+                                                key={avatar}
+                                                src={avatar}
+                                                alt="Available Avatar"
+                                                className={`w-16 h-16 rounded-full cursor-pointer border-2 ${avatar === selectedAvatar ? 'border-blue-500' : 'border-transparent'}`}
+                                                onClick={() => setSelectedAvatar(avatar)
+                                                }
+                                            />
+                                        ))}
+                                </div>
+
+                                < div className="mt-4 flex justify-end gap-4" >
+                                    {/* <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleAvatarUpdate} disabled={!selectedAvatar}> Save Selected Avatar </button>
+                                < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setShowAvatarSelection(false)}> Cancel </button> */}
+                                    <button
+                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                                        onClick={handleAvatarUpdate}
+                                        disabled={!selectedAvatar}
+                                    >
+                                        Save Selected Avatar
+                                    </button>
+                                    <button
+                                        className="bg-gray-600 text-gray-300 px-4 py-2 rounded hover:bg-gray-500"
+                                        onClick={() => setShowAvatarSelection(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+
+                                < div className="mt-6" >
+                                    <input
+                                        type="file"
+                                        id="avatarUpload"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="text-gray-300"
+                                    />
+                                    {uploadedAvatar && (
+                                        <img src={uploadedAvatar} alt="Uploaded Avatar Preview" className="w-16 h-16 rounded-full mt-4" />
+                                    )}
+                                    {/* <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleFileUpload} > Upload and Save </button> */}
+                                    <button
+                                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                        onClick={handleFileUpload}
+                                    >
+                                        Upload and Save
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                </div>
+                <Footer />
+
+            </section >
         </div>
     );
 };

@@ -27,37 +27,6 @@ export default function Example() {
   const [totalTemplates, setTotalTemplates] = useState(0);
   const [templatesLimit, setTemplatesLimit] = useState(10);
 
-  useEffect(() => {
-    if (router.isReady) {
-      let filter: {
-        title?: string | string[];
-        description?: string | string[];
-        tags?: string | string[];
-      } = {};
-
-      if (router.query.title) {
-        filter.title = router.query.title;
-      } else {
-        filter.title = "";
-      }
-      if (router.query.description) {
-        filter.description = router.query.description;
-      } else {
-        filter.description = "";
-      }
-      if (router.query.tags) {
-        filter.tags = router.query.tags;
-      } else {
-        filter.tags = "";
-      }
-      if (router.query.page) {
-        setPage(Number(router.query.page));
-      } else {
-        setPage(1);
-      }
-    }
-  }, [router.isReady, router.query]);
-
   const fetchCodeTemplates = async () => {
     try {
       const response = await axios.get(
@@ -141,19 +110,6 @@ export default function Example() {
     } else {
       fetchBlogs();
     }
-
-    // Update URL parameters based on state
-    // if (router.isReady) {
-    //   router.push({
-    //     pathname: "",
-    //     query: {
-    //       filter.title,
-    //       filter.description,
-    //       filter.tags,
-    //       page,
-    //     },
-    //   });
-    // }
   }, [filter, sort, blogsUpdate, selectedCodeTemplates]);
 
   const handleClick = (bid) => {
