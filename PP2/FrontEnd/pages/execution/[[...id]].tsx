@@ -50,6 +50,7 @@ const CodeExecution: React.FC = () => {
 
     useEffect(() => {
         const { id } = router.query;
+        console.log(id);
         !id && boilerPlate();
     }, [language]);
 
@@ -65,7 +66,7 @@ const CodeExecution: React.FC = () => {
         if (id) {
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/${id}`);
-                console.log(response.data)
+                console.log(response.data, "nfnfgn")
                 setCode(response.data.code);
                 setExplanation(response.data.explanation);
                 setLanguage(response.data.language);
@@ -120,6 +121,7 @@ const CodeExecution: React.FC = () => {
     };
 
     const boilerPlate = () => {
+        console.log("boiler plate ")
         switch (language) {
             case 'python':
                 setCode(`#Online Python code editor \n#Write Python here to execute \nprint("Hello, World!")`);
@@ -206,7 +208,6 @@ const CodeExecution: React.FC = () => {
 
     const execute = async (): Promise<void> => {
         try {
-            language.toLocaleLowerCase() === 'java' && boilerPlate();
             setLoading(true)
             fixInput(code)
 
@@ -279,6 +280,7 @@ const CodeExecution: React.FC = () => {
                             withCredentials: true,
                         },
                     );
+                    console.log(response.data)
                     toast.success('Updated successfully')
                 } catch (error) {
                     toast.error(error.response?.data || error.message)

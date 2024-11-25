@@ -48,10 +48,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       }
 
+      // Process tags and ensure uniqueness
+      const uniqueTagsArray:string[] = Array.from(new Set(tags));
+
+      // Ensure all tags exist in the database
+      const existingTags = await prisma.tag.findMany({
+        where: {
+          OR: uniqueTagsArray.map(tag => ({
+            name: {contains: tag.toLowerCase(),
+                } 
+          })), // Check for existing tags
+        },
+      });
+
+      // Find tags that do not exist
+      const existingTagNames = existingTags.map(tag => tag.name);
+      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag.toLowerCase()));
+
+      // Create new tags if needed
+      await prisma.tag.createMany({
+        data: newTagNames.map(tag => ({ name: tag })),
+      });
+
+      const newTagsArray = await prisma.tag.findMany({
+        where: {
+          name: { in: newTagNames }, // Check for existing tags
+        },
+      });
+
+      // Combine existing and newly created tags
+      const allTags = [...existingTags, ...newTagsArray];
+
+      const tagsId = allTags.map(tag => (tag.tagId))
+
       const updatedData = {
         title,
         explanation,
-        tags,
+        // Update tags: remove all current tags and set to new ones
+        tags: {
+          set: [], // Clear all existing tags
+          ...(tagsId && tagsId.length ? {
+            connect: tagsId.map((tag) => ({ tagId: tag })), // Connect new tags
+          } : {}),
+        },
         code,
         language,
       };
@@ -59,11 +98,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const updatedCodeTemplate = await prisma.codeTemplate.update({
         where: { cid: Number(id) },
         data: updatedData,
+        include: {tags:true}
       });
 
       return res.status(200).json(updatedCodeTemplate);
     } catch (error) {
-      console.log(error.message)
       return res.status(500).json({ error: error.message });
     }
 
@@ -73,8 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const codeTemplate = await prisma.codeTemplate.findUnique({
         where: { cid: Number(id) },
         include: {
-          blogs: true, // see the list of blog posts that mention a code template 
-          tags: true,
+          blogs: true // see the list of blog posts that mention a code template 
         },
       });
       return res.status(200).json(codeTemplate);
