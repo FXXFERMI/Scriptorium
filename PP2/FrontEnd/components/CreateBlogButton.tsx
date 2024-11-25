@@ -1,6 +1,6 @@
 // pages/index.tsx
 import { useState } from "react";
-import CreateBlog from "./createBlog";
+import CreateEditBlog from "./createEditBlog";
 
 const CreateBlogButton = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -17,7 +17,8 @@ const CreateBlogButton = () => {
         Create Blog
       </button>
 
-      {isPopupOpen && <CreateBlog onClose={closePopup} />}
+      {/* {isPopupOpen && <CreateBlog edit={true} bid={6} onClose={closePopup} />} */}
+      {isPopupOpen && <CreateEditBlog onClose={closePopup} />}
     </div>
   );
 };

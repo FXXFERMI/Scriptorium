@@ -51,19 +51,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Process tags and ensure uniqueness
       const uniqueTagsArray:string[] = Array.from(new Set(tags));
 
-      // Ensure all tags exist in the database
       const existingTags = await prisma.tag.findMany({
         where: {
           OR: uniqueTagsArray.map(tag => ({
-            name: {contains: tag.toLowerCase(),
-                } 
+            name: tag.toLowerCase(),
           })), // Check for existing tags
         },
       });
 
       // Find tags that do not exist
       const existingTagNames = existingTags.map(tag => tag.name);
-      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag.toLowerCase()));
+      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag));
 
       // Create new tags if needed
       await prisma.tag.createMany({
@@ -72,10 +70,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const newTagsArray = await prisma.tag.findMany({
         where: {
-          name: { in: newTagNames }, // Check for existing tags
+          OR: newTagNames.map(tag => ({
+            name: tag.toLowerCase(),
+          })), // Check for existing tags
         },
-      });
 
+      });
       // Combine existing and newly created tags
       const allTags = [...existingTags, ...newTagsArray];
 
