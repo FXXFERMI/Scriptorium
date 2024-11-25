@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@codemirror/lang-cpp": "^6.0.2",
+    "@codemirror/lang-go": "^6.0.1",
+    "@codemirror/lang-php": "^6.0.1",
+    "@codemirror/lang-rust": "^6.0.1",
+    "@uiw/react-codemirror": "^4.23.6"
+  }
+}

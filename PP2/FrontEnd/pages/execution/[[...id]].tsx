@@ -1,9 +1,15 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect} from "react";
 import axios from 'axios';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { javascript } from '@codemirror/lang-javascript';
 import { java } from '@codemirror/lang-java';
+import { php } from '@codemirror/lang-php';
+import { rust } from '@codemirror/lang-rust';
+import { go } from '@codemirror/lang-go';
+import { cpp } from '@codemirror/lang-cpp';
+
+
 import { vscodeDark, vscodeLight } from '@uiw/codemirror-theme-vscode';
 import { EditorView } from '@codemirror/view';
 import Cookies from 'js-cookie';
@@ -16,7 +22,6 @@ import toast, { Toaster } from "react-hot-toast";
 import Header from "../../components/Header"
 
 //https://www.tailwindtoolbox.com/icons
-// if language changes -> create a new template redirect to execucation page with new id 
 // fork 
 // responsive 
 // add more languages  (code Mirror only)
@@ -171,6 +176,16 @@ const CodeExecution: React.FC = () => {
                 return javascript();
             case 'java':
                 return java();
+            case 'go':
+                return go();
+            case 'php':
+                return php();
+            case 'c':
+                return cpp();
+            case 'cpp':
+                return cpp();
+            case 'rust':
+                return rust();
             default:
                 return python();
         }
@@ -315,7 +330,7 @@ const CodeExecution: React.FC = () => {
             {/* <div className="mt-20 w-full"> */}
                 <div className={`flex mt-20 flex-col items-center space-y-4 w-full ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}>
                     <div className={`flex flex-row items-center space-x-4 w-full ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} border border-gray-700`}>
-                        <div className=" h-[650px] w-[15%] max-w-[500px] overflow-y-scroll">
+                        <div className=" h-[650px] w-[15%] max-w-[500px] overflow-y-scroll overflow-x-hidden">
                             <div className="pl-10 mb-10 flex h-[45px] w-[300px] text-white space-x-1 items-center bg-black">
                                 {ctNameInput ? <input className="text-black max-w-[140px]" onChange={(e) => setTempName(e.target.value)} /> : <div>{title}</div>}
                                 <button onClick={() => handleSettingTitle()}>
@@ -376,7 +391,7 @@ const CodeExecution: React.FC = () => {
                                     <option value="php">PHP</option>
                                     <option value="ruby">Ruby</option>
                                     <option value="rust">Rust</option>
-                                    <option value="go">Go</option>
+                                    <option value="go">go</option>
                                 </select>
                             </div>
 
