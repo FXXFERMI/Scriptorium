@@ -49,8 +49,15 @@ const DisplayBlog = () => {
     const fetchProfile = async () => {
       try {
         const token = Cookies.get("accessToken");
+
         if (token) {
-          const response = await api.get("/api/users/showProfile");
+          const response = await api.get("/api/users/showProfile", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          });
           setIsLoggedIn(!!token);
           setProfile(response.data);
         }
@@ -226,17 +233,19 @@ const DisplayBlog = () => {
             withCredentials: true,
           }
         );
-        setReplyingTo(null);
-        setReplyingToCommentIndex(null);
-        setReplyingToName("");
-        setNewComment(""); // Clear the input after submission
 
         const updatedComments = [...comments]; // Create a copy of the comments array
         if (
+          comments[replyingToCommentIndex].replies &&
           updatedComments[replyingToCommentIndex]._count.replies <=
-          comments[replyingToCommentIndex].replies.length
+            comments[replyingToCommentIndex].replies.length
         ) {
           comments[replyingToCommentIndex].replies.push(response.data);
+        } else if (
+          !comments[replyingToCommentIndex].replies &&
+          updatedComments[replyingToCommentIndex]._count.replies == 0
+        ) {
+          comments[replyingToCommentIndex].replies = [response.data];
         }
       } else {
         const response = await api.post(
@@ -255,6 +264,10 @@ const DisplayBlog = () => {
         setCommentUpdate((prev) => !prev);
         setCommentsFetched(false); // Mark comments as not fetched
       }
+      setReplyingTo(null);
+      setReplyingToCommentIndex(null);
+      setReplyingToName("");
+      setNewComment(""); // Clear the input after submission
     } catch (err) {
       setError("Failed to add comment.");
     }

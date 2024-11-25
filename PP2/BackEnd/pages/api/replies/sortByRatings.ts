@@ -1,6 +1,8 @@
 import prisma from "../../../utils/prisma";
 import applyCors from '../../../utils/cors';
 import { NextApiRequest, NextApiResponse } from 'next';
+import * as cookie from 'cookie';
+import { verifyAccessToken } from "../../../utils/jwt";
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,6 +17,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         try {
+
+            let token = null;
+            if (req.headers.cookie) {
+                const cookies = cookie.parse(req.headers.cookie);
+                token = cookies.accessToken;
+            }
+
+            let user;
+            try {
+                if (token) {
+                    user = verifyAccessToken(token);
+                    
+                }
+            } catch (error) {
+                user = null; // Visitor
+            }
 
             const pageNumber = Number(page) > 0 ? Number(page) : 1;
             const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
@@ -43,11 +61,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const downvotes = reply.ratings.filter(rating => rating.downvote).length;
                 const score = upvotes - downvotes;
 
+                // Check if the logged-in user voted on this comment
+                const userVote = reply.ratings.find(rating => rating.uid === user?.uid);
+                const hasUpvoted = userVote?.upvote === true;
+                const hasDownvoted = userVote?.downvote === true;
+
+
                 return {
                     ...reply,
                     score,
                     upvotes,
                     downvotes,
+                    hasUpvoted,
+                    hasDownvoted
                 };
             })
 
@@ -55,7 +81,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const repliesWithVotes = finalFilterdList.slice((pageNumber - 1) * itemsPerPage, pageNumber * itemsPerPage);
 
-            console.log(repliesWithVotes)
             return res.status(200).json(repliesWithVotes);
 
         }
