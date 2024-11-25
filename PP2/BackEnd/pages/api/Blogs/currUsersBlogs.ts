@@ -80,6 +80,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: filters,
         skip: skip,
         take: itemsPerPage,
+        include: {tags: true}
       });
       return res.status(200).json(blogs);
     } catch (error) {
