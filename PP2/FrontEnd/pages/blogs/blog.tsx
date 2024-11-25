@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import Header from "../../components/Header"; // Assuming you have a Navbar component
 import { blogType } from "../../interfaces/blog";
 import { userProfileType } from "../../interfaces/user";
 import Cookies from "js-cookie";
 import api from "../../utils/axiosInstance";
 import Pagination from "../../components/pagination";
+import ReportButton from "../../components/reportButton";
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
 
@@ -31,10 +32,13 @@ const DisplayBlog = () => {
   const [blogUpdate, setBlogUpdate] = useState<boolean>(false); // State for new comment input
   const [replyingTo, setReplyingTo] = useState<number | null>(null); // State for tracking comment being replied to
   const [replyingToName, setReplyingToName] = useState<string>("");
+  const [replyingToCommentIndex, setReplyingToCommentIndex] = useState<
+    number | null
+  >(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sortComment, setSortComment] = useState(""); // Sort state (by rating)
-  const [sortReply, setSortReply] = useState(""); // Sort state (by rating)
+  const [sortComment, setSortComment] = useState("default"); // Sort state (by rating)
+  const [sortReply, setSortReply] = useState("default"); // Sort state (by rating)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [commentsFetched, setCommentsFetched] = useState(false);
@@ -45,8 +49,15 @@ const DisplayBlog = () => {
     const fetchProfile = async () => {
       try {
         const token = Cookies.get("accessToken");
+
         if (token) {
-          const response = await api.get("/api/users/showProfile");
+          const response = await api.get("/api/users/showProfile", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          });
           setIsLoggedIn(!!token);
           setProfile(response.data);
         }
@@ -64,15 +75,22 @@ const DisplayBlog = () => {
       try {
         const token = Cookies.get("accessToken");
 
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
+        }
+
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            withCredentials: true,
-          }
+          config
         );
         let blog = response.data;
         setBlog(blog);
@@ -92,16 +110,24 @@ const DisplayBlog = () => {
     const fetchComments = async () => {
       try {
         const token = Cookies.get("accessToken");
+
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          params: { bid: id, page, limit: 10 },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
+        }
+
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
-          {
-            params: { bid: id, page, limit: 10 },
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            withCredentials: true,
-          }
+          config
         );
         const { comments, totalComments, totalPages } = response.data;
         setComments(comments);
@@ -117,22 +143,60 @@ const DisplayBlog = () => {
       try {
         const token = Cookies.get("accessToken");
 
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          params: { bid: id, page, limit: 10 },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
+        }
+
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/comments/sortByRatings`,
-          {
-            params: { bid: id, page, limit: 10 },
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            withCredentials: true,
-          }
+          config
         );
         setComments(response.data);
         setCommentsFetched(true); // Mark comments as fetched
         setLoading(false);
       } catch (err) {
-        setError("Failed to load the blog.");
+        setError("Failed to load the comments.");
+        setLoading(false);
+      }
+    };
+
+    const fetchReportSortedComments = async () => {
+      try {
+        const token = Cookies.get("accessToken");
+
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          params: { bid: id, page, limit: 10 },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
+        }
+
+        const response = await api.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/comments/sortByReports`,
+          config
+        );
+        setComments(response.data);
+        setCommentsFetched(true); // Mark comments as fetched
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load the comments.");
         setLoading(false);
       }
     };
@@ -140,10 +204,11 @@ const DisplayBlog = () => {
     if (blog) {
       if (sortComment === "rating_desc") {
         fetchSortedComments();
-      } else {
+      } else if (sortComment === "default") {
         fetchComments();
+      } else {
+        fetchReportSortedComments();
       }
-      console.log(comments);
     }
   }, [blog, page, commentUpdate, sortComment, sortReply]);
 
@@ -168,6 +233,20 @@ const DisplayBlog = () => {
             withCredentials: true,
           }
         );
+
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        if (
+          comments[replyingToCommentIndex].replies &&
+          updatedComments[replyingToCommentIndex]._count.replies <=
+            comments[replyingToCommentIndex].replies.length
+        ) {
+          comments[replyingToCommentIndex].replies.push(response.data);
+        } else if (
+          !comments[replyingToCommentIndex].replies &&
+          updatedComments[replyingToCommentIndex]._count.replies == 0
+        ) {
+          comments[replyingToCommentIndex].replies = [response.data];
+        }
       } else {
         const response = await api.post(
           `${process.env.NEXT_PUBLIC_API_URL}/api/comments`,
@@ -180,11 +259,14 @@ const DisplayBlog = () => {
             withCredentials: true,
           }
         );
+
+        setNewComment(""); // Clear the input after submission
+        setCommentUpdate((prev) => !prev);
+        setCommentsFetched(false); // Mark comments as not fetched
       }
       setReplyingTo(null);
+      setReplyingToCommentIndex(null);
       setReplyingToName("");
-      setCommentUpdate((prev) => !prev);
-      setCommentsFetched(false); // Mark comments as not fetched
       setNewComment(""); // Clear the input after submission
     } catch (err) {
       setError("Failed to add comment.");
@@ -204,56 +286,59 @@ const DisplayBlog = () => {
     if (sortReply === "rating_desc") {
       try {
         const token = Cookies.get("accessToken");
-        if (!token) {
-          console.error("Access token is missing");
-          return;
+
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          params: {
+            commentId,
+            limit: numDisplay,
+          },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
         }
 
         response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/replies/sortByRatings`,
-          {
-            params: {
-              commentId,
-              limit: numDisplay,
-            },
-
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            withCredentials: true,
-          }
+          config
         );
-
-        console.log(response.data);
 
         const updatedComments = [...comments]; // Create a copy of the comments array
         updatedComments[commentIndex].replies = response.data;
-        console.log(updatedComments);
         setComments(updatedComments);
       } catch (err) {
         setError("Failed to load more replies.");
       }
-    } else {
+    } else if (sortReply === "default") {
       try {
         const token = Cookies.get("accessToken");
-        if (!token) {
-          console.error("Access token is missing");
-          return;
+
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          params: {
+            commentId,
+            limit: numDisplay,
+          },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
         }
+
         response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/replies`,
-          {
-            params: {
-              commentId,
-              limit: numDisplay,
-            },
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            withCredentials: true,
-          }
+          config
         );
 
         const updatedComments = [...comments]; // Create a copy of the comments array
@@ -262,13 +347,51 @@ const DisplayBlog = () => {
       } catch (err) {
         setError("Failed to load more replies.");
       }
+    } else {
+      try {
+        const token = Cookies.get("accessToken");
+
+        // Base configuration
+        const config: AxiosRequestConfig = {
+          params: {
+            commentId,
+            limit: numDisplay,
+          },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Add Authorization header and withCredentials only if token exists
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          config.withCredentials = true;
+        }
+
+        response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/replies/sortByReports`,
+          config
+        );
+
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[commentIndex].replies = response.data;
+        console.log(updatedComments);
+        setComments(updatedComments);
+      } catch (err) {
+        setError("Failed to load more replies.");
+      }
     }
   };
 
   // Handle clicking on the reply button
-  const handleReply = (commentId: number, username: string) => {
+  const handleReply = (
+    commentIndex: number,
+    commentId: number,
+    username: string
+  ) => {
     setReplyingTo(commentId); // Set the comment being replied to
     setReplyingToName(`@${username} `);
+    setReplyingToCommentIndex(commentIndex);
     setNewComment(`@${username} `); // Set the reply format
     if (textAreaRef.current) {
       textAreaRef.current.focus(); // Focus the textarea
@@ -613,6 +736,7 @@ const DisplayBlog = () => {
 
   const removeReplying = () => {
     setReplyingTo(null);
+    setReplyingToCommentIndex(null);
     setNewComment("");
   };
 
@@ -676,38 +800,47 @@ const DisplayBlog = () => {
                   {" "}
                   {blog.user.profile.firstName} {blog.user.profile.lastName}{" "}
                 </h2>
-                <p className="text-lg"> {blog.user.username} </p>
+                <p className="text-lg"> @{blog.user.username} </p>
               </div>
             </div>
 
-            <p className="text-gray-300 text-lg font-normal">
+            <p
+              className="text-gray-300 text-lg font-normal"
+              style={{ whiteSpace: "pre-wrap" }}
+            >
               {blog.description}
             </p>
-            <div className="flex items-center space-x-2 mt-2">
-              {/* Upvote button */}
-              <button
-                onClick={() => handleBlogUpvote(blog.bid)}
-                className={`mr-2 ${
-                  blog.hasUpvoted
-                    ? "text-blue-500 font-bold" // Highlighted when upvoted
-                    : "text-gray-500 hover:text-blue-500" // Default state
-                }`}
-              >
-                ▲
-              </button>
-              <span className="text-gray-100">{blog.upvotes}</span>
-              {/* Downvote button */}
-              <button
-                onClick={() => handleBlogDownvote(blog.bid)}
-                className={`mr-2 ml-2 ${
-                  blog.hasDownvoted
-                    ? "text-red-500 font-bold" // Highlighted when downvoted
-                    : "text-gray-500 hover:text-red-500" // Default state
-                }`}
-              >
-                ▼
-              </button>
-              <span className="text-gray-100">{blog.downvotes}</span>
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center space-x-2">
+                {/* Upvote button */}
+                <button
+                  onClick={() => handleBlogUpvote(blog.bid)}
+                  className={`mr-2 ${
+                    blog.hasUpvoted
+                      ? "text-blue-500 font-bold" // Highlighted when upvoted
+                      : "text-gray-500 hover:text-blue-500" // Default state
+                  }`}
+                >
+                  ▲
+                </button>
+                <span className="text-gray-100">{blog.upvotes}</span>
+
+                {/* Downvote button */}
+                <button
+                  onClick={() => handleBlogDownvote(blog.bid)}
+                  className={`mr-2 ml-2 ${
+                    blog.hasDownvoted
+                      ? "text-red-500 font-bold" // Highlighted when downvoted
+                      : "text-gray-500 hover:text-red-500" // Default state
+                  }`}
+                >
+                  ▼
+                </button>
+                <span className="text-gray-100">{blog.downvotes}</span>
+              </div>
+
+              {/* Report button aligned to the right */}
+              {isLoggedIn && <ReportButton id={blog.bid} type="blog" />}
             </div>
             {/* Add code Template links */}
             <hr className="mt-8" />
@@ -774,6 +907,7 @@ const DisplayBlog = () => {
                           <button
                             onClick={() =>
                               handleReply(
+                                index,
                                 comment.commentId,
                                 comment.user.username
                               )
@@ -815,9 +949,15 @@ const DisplayBlog = () => {
                           >
                             ▼
                           </button>
-                          <span className="text-gray-100">
+                          <span className="text-gray-100 mr-2">
                             {comment.downvotes}
                           </span>
+                          {isLoggedIn && (
+                            <ReportButton
+                              id={comment.commentId}
+                              type="comment"
+                            />
+                          )}
                         </div>
                       </div>
                     </div>
@@ -857,6 +997,7 @@ const DisplayBlog = () => {
                                 <button
                                   onClick={() =>
                                     handleReply(
+                                      index,
                                       comment.commentId,
                                       reply.replier.username
                                     )
@@ -908,9 +1049,15 @@ const DisplayBlog = () => {
                                 >
                                   ▼
                                 </button>
-                                <span className="text-gray-100">
+                                <span className="text-gray-100 mr-2">
                                   {reply.downvotes}
                                 </span>
+                                {isLoggedIn && (
+                                  <ReportButton
+                                    id={reply.replyId}
+                                    type="reply"
+                                  />
+                                )}
                               </div>
                             </div>
                           </div>

@@ -39,6 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // find original template
       const codeTemplate = await prisma.codeTemplate.findUnique({
         where: { cid: Number(cid) },
+        include: {tags: true}
       });
 
       if (!codeTemplate) {
@@ -50,7 +51,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           title: codeTemplate.title,
           explanation: codeTemplate.explanation,
           language: codeTemplate.language,
-          tags: codeTemplate.tags,
+          tags: {
+            connect: codeTemplate.tags.map((tag) => ({ tagId: tag.tagId })),
+          },
           code: codeTemplate.code,
           user: {
             connect: { uid: Number(user.uid) },
@@ -60,6 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             connect: { cid: Number(cid) },
           }, // Reference the original template
         },
+        include: {tags: true}
       });
 
       return res.status(201).json({

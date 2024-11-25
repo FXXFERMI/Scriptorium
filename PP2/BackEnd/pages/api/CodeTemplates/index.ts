@@ -58,15 +58,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const existingTags = await prisma.tag.findMany({
         where: {
           OR: uniqueTagsArray.map(tag => ({
-            name: {contains: tag.toLowerCase(),
-                } 
+            name: tag.toLowerCase(),
           })), // Check for existing tags
         },
       });
 
       // Find tags that do not exist
       const existingTagNames = existingTags.map(tag => tag.name);
-      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag));
+      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag.toLowerCase()));
 
       // Create new tags if needed
       await prisma.tag.createMany({
@@ -75,8 +74,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const newTagsArray = await prisma.tag.findMany({
         where: {
-          name: { in: newTagNames }, // Check for existing tags
+          OR: newTagNames.map(tag => ({
+            name: tag.toLowerCase(),
+          })), // Check for existing tags
         },
+
       });
 
       // Combine existing and newly created tags
@@ -160,7 +162,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       });
 
-      return res.status(200).json(codeTemplates);
+      const totalTemplates = await prisma.codeTemplate.count({
+        where: filters,
+    });
+
+      return res.status(200).json({codeTemplates, totalTemplates,  currentPage: pageNumber,
+        totalPages: Math.ceil(totalTemplates / itemsPerPage)});
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }

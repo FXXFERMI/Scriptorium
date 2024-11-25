@@ -4,12 +4,12 @@ import Head from "next/head";
 // import Footer from "../components/Footer";
 import { NextSeo } from "next-seo";
 import { FC } from "react";
-import { NextPage } from 'next';
-import dynamic from 'next/dynamic';
-import dotenv from 'dotenv';
+import { NextPage } from "next";
+import dynamic from "next/dynamic";
+import dotenv from "dotenv";
 dotenv.config();
 
-const Header = dynamic(() => import('../components/Header'), { ssr: false }); // Dynamic import for client-side rendering only
+const Header = dynamic(() => import("../components/Header"), { ssr: false }); // Dynamic import for client-side rendering only
 
 const Home: FC = () => {
   return (
@@ -47,7 +47,7 @@ const Home: FC = () => {
             </a>
             <a
               className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent ml-5 mr-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline"
-              href="/"
+              href="/blogs/viewBlogs"
             >
               <div className="flex text-lg">
                 <span className="justify-center">View All Blogs</span>
@@ -90,11 +90,16 @@ const Home: FC = () => {
         </h2>
         <br />
         <p className="mx-auto text-xl text-center text-gray-300 font-normal leading-relaxed fs521 lg:w-2/3">
-          Discover beautifully crafted, ready-to-use code templates to kickstart your next project effortlessly.
+          Discover beautifully crafted, ready-to-use code templates to kickstart
+          your next project effortlessly.
         </p>
         <div className="pt-12 pb-24 max-w-4xl mx-auto fsac4 md:px-1 px-3">
           <div className="ktq4">
-            <img className="w-10" src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`} alt="icon" />
+            <img
+              className="w-10"
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+              alt="icon"
+            />
             <h3 className="pt-3 font-semibold text-lg text-white">
               Lorem ipsum dolor sit amet
             </h3>
@@ -105,7 +110,11 @@ const Home: FC = () => {
             </p>
           </div>
           <div className="ktq4">
-            <img className="w-10" src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`} alt="icon" />
+            <img
+              className="w-10"
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+              alt="icon"
+            />
             <h3 className="pt-3 font-semibold text-lg text-white">
               Lorem ipsum dolor sit amet
             </h3>
@@ -116,7 +125,11 @@ const Home: FC = () => {
             </p>
           </div>
           <div className="ktq4">
-            <img className="w-10" src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`} alt="icon" />
+            <img
+              className="w-10"
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+              alt="icon"
+            />
             <h3 className="pt-3 font-semibold text-lg text-white">
               Lorem ipsum dolor sit amet
             </h3>
@@ -127,7 +140,11 @@ const Home: FC = () => {
             </p>
           </div>
           <div className="ktq4">
-            <img className="w-10" src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`} alt="icon" />
+            <img
+              className="w-10"
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+              alt="icon"
+            />
             <h3 className="pt-3 font-semibold text-lg text-white">
               Lorem ipsum dolor sit amet
             </h3>
@@ -144,33 +161,40 @@ const Home: FC = () => {
         </h2>
         <br />
         <p className="mx-auto text-xl text-center text-gray-300 font-normal leading-relaxed fs521 lg:w-2/3">
-          Dive into expert-written blogs for insights, tips, and the latest trends in the world of coding and development.
+          Dive into expert-written blogs for insights, tips, and the latest
+          trends in the world of coding and development.
         </p>
         <div className="pt-32 pb-32 max-w-6xl mx-auto fsac4 md:px-1 px-3">
           <div className="ktq4">
-            <img src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`} alt="feature image" />
+            <img
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+              alt="feature image"
+            />
             <h3 className="pt-3 font-semibold text-lg text-white">
               Lorem ipsum dolor sit amet
             </h3>
             <p className="pt-2 value-text text-md text-gray-200 fkrr1">
               Fusce pharetra ligula mauris, quis faucibus lectus elementum vel.
-              Nullam vehicula, libero at euismod tristique, neque ligula faucibus
-              urna, quis ultricies massa enim in nunc. Vivamus ultricies, quam ut
-              rutrum blandit, turpis massa ornare velit, in sodales tellus ex nec
-              odio.
+              Nullam vehicula, libero at euismod tristique, neque ligula
+              faucibus urna, quis ultricies massa enim in nunc. Vivamus
+              ultricies, quam ut rutrum blandit, turpis massa ornare velit, in
+              sodales tellus ex nec odio.
             </p>
           </div>
           <div className="ktq4">
-            <img src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`} alt="feature image" />
+            <img
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+              alt="feature image"
+            />
             <h3 className="pt-3 font-semibold text-lg text-white">
               Lorem ipsum dolor sit amet
             </h3>
             <p className="pt-2 value-text text-md text-gray-200 fkrr1">
               Fusce pharetra ligula mauris, quis faucibus lectus elementum vel.
-              Nullam vehicula, libero at euismod tristique, neque ligula faucibus
-              urna, quis ultricies massa enim in nunc. Vivamus ultricies, quam ut
-              rutrum blandit, turpis massa ornare velit, in sodales tellus ex nec
-              odio.
+              Nullam vehicula, libero at euismod tristique, neque ligula
+              faucibus urna, quis ultricies massa enim in nunc. Vivamus
+              ultricies, quam ut rutrum blandit, turpis massa ornare velit, in
+              sodales tellus ex nec odio.
             </p>
           </div>
         </div>
@@ -219,9 +243,9 @@ export default Home;
 //           <h1 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500">
 //             This is the Home Page and Hard Working Fermi
 //           </h1>
-//           <img 
-//             src="/cats-cat.gif" 
-//             alt="Animated GIF" 
+//           <img
+//             src="/cats-cat.gif"
+//             alt="Animated GIF"
 //             className="w-64 h-64 mx-auto rounded-lg shadow-md"
 //           />
 //         </div>

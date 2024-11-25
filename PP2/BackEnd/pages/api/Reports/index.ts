@@ -17,8 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await applyCors(req, res);
 
   if (req.method === "POST") {
-    const { bid, commentId, replyId, explanation } = req.body as {bid: number, commentId: number, replyId: number, explanation: string};
+    const { bid, commentId, replyId, explanation } = req.body as {bid?: number, commentId?: number, replyId?: number, explanation: string};
 
+    console.log(bid, commentId, replyId, explanation);
     if (!bid && !commentId && !replyId) {
       return res.status(400).json({
         error: "Either bid or commentId or replyId are required",

@@ -9,11 +9,6 @@ interface Filters {
   title?: { contains: string};
   description?: { contains: string};
   uid?: number;
-  codeTemplates?: {
-      some: {
-          cid: { in: number[] }
-      }
-  };
   AND?: Array<{
     tags?: {
       some: {
@@ -78,8 +73,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const existingTags = await prisma.tag.findMany({
         where: {
           OR: uniqueTagsArray.map(tag => ({
-            name: {contains: tag.toLowerCase(),
-                } 
+            name: tag.toLowerCase(),
           })), // Check for existing tags
         },
       });
@@ -95,8 +89,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const newTagsArray = await prisma.tag.findMany({
         where: {
-          name: { in: newTagNames }, // Check for existing tags
+          OR: newTagNames.map(tag => ({
+            name: tag.toLowerCase(),
+          })), // Check for existing tags
         },
+
       });
 
       // Combine existing and newly created tags
