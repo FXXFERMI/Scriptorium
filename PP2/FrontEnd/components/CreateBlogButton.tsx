@@ -17,7 +17,7 @@ const CreateBlogButton = () => {
         Create Blog
       </button>
 
-      {/* {isPopupOpen && <CreateBlog edit={true} bid={6} onClose={closePopup} />} */}
+      {/* {isPopupOpen && <CreateEditBlog edit={true} bid={6} onClose={closePopup} />} */}
       {isPopupOpen && <CreateEditBlog onClose={closePopup} />}
     </div>
   );
