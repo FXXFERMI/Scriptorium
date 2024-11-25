@@ -66,7 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Find tags that do not exist
       const existingTagNames = existingTags.map(tag => tag.name);
-      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag));
+      const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag.toLowerCase()));
 
       // Create new tags if needed
       await prisma.tag.createMany({

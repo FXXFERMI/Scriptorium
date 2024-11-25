@@ -103,16 +103,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const updatedData = {
         title,
         description,
-        ... (tagsId && {
-          tags: {
-            connect: tagsId.map((tag) => ({ tagId: tag })),
-          }
-        }),
-        ...(codeTemplateIds && {
-          codeTemplates: {
-            connect: codeTemplateIds.map((id) => ({ cid: id })),
-          },
-        }),
+        // Update tags: remove all current tags and set to new ones
+        tags: {
+          set: [], // Clear all existing tags
+          ...(tagsId && tagsId.length ? {
+            connect: tagsId.map((tag) => ({ tagId: tag })), // Connect new tags
+          } : {}),
+        },
+        
+        // Update codeTemplates: clear existing templates and connect new ones
+        codeTemplates: {
+          set: [], // Clear all existing codeTemplates
+          ...(codeTemplateIds && codeTemplateIds.length ? {
+            connect: codeTemplateIds.map((id) => ({ cid: id })), // Connect new templates
+          } : {}),
+        },
       };
 
       const updatedBlog = await prisma.blog.update({
@@ -120,6 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         data: updatedData,
         include: {
           codeTemplates: true,
+          tags: true
         },
       });
 
