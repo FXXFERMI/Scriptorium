@@ -101,6 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       return res.status(201).json({codeTemplate, cid: codeTemplate.cid});
     } catch (error) {
+      console.log(error.message)
       return res.status(500).json({ error: error.message });
     }
 
@@ -162,6 +163,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       return res.status(200).json(codeTemplates);
     } catch (error) {
+      console.log(error.message)
       return res.status(500).json({ error: error.message });
     }
 

@@ -63,6 +63,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       return res.status(200).json(updatedCodeTemplate);
     } catch (error) {
+      console.log(error.message)
       return res.status(500).json({ error: error.message });
     }
 
@@ -72,7 +73,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const codeTemplate = await prisma.codeTemplate.findUnique({
         where: { cid: Number(id) },
         include: {
-          blogs: true // see the list of blog posts that mention a code template 
+          blogs: true, // see the list of blog posts that mention a code template 
+          tags: true,
         },
       });
       return res.status(200).json(codeTemplate);

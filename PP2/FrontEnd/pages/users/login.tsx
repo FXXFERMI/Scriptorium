@@ -32,7 +32,7 @@ const Login = () => {
       // console.log("Login successful:", response.data);
       
       // Redirect to the homepage after successful login
-      router.push('/');
+     // router.push('/');
     } catch (error: any) {
       console.error("Login failed:", error);
       setError(error.response?.data?.message || "Login failed");

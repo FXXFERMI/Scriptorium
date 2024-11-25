@@ -18,6 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     let user;
+    
     try {
       user = verifyAccessToken(token);
       if (user.role !== "USER") {
@@ -67,6 +68,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         template: newTemplate,
       });
     } catch (error) {
+      console.log(error.message);
       return res.status(500).json({ error: error.message });
     }
   } else {
