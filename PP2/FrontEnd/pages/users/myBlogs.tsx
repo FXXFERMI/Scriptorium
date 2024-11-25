@@ -35,10 +35,10 @@ const MyBlogs: React.FC = () => {
           throw new Error('Access token is missing');
         }
 
-        // Make API request to fetch blogs for the logged-in user
-        const response = await api.get('/api/Blogs', {
+        // Make API request to fetch code templates for the logged-in user
+        const response = await api.get('/api/Blogs/currUsersBlogs', {
           headers: {
-            Authorization: `Bearer ${token}`, // Pass the token to the backend
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -79,7 +79,7 @@ const MyBlogs: React.FC = () => {
             {blogs.map((blog) => (
               <div key={blog.bid} className="bg-white p-6 shadow-md">
                 <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
-                <p className="text-gray-700 mb-4">{blog.description}</p>
+                {/* <p className="text-gray-700 mb-4">{blog.description}</p> */}
                 <p className="text-sm text-gray-500">Tags: {blog.tags}</p>
                 {blog.hidden && <p className="text-red-500 font-bold mt-2">Hidden</p>}
               </div>

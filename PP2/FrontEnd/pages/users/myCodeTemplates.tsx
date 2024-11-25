@@ -81,9 +81,9 @@ const MyCodeTemplates: React.FC = () => {
                 <h2 className="text-2xl font-bold mb-2">{template.title}</h2>
                 <p className="text-sm text-gray-500 mb-4">Language: {template.language}</p>
                 <p className="text-gray-700 mb-4">Tags: {template.tags}</p>
-                <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">
+                {/* <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">
                   <code>{template.code}</code>
-                </pre>
+                </pre> */}
               </div>
             ))}
           </div>
