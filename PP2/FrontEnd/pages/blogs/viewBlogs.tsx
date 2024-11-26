@@ -318,7 +318,7 @@ export default function Example() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex items-center justify-between mt-2">
             <div className="mx-auto max-w-2xl lg:mx-0">
-              <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+              <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white ">
                 Blogs
               </h2>
             </div>
@@ -326,14 +326,14 @@ export default function Example() {
           </div>
           {/* Filters Section */}
           <div className="mt-8">
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-x-4 gap-y-4">
               <input
                 type="text"
                 name="title"
                 placeholder="Search by title"
                 value={filter.title === null ? "" : filter.title}
                 onChange={handleFilterChange}
-                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               />
               <input
                 type="text"
@@ -341,7 +341,7 @@ export default function Example() {
                 placeholder="Search by description"
                 value={filter.description}
                 onChange={handleFilterChange}
-                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               />
               <input
                 type="text"
@@ -349,15 +349,13 @@ export default function Example() {
                 placeholder="Search by tags"
                 value={filter.tags}
                 onChange={handleFilterChange}
-                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               />
-              {/* Sort by ratings */}
-
               <select
                 name="sortBy"
                 value={sort}
                 onChange={handleSortChange}
-                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               >
                 <option value="default">Sort by default</option>
                 <option value="rating_desc">Sort by rating (descending)</option>

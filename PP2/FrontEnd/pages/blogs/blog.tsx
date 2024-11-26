@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import api from "../../utils/axiosInstance";
 import Pagination from "../../components/pagination";
 import ReportButton from "../../components/reportButton";
+import Link from "next/link";
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
 
@@ -134,6 +135,7 @@ const DisplayBlog = () => {
         setCommentsFetched(true); // Mark comments as fetched
         setTotalPages(totalPages);
         setTotalComments(totalComments);
+        console.log(blog);
       } catch (err) {
         setError("Failed to load comments.");
       }
@@ -755,94 +757,118 @@ const DisplayBlog = () => {
       <div className="container mx-auto p-8 mt-20">
         {blog ? (
           <>
-            <h1 className="text-5xl font-4 lh-6 ld-04 font-bold text-white mb-6">
-              {blog.title}
-            </h1>
-            <div className="text-gray-300 flex flex-wrap mb-6">
-              tags:
-              {blog.tags && blog.tags.length > 0 ? (
-                blog.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm ml-2 mr-2 mb-2"
-                  >
-                    {tag.name.charAt(0).toUpperCase() + tag.name.slice(1)}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-500">No tags available</span>
-              )}
-            </div>
-            {/* add author section*/}
-            <h1 className="text-gray-200 text-1.5xl font-bold mb-4">
-              {" "}
-              Written by:
-            </h1>
-            <div className="text-gray-200 flex flex-row items-center mb-6">
-              <img
-                src={
-                  blog.user.profile.avatar.startsWith("/uploads/")
-                    ? `${process.env.NEXT_PUBLIC_API_URL}${blog.user.profile.avatar}`
-                    : blog.user.profile.avatar
-                }
-                alt="Avatar"
-                width={100}
-                height={100}
-                key={
-                  blog.user.profile.avatar.startsWith("/uploads/")
-                    ? `${process.env.NEXT_PUBLIC_API_URL}${blog.user.profile.avatar}`
-                    : blog.user.profile.avatar
-                }
-                className="text-gray-200 w-14 h-14 rounded-full"
-              />
-              <div className="flex flex-col ml-4">
-                <h2>
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex-1 bg-gray-800 p-6 rounded-lg shadow-md">
+                <h1 className="text-5xl font-4 lh-6 ld-04 font-bold text-white mb-6">
+                  {blog.title}
+                </h1>
+                <div className="text-gray-300 flex flex-wrap mb-6">
+                  tags:
+                  {blog.tags && blog.tags.length > 0 ? (
+                    blog.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm ml-2 mr-2 mb-2"
+                      >
+                        {tag.name.charAt(0).toUpperCase() + tag.name.slice(1)}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-500">No tags available</span>
+                  )}
+                </div>
+                {/* add author section*/}
+                <h1 className="text-gray-200 text-1.5xl font-bold mb-4">
                   {" "}
-                  {blog.user.profile.firstName} {blog.user.profile.lastName}{" "}
+                  Written by:
+                </h1>
+                <div className="text-gray-200 flex flex-row items-center mb-6">
+                  <img
+                    src={
+                      blog.user.profile.avatar.startsWith("/uploads/")
+                        ? `${process.env.NEXT_PUBLIC_API_URL}${blog.user.profile.avatar}`
+                        : blog.user.profile.avatar
+                    }
+                    alt="Avatar"
+                    width={100}
+                    height={100}
+                    key={
+                      blog.user.profile.avatar.startsWith("/uploads/")
+                        ? `${process.env.NEXT_PUBLIC_API_URL}${blog.user.profile.avatar}`
+                        : blog.user.profile.avatar
+                    }
+                    className="text-gray-200 w-14 h-14 rounded-full"
+                  />
+                  <div className="flex flex-col ml-4">
+                    <h2>
+                      {" "}
+                      {blog.user.profile.firstName} {blog.user.profile.lastName}{" "}
+                    </h2>
+                    <p className="text-lg"> @{blog.user.username} </p>
+                  </div>
+                </div>
+
+                <p
+                  className="text-gray-300 text-lg font-normal"
+                  style={{ whiteSpace: "pre-wrap" }}
+                >
+                  {blog.description}
+                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center space-x-2">
+                    {/* Upvote button */}
+                    <button
+                      onClick={() => handleBlogUpvote(blog.bid)}
+                      className={`mr-2 ${
+                        blog.hasUpvoted
+                          ? "text-blue-500 font-bold" // Highlighted when upvoted
+                          : "text-gray-500 hover:text-blue-500" // Default state
+                      }`}
+                    >
+                      ▲
+                    </button>
+                    <span className="text-gray-100">{blog.upvotes}</span>
+
+                    {/* Downvote button */}
+                    <button
+                      onClick={() => handleBlogDownvote(blog.bid)}
+                      className={`mr-2 ml-2 ${
+                        blog.hasDownvoted
+                          ? "text-red-500 font-bold" // Highlighted when downvoted
+                          : "text-gray-500 hover:text-red-500" // Default state
+                      }`}
+                    >
+                      ▼
+                    </button>
+                    <span className="text-gray-100">{blog.downvotes}</span>
+                  </div>
+
+                  {/* Report button aligned to the right */}
+                  {isLoggedIn && <ReportButton id={blog.bid} type="blog" />}
+                </div>
+              </div>
+
+              <div className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-md">
+                <h2 className="text-2xl font-bold text-white mb-4">
+                  Code Templates:{" "}
                 </h2>
-                <p className="text-lg"> @{blog.user.username} </p>
+                <ul className="space-y-4">
+                  {" "}
+                  {/* Add spacing between items */}
+                  {blog.codeTemplates.map((template) => (
+                    <li
+                      key={template.cid}
+                      className="flex items-center justify-between p-4 text-white hover:bg-gray-700 rounded-lg transition duration-300 ease-in-out"
+                    >
+                      <Link href={`/execution/${template.cid}`}>
+                        {template.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
 
-            <p
-              className="text-gray-300 text-lg font-normal"
-              style={{ whiteSpace: "pre-wrap" }}
-            >
-              {blog.description}
-            </p>
-            <div className="flex items-center justify-between mt-2">
-              <div className="flex items-center space-x-2">
-                {/* Upvote button */}
-                <button
-                  onClick={() => handleBlogUpvote(blog.bid)}
-                  className={`mr-2 ${
-                    blog.hasUpvoted
-                      ? "text-blue-500 font-bold" // Highlighted when upvoted
-                      : "text-gray-500 hover:text-blue-500" // Default state
-                  }`}
-                >
-                  ▲
-                </button>
-                <span className="text-gray-100">{blog.upvotes}</span>
-
-                {/* Downvote button */}
-                <button
-                  onClick={() => handleBlogDownvote(blog.bid)}
-                  className={`mr-2 ml-2 ${
-                    blog.hasDownvoted
-                      ? "text-red-500 font-bold" // Highlighted when downvoted
-                      : "text-gray-500 hover:text-red-500" // Default state
-                  }`}
-                >
-                  ▼
-                </button>
-                <span className="text-gray-100">{blog.downvotes}</span>
-              </div>
-
-              {/* Report button aligned to the right */}
-              {isLoggedIn && <ReportButton id={blog.bid} type="blog" />}
-            </div>
-            {/* Add code Template links */}
             <hr className="mt-8" />
             {/* Add comments */}
             <div className="mt-8">
@@ -850,7 +876,7 @@ const DisplayBlog = () => {
                 Comments
               </h2>
               {/* Sort by ratings */}
-              <div className="flex space-x-4">
+              <div className="flex flex-wrap gap-x-4 gap-y-4 ">
                 <select
                   name="sortBy"
                   value={sortComment}
