@@ -22,9 +22,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Header from "../../components/Header"
 
 //https://www.tailwindtoolbox.com/icons
-// fork 
 // responsive 
-// add more languages  (code Mirror only)
 // http://localhost:3000/blogs/blog?id=1
 
 const CodeExecution: React.FC = () => {
@@ -44,34 +42,85 @@ const CodeExecution: React.FC = () => {
     const [forked, SetForked] = useState<boolean>(false);
     const [tagInput, setTagInput] = useState<string>("");
     const [blogs, setBlogs] = useState<string>("");
-
+    const [languageChange, setLanguageChange] = useState<boolean>(false)
     const router = useRouter();
 
 
     useEffect(() => {
         const { id } = router.query;
-        console.log(id);
         !id && boilerPlate();
+        languageChange && handleTransfter();
     }, [language]);
 
-
+    const handleTransfter = () => {
+        handleNewCodeTemplate();
+        setLanguageChange(false);
+    }
+    const handleLanguageChange = (value: string) => {
+        setLanguage(value);
+        switch(value){
+            case 'python':
+                setCode(`#Online Python code editor \n#Write Python here to execute \nprint("Hello, World!")`);
+                setFileName('program.py');
+                break;
+            case 'c':
+                setCode(` //Online C code editor \n//Write C here to execute \n#include <stdio.h>\n\nint main() {\n    printf("Hello, World!");\n    return 0;\n}`);
+                setFileName('program.c')
+                break;
+            case 'cpp':
+                setCode(` //Online C++ code editor \n//Write C++ here to execute \n#include <iostream>\n\nint main() {\n    // cout is used to print in C++\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}`);
+                setFileName('program.cpp');
+                break;
+            case 'java':
+                setCode(`public class Main {\n    public static void main(String[] args) {\n        // System.out.println is used to print in Java\n        System.out.println("Hello, World!");\n    }\n}`);
+                setFileName('program.java');
+                break;
+            case 'javascript':
+                setFileName('program.js');
+                setCode(`//Online JavaScript code editor \n//Write JavaScript here to execute \n console.log("Hello, World!");`);
+                break;
+            case 'elixir':
+                setCode(`# Online Elixir code editor \n# Write Elixir here to execute \nIO.puts "Hello, World!"`);
+                setFileName('program.ex');
+                break;
+            case 'go':
+                setCode(`// Online Go code editor \n// Write Go here to execute \npackage main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}`);
+                setFileName('main.go');
+                break;
+            case 'php':
+                setCode(`<?php\n// Online PHP code editor \n// Write PHP here to execute \necho "Hello, World!";\n?>`);
+                setFileName('program.php');
+                break;
+            case 'ruby':
+                setCode(`# Online Ruby code editor \n# Write Ruby here to execute \nputs "Hello, World!"`);
+                setFileName('program.rb');
+                break;
+            case 'rust':
+                setCode(`// Online Rust code editor \n// Write Rust here to execute \nfn main() {\n    println!("Hello, World!");\n}`);
+                setFileName('main.rs');
+                break;
+            default:
+                setFileName('script.py');
+                setLanguage('python')
+        }
+        setLanguageChange(true);
+    }
     useEffect(() => {
         setCodeTemplate();
         checkAuth();
-        console.log("dbfbdf")
-    }, []);
+    }, [router.query]);
 
     const setCodeTemplate = async () => {
         const { id } = router.query;
         if (id) {
             try {
                 const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/${id}`);
-                console.log(response.data, "nfnfgn")
+                console.log(response.data, "code temp")
                 setCode(response.data.code);
                 setExplanation(response.data.explanation);
                 setLanguage(response.data.language);
                 
-                setTags(response.data.tags.map((tag: { tagId: number; name: string }) => tag.name));
+                response.data.tags && setTags(response.data.tags.map((tag: { tagId: number; name: string }) => tag.name));
                 setTitle(response.data.title);
                 switch(language){
                     case 'python':
@@ -109,6 +158,7 @@ const CodeExecution: React.FC = () => {
                 }
                 
             } catch (err) {
+                console.log(err)
                 toast.error('Failed to fetch the code template. Please try again.');
                 router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/execution`);
             }
@@ -251,6 +301,41 @@ const CodeExecution: React.FC = () => {
         }
     }
 
+
+    const handleNewCodeTemplate = async () => {
+        const token = Cookies.get("accessToken");
+            if (!token) {
+                toast.error('Please login to save code!')
+                return;
+            }
+
+        try {
+
+            const updateData = {
+                title,
+                explanation,
+                language,
+                tags,
+                code
+            };
+
+            const response2 = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates`, updateData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                },
+
+            );
+            toast.success("new template created!")
+            router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/execution/${response2.data.cid}`);
+        } catch (error) {
+            console.error("Error creating template:", error.response?.data || error.message);
+            toast.error(error.response?.data || error.message);
+        }
+    }
     const handleSave = async () => {
         const { id } = router.query;
 
@@ -268,6 +353,8 @@ const CodeExecution: React.FC = () => {
                 tags,
                 code
             };
+
+            console.log(updateData, 'update')
 
             if (id) {
                 try {
@@ -288,30 +375,12 @@ const CodeExecution: React.FC = () => {
 
             }
             else {
-                console.log(IsLoggedIn, updateData)
-                try {
-
-                    const response2 = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates`, updateData,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                            },
-                            withCredentials: true,
-                        },
-
-                    );
-                    console.log(response2.data)
-                    router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/execution/${response2.data.cid}`);
-                } catch (error) {
-                    console.error("Error creating template:", error.response?.data || error.message);
-                    toast.error(error.response?.data || error.message);
-                }
+                handleNewCodeTemplate();
 
             }
 
         } catch (error) {
-            console.error('Error updating code template:', error.response ? error.response.data : error.message);
+            toast.error('Error updating code template:', error.response ? error.response.data : error.message);
         }
 
     }
@@ -320,7 +389,41 @@ const CodeExecution: React.FC = () => {
         ctNameInput && setTitle(tempName)
         setCtNameInput(!ctNameInput)
 
-    }
+    };
+
+
+    const handleFork = async () => {
+        const { id } = router.query;
+
+        if (!id) toast.error("please select an existing code template to fork");
+        try {
+
+            const token = Cookies.get("accessToken");
+            if (!token) {
+                toast.error('Please login to save code!')
+                return;
+            }
+
+            const response = await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/fork`,
+              { cid: id },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+                withCredentials: true,
+              }
+            );
+            toast.success('Template forked successfully:', response.data);
+            router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/execution/${response.data.template.cid}`);
+
+        } catch (error) {
+                toast.error('Error forking template:', error.response?.data || error.message);
+            
+          }
+
+    };
 
 
 
@@ -333,7 +436,7 @@ const CodeExecution: React.FC = () => {
                 <div className={`flex mt-20 flex-col items-center space-y-4 w-full ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}>
                     <div className={`flex flex-row items-center space-x-4 w-full ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} border border-gray-700`}>
                         <div className=" h-[650px] w-[15%] max-w-[500px] overflow-y-scroll overflow-x-hidden">
-                            <div className="pl-10 mb-10 flex h-[45px] w-[300px] text-white space-x-1 items-center bg-black">
+                            <div className={`pl-10 mb-10 flex h-[45px] w-[300px] ${!lightMode ? 'text-white': 'text-black'} space-x-1 items-center ${!lightMode && 'bg-black'}`}>
                                 {ctNameInput ? <input className="text-black max-w-[140px]" onChange={(e) => setTempName(e.target.value)} /> : <div>{title}</div>}
                                 <button onClick={() => handleSettingTitle()}>
                                     <svg className="h-4 w-4 text-gray-400" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -344,7 +447,7 @@ const CodeExecution: React.FC = () => {
 
                             {}
 
-                            <div className="flex flex-wrap space-x-1 pl-2 mb-5 text-white">
+                            <div className= {`flex flex-wrap space-x-1 pl-2 mb-5 ${!lightMode ? 'text-white': 'text-black'}`}>
                                 <div className="mt-2">tags: 
                                 </div>
                                 <input placeholder="Enter a tag" value={tagInput} onChange={(e) => setTagInput(e.target.value)} 
@@ -365,7 +468,7 @@ const CodeExecution: React.FC = () => {
                                             setTags(tags.filter((tag2, index2) => index2 !== index))
                                           }
                                         sx={{
-                                        color: 'white',
+                                            color: lightMode ? 'black' : 'white',
                                         borderColor: 'white',
                                         mt: 1,
                                         '& .MuiChip-deleteIcon': {
@@ -377,12 +480,12 @@ const CodeExecution: React.FC = () => {
                             })}</div>
                             
                             <div className="pl-2 mb-5 pr-2">
-                                <label className="text-white" htmlFor="language">Choose Language: </label>
+                                <label className={`${!lightMode ? 'text-white': 'text-black'}`} htmlFor="language">Choose Language: </label>
                                 <select
                                     className="mt-3 w-full max-w-xs py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     id="language"
                                     value={language}
-                                    onChange={(e) => setLanguage(e.target.value)}
+                                    onChange={(e) => handleLanguageChange(e.target.value)}
                                     >
                                     <option value="python">Python</option>
                                     <option value="c">C</option>
@@ -398,7 +501,7 @@ const CodeExecution: React.FC = () => {
                             </div>
 
                             <div className="pl-2  pr-2">
-                                <div className="text-white w-full  mb-3">Standard input: </div>
+                                <div className={`${!lightMode ? 'text-white': 'text-black'} w-full  mb-3`}>Standard input: </div>
                                 <textarea
                                     onChange={(e) => handleStdIn(e.target.value)}
                                     rows={3}
@@ -408,45 +511,47 @@ const CodeExecution: React.FC = () => {
                             </div>
                    
                         </div>
-                        <div className="flex flex-col w-[43%] max-w-[1800px] border border-gray-700">
-                            <div className={`flex justify-between max-h-[70px] ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}>
-                                <div className={`text-white ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} h-full p-2 border border-gray-600`}>{fileName}</div>
-                                <div className="flex border border-gray-700">
-                                    <button className="text-white pl-1 pr-1 h-full border border-gray-600" onClick={handleSave}>Save</button>
-                                    <button className="text-white pl-1 pr-1 w-full border border-gray-600" onClick={execute}>Run</button>
+                        <div>
+                            <div className="flex flex-col w-[43%] max-w-[1800px] border border-gray-700">
+                                <div className={`flex justify-between w-[649px] max-h-[70px] ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}>
+                                    <div className={`${!lightMode ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} h-full p-2 border border-gray-600`}>{fileName}</div>
+                                    <div className="flex border border-gray-700">
+                                        <button className={`${!lightMode ? 'text-white': 'text-black'} pl-1 pr-1 h-full border border-gray-600`} onClick={handleSave}>Save</button>
+                                        <button className={`${!lightMode ? 'text-white': 'text-black'} pl-1 pr-1 w-full border border-gray-600`} onClick={execute}>Run</button>
+                                    </div>
+                                </div>
+                                <div className="flex flex-row space-x-2 border border-gray-600">
+                                    <CodeMirror
+                                        value={code}
+                                        height="82vh"
+                                        width="42.2vw"
+                                        extensions={[getLanguageMode()]}
+                                        onChange={(value) => setCode(value)}
+                                        theme={lightMode ? [myTheme2, vscodeLight] : [myTheme1, vscodeDark]}
+                                    />
                                 </div>
                             </div>
-                            <div className="flex flex-row space-x-2 border border-gray-600">
-                                <CodeMirror
-                                    value={code}
-                                    height="82vh"
-                                    width="42.2vw"
-                                    extensions={[getLanguageMode()]}
-                                    onChange={(value) => setCode(value)}
-                                    theme={lightMode ? [myTheme2, vscodeLight] : [myTheme1, vscodeDark]}
+                            <div className="mt-20 top-1.5 flex flex-col w-[41%] max-w-[900px] absolute right-0">
+                                <div className={`flex justify-between max-h-[80px] ${lightMode ? 'bg-gray-200' : 'bg-black'}`}>
+                                    <div className={`${!lightMode ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray-300' : 'bg-custom-dark-blue'} p-2 border border-gray-600`}>Output</div>
+                                    <div className="flex space-x-2">
+                                        <button  onClick={() => handleFork()} className={`${!lightMode ? 'text-white': 'text-black'} border border-gray-600 pl-4 pr-4`}>Fork</button>
+                                    </div>
+                                </div>
+                                <div className="p-5 font-mono text-gray-500 ">
+                                    {loading ? <div>Compiling...</div> : <pre className="whitespace-pre-wrap break-words w-full">{output}</pre>}
+                                </div>
+                                <Toaster
+                                    position="bottom-right"
+                                    reverseOrder={false}
+                                    toastOptions={{
+                                        style: {
+                                            background: '#333',
+                                            color: '#fff',
+                                        },
+                                    }}
                                 />
                             </div>
-                        </div>
-                        <div className="flex flex-col w-[41%] max-w-[900px] absolute h-[642px] right-0">
-                            <div className={`flex justify-between max-h-[80px] ${lightMode ? 'bg-gray-200' : 'bg-black'}`}>
-                                <div className={`text-white ${lightMode ? 'bg-custom-gray-300' : 'bg-custom-dark-blue'} p-2 border border-gray-600`}>Output</div>
-                                <div className="flex space-x-2">
-                                    <button className="text-white border border-gray-600 pl-4 pr-4">Fork</button>
-                                </div>
-                            </div>
-                            <div className="p-5 font-mono text-gray-500 ">
-                                {loading ? <div>Compiling...</div> : <pre className="whitespace-pre-wrap break-words w-full">{output}</pre>}
-                            </div>
-                            <Toaster
-                                position="bottom-right"
-                                reverseOrder={false}
-                                toastOptions={{
-                                    style: {
-                                        background: '#333',
-                                        color: '#fff',
-                                    },
-                                }}
-                            />
                         </div>
                     </div>
                 </div>
