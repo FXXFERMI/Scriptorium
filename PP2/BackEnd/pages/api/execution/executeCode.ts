@@ -133,11 +133,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       if (err) {
         if (err.killed) {
-          return res.status(500).json({
+          return res.status(200).json({
             error: 'Process timed out. Please optimize your code.',
           });
         }
-        return res.status(500).json({ error: err.message, stderr });
+        return res.status(200).json({ stderr });
       }
 
       res.status(200).json({ stdout, stderr });
