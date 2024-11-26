@@ -115,7 +115,10 @@ const Header: React.FC = () => {
                             About
                             {/* </a> */}
                         </Link>
-                        <a className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                        <a
+                            className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04"
+                            href="/blogs/viewBlogs"
+                        >
                             Blogs
                         </a>
                         <a className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">

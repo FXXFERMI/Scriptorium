@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import api from "../utils/axiosInstance";
+import api from "../../utils/axiosInstance";
 import Cookies from "js-cookie";
 import axios from "axios";
 

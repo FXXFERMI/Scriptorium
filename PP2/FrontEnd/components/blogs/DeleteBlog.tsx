@@ -1,5 +1,5 @@
 import React from "react";
-import api from "../utils/axiosInstance";
+import api from "../../utils/axiosInstance";
 import Cookies from "js-cookie";
 import toast, { Toaster } from "react-hot-toast";
 

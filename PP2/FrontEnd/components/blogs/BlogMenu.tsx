@@ -1,7 +1,7 @@
 import React, { useState, Fragment } from "react";
 import CreateEditBlog from "./createEditBlog";
 import toast, { Toaster } from "react-hot-toast";
-import api from "../utils/axiosInstance";
+import api from "../../utils/axiosInstance";
 import Cookies from "js-cookie";
 import { Menu, Transition } from "@headlessui/react";
 import { DotsVerticalIcon } from "@heroicons/react/solid";
@@ -13,9 +13,12 @@ interface BlogMenuProps {
 
 const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const openEditPopup = () => setIsEditPopupOpen(true);
   const closeEditPopup = () => setIsEditPopupOpen(false);
+  const openDeleteConfirm = () => setIsDeleteConfirmOpen(true);
+  const closeDeleteConfirm = () => setIsDeleteConfirmOpen(false);
 
   const handleEditSuccess = () => {
     toast.success("Blog edited successfully!", {
@@ -46,6 +49,7 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
           position: "top-center",
         });
         onSuccess && onSuccess(); // Refresh the list of blogs after deletion
+        closeDeleteConfirm();
       }
     } catch (error: any) {
       const errorMessage = error.response?.data?.error || "Failed to delete blog";
@@ -60,7 +64,7 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
     <div className="relative inline-block text-left">
       <Menu as="div" className="relative">
         <div>
-          <Menu.Button className="inline-flex justify-center w-full text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none">
+          <Menu.Button className="inline-flex justify-center w-full text-sm font-medium text-gray-700 hover:text-gray-100 focus:outline-none">
             <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />
           </Menu.Button>
         </div>
@@ -91,7 +95,7 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
               <Menu.Item>
                 {({ active }) => (
                   <button
-                    onClick={handleDelete}
+                    onClick={openDeleteConfirm}
                     className={`${
                       active ? "bg-red-500 text-white" : "text-gray-900"
                     } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
@@ -113,6 +117,30 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
           onClose={closeEditPopup}
           onSuccess={handleEditSuccess} // Pass the success callback
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-70 text-white">
+          <div className="bg-black p-6 rounded-lg shadow-md w-96 text-center">
+            <h2 className="text-lg font-bold mb-4">Delete Blog</h2>
+            <p className="mb-6">Are you sure you want to delete this blog? This action cannot be undone.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleDelete}
+                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+              >
+                Confirm Deletion
+              </button>
+              <button
+                onClick={closeDeleteConfirm}
+                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Toast Notification for Feedback */}

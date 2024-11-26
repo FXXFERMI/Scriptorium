@@ -142,7 +142,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       tags,
       uid,
       codeTemplateNames,
-      page = 1,
+      page,
       limit = 10,
     } = req.query  as { bid?: string, title?: string, description?: string, tags?: string, uid?: string, codeTemplateNames?: string, page: string, limit: string};
 

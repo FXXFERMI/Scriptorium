@@ -23,7 +23,7 @@ const UserCenter: React.FC = () => {
   const handleLogout = () => {
     logout();
     router.push('/');
-};
+  };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -85,7 +85,7 @@ const UserCenter: React.FC = () => {
               </button>
             </li>
             <li className="mb-2">
-              <br/>
+              <br />
             </li>
             <li className="mb-2">
               <button onClick={() => setSelectedOption('Settings')} className="block hover:text-indigo-400 w-full text-left">
@@ -141,7 +141,7 @@ const UserCenter: React.FC = () => {
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-auto p-4">
+        <div className="flex-1 overflow-auto">
           {renderContent()}
         </div>
       </div>

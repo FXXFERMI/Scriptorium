@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Header from "../../components/Header";
 import Pagination from "../../components/pagination";
-import CreateBlogButton from "../../components/CreateBlogButton";
+import CreateBlogButton from "../../components/blogs/CreateBlogButton";
 import api from "../../utils/axiosInstance";
 
 export default function Example() {
@@ -91,6 +91,7 @@ export default function Example() {
         {
           params: {
             limit: templatesLimit,
+            currentPage: 2,
           },
         }
       );
@@ -105,6 +106,7 @@ export default function Example() {
       setError("Failed to fetch code templates");
     }
   };
+
   useEffect(() => {
     if (filter.title !== null) {
       const fetchBlogs = async () => {
@@ -120,6 +122,7 @@ export default function Example() {
               description: filter.description,
               tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
               codeTemplateNames: JSON.stringify(codeTemplateNames),
+              page: page,
             },
             headers: {
               "Content-Type": "application/json",
@@ -138,6 +141,7 @@ export default function Example() {
           );
 
           setPosts(response.data.blogs);
+          console.log(response.data);
           setTotalBlogs(response.data.totalBlogs);
           setTotalPages(response.data.totalPages);
 

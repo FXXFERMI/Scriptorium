@@ -7,7 +7,7 @@ import { userProfileType } from "../../interfaces/user";
 import Cookies from "js-cookie";
 import api from "../../utils/axiosInstance";
 import Pagination from "../../components/pagination";
-import ReportButton from "../../components/reportButton";
+import ReportButton from "../../components/reports/reportButton";
 import Link from "next/link";
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
