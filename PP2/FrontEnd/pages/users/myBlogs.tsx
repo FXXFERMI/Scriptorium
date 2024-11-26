@@ -5,6 +5,8 @@ import { useAuth } from "../../contexts/AuthContext";
 // import Footer from '../../components/Footer';
 import Link from "next/link";
 import Cookies from "js-cookie";
+import CreateBlogButton from "../../components/CreateBlogButton";
+import BlogMenu from "../../components/BlogMenu"; // Import the new combined component
 
 interface Blog {
   bid: number;
@@ -72,7 +74,10 @@ const MyBlogs: React.FC = () => {
     <div>
       {/* <Header /> */}
       <main className="max-w-4xl mx-auto mt-10 p-4">
-        <h1 className="text-4xl font-bold mb-8">My Blogs</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold">My Blogs</h1>
+          <CreateBlogButton />
+        </div>
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -80,15 +85,17 @@ const MyBlogs: React.FC = () => {
         ) : blogs.length > 0 ? (
           <div className="space-y-6">
             {blogs.map((blog) => (
-              <div key={blog.bid} className="bg-white p-6 shadow-md">
-                <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
-                {/* <p className="text-gray-700 mb-4">{blog.description}</p> */}
-                <p className="text-sm text-gray-500">
-                  Tags: {blog.tags.map((tag) => tag.name).join(", ")}
-                </p>
-                {blog.hidden && (
-                  <p className="text-red-500 font-bold mt-2">Hidden</p>
-                )}
+              <div key={blog.bid} className="bg-white p-6 shadow-md flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
+                  <p className="text-sm text-gray-500">
+                    Tags: {blog.tags.map((tag) => tag.name).join(", ")}
+                  </p>
+                  {blog.hidden && (
+                    <p className="text-red-500 font-bold mt-2">Hidden</p>
+                  )}
+                </div>
+                <BlogMenu bid={blog.bid} onSuccess={() => setBlogs((prev) => prev.filter((b) => b.bid !== blog.bid))} />
               </div>
             ))}
           </div>
