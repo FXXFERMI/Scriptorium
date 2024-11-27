@@ -29,16 +29,16 @@ EOL
 # Reset the database
 echo "Resetting the database..."
 npx prisma migrate reset --force --skip-seed
-echo "Resetting the database..."
-npx prisma migrate reset --force --skip-seed
 
 # # Run database migrations
 echo "Running database migrations..."
 npx prisma generate
 npx prisma migrate dev --name init
-# npx prisma migrate deploy
+# # npx prisma migrate deploy
 
 # # Seed the database with an initial admin user test
+echo "Creating initial admin user..."
+node seedAdmin.js
 echo "Creating initial admin user..."
 node seedAdmin.js
 cd dockerFiles
@@ -52,6 +52,7 @@ docker build -t cpp-app -f Dockerfile.cpp .
 echo "Building go image..."
 docker build -t go-app -f Dockerfile.go .
 echo "Building java image..."
+docker build -t java-app -f Dockerfile.java .
 docker build -t java-app -f Dockerfile.java .
 echo "Building js image..."
 docker build -t js-app -f Dockerfile.js .

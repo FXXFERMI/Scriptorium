@@ -101,20 +101,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const tagsId = allTags.map(tag => (tag.tagId))
 
 
-      const codeTemplate = await prisma.codeTemplate.create({
-        data: {
-          title,
-          explanation,
-          language,
-          tags: {
-            connect: tagsId.map((id) => ({ tagId: id })),
-          },
-          code,
-          user: {
-            connect: { uid: Number(user.uid) },
-          },
-        },
-      });
+     const codeTemplate = await prisma.codeTemplate.create({
+       data: {
+         title,
+         explanation,
+         language,
+         tags: {
+           connect: tagsId.map((id) => ({ tagId: id })),
+         },
+         code,
+         user: {
+           connect: { uid: Number(user.uid) },
+         },
+       },
+     });
+
 
 
       return res.status(201).json({ codeTemplate, cid: codeTemplate.cid });
@@ -130,30 +131,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 
 
-    // Set up query filters
-    const filters: Filters = {};
-    if (cid) {
-      filters.cid = Number(cid);
-    }
-    if (title) {
-      filters.title = { contains: title };
-    }
-    if (language) {
-      filters.language = { contains: language };
-    }
-    if (code) {
-      filters.code = { contains: code };
-    }
-    if (uid) {
-      filters.uid = Number(uid);
-    }
-    let tagsArray: string[];
-    if (tags) {
-      try {
-        tagsArray = JSON.parse(tags);
-      } catch {
-        tagsArray = [tags]; // Handle cases where it's a single tag string
-      }
+
+
+   // Set up query filters
+   const filters: Filters = {};
+   if (cid) {
+     filters.cid = Number(cid);
+   }
+   if (title) {
+     filters.title = { contains: title };
+   }
+   if (language) {
+     filters.language = { contains: language };
+   }
+   if (code) {
+     filters.code = { contains: code };
+   }
+   if (uid) {
+     filters.uid = Number(uid);
+   }
+   let tagsArray: string[];
+   if (tags) {
+     try {
+       tagsArray = JSON.parse(tags);
+     } catch {
+       tagsArray = [tags]; // Handle cases where it's a single tag string
+     }
 
 
 
