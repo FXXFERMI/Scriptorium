@@ -8,14 +8,18 @@ interface Filters {
   title?: { contains: string};
   description?: { contains: string};
   uid?: number;
-  codeTemplates?: {
+  AND?: Array<{
+    tags?: {
       some: {
-          cid: { in: number[] }
-      }
-  };
+        name: {contains: string}; // This will check for each tag specifically
+      };
+    };
+  }>;
+
   OR?: Array<{ Hidden?: boolean; uid?: number }>;
   Hidden?: boolean;
-}
+};
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Apply CORS
@@ -44,55 +48,62 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const {
-    bid,
     title,
     description,
     tags,
-    uid,
-    codeTemplateIds,
+    codeTemplateNames,
     page = 1,
     limit = 10,
-  } = req.query as {bid?: string, title?: string, description?: string, tags?: string, uid?: string, codeTemplateIds?: string, page: string, limit: string};
+  } = req.query as {bid?: string, title?: string, description?: string, tags?: string, uid?: string, codeTemplateNames?: string, page: string, limit: string};
 
   const filters: Filters = {};
-  if (bid) {
-    filters.bid = Number(bid);
-  }
   if (title) {
-    filters.title = { contains: title };
+      filters.title = { contains: title };
   }
   if (description) {
-    filters.description = { contains: description };
-  }
-  if (uid) {
-    filters.uid = Number(uid);
+      filters.description = { contains: description };
   }
 
-  let tagsArray;
+  let tagsArray: string[];
   if (tags) {
     try {
       tagsArray = JSON.parse(tags);
     } catch {
       tagsArray = [tags]; // Handle cases where it's a single tag string
     }
-  }
 
-  let codeTemplateIdsArray;
-  if (codeTemplateIds) {
-    try {
-      codeTemplateIdsArray = JSON.parse(codeTemplateIds).map(Number);
-    } catch {
-      codeTemplateIdsArray = [Number(codeTemplateIds)]; // Handle single ID cases
-    }
-  }
 
-  if (codeTemplateIdsArray && codeTemplateIdsArray.length > 0) {
-    filters.codeTemplates = {
-      some: {
-        cid: { in: codeTemplateIdsArray },
+    filters.AND = tagsArray.map(tag => ({
+      tags: {
+        some: { name: {contains: tag.toLowerCase(),
+          } }, // This will check for each tag
       },
-    };
+    }))
   }
+
+  let codeTemplateNameArray;
+        if (codeTemplateNames) {
+          try {
+            codeTemplateNameArray = JSON.parse(codeTemplateNames);
+          } catch {
+            codeTemplateNameArray = [codeTemplateNames];// Handle single ID cases
+          }
+    
+          const codeTemplateFilter = codeTemplateNameArray.map(codeTemplateName =>({
+            codeTemplates: {
+              some: {title: codeTemplateName}
+            }
+          }) )
+    
+          if (filters.AND) {
+            filters.AND = filters.AND.concat(codeTemplateFilter)
+          } else {
+            filters.AND = codeTemplateFilter
+          }
+    
+        }
+    
+
 
   try {
     const pageNumber = Number(page) > 0 ? Number(page) : 1;
@@ -100,22 +111,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const skip = (pageNumber - 1) * itemsPerPage;
 
     const blogs = await prisma.blog.findMany({
-      where: {
-        ...filters,
-        ...(tagsArray && tagsArray.length > 0 && {
-          OR: tagsArray.map(tag => ({
-            tags: { contains: tag }
-          }))
-        }),
-      },
+      where: filters,
       skip: skip,
       take: itemsPerPage,
       orderBy: {
         reports: { _count: "desc" },
       },
       include: {
-        reports: true
-      }
+        ratings: true,
+        user: {
+          include: {
+              profile: {
+                  select: {
+                      avatar: true, // Select the avatar URL
+                      firstName: true,
+                      lastName: true,
+                  },
+              },
+          }, 
+        },
+        tags: true
+      },
     });
     res.status(200).json(blogs);
   } catch (error) {

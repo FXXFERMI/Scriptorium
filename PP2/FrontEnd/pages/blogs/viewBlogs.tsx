@@ -1,10 +1,12 @@
 // https://tailwindui.com/components/marketing/sections/blog-sections
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Header from "../../components/Header";
 import Pagination from "../../components/pagination";
+import CreateBlogButton from "../../components/blogs/CreateBlogButton";
+import api from "../../utils/axiosInstance";
 
 export default function Example() {
   const [posts, setPosts] = useState([]);
@@ -12,11 +14,11 @@ export default function Example() {
   const [error, setError] = useState<string>(""); // Error state
   const router = useRouter();
   const [filter, setFilter] = useState({
-    title: "",
+    title: null,
     description: "",
     tags: "",
   }); // Filter state
-  const [sort, setSort] = useState(""); // Sort state (by rating)
+  const [sort, setSort] = useState("default"); // Sort state (by rating)
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalBlogs, setTotalBlogs] = useState(0);
@@ -26,35 +28,59 @@ export default function Example() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [totalTemplates, setTotalTemplates] = useState(0);
   const [templatesLimit, setTemplatesLimit] = useState(10);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    if (router.isReady) {
+    const token = Cookies.get("accessToken");
+    if (token) {
+      setIsLoggedIn(!!token);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (router.isReady && filter.title === null) {
       let filter: {
-        title?: string | string[];
-        description?: string | string[];
-        tags?: string | string[];
-      } = {};
+        title: string;
+        description: string;
+        tags: string;
+      } = { title: "", description: "", tags: "" };
 
       if (router.query.title) {
-        filter.title = router.query.title;
-      } else {
-        filter.title = "";
+        filter.title = Array.isArray(router.query.title)
+          ? router.query.title.join(", ") // Join array into a single string
+          : router.query.title; // Directly assign if it's a string
       }
       if (router.query.description) {
-        filter.description = router.query.description;
-      } else {
-        filter.description = "";
+        filter.description = Array.isArray(router.query.description)
+          ? router.query.description.join(", ") // Join array elements if it's an array
+          : router.query.description; // Assign directly if it's a string
       }
       if (router.query.tags) {
-        filter.tags = router.query.tags;
-      } else {
-        filter.tags = "";
+        filter.tags = Array.isArray(router.query.tags)
+          ? router.query.tags.join(", ") // Combine array elements into a string
+          : router.query.tags; // Assign directly if it's a string
       }
       if (router.query.page) {
         setPage(Number(router.query.page));
       } else {
         setPage(1);
       }
+      if (router.query.codeTemplates) {
+        if (Array.isArray(router.query.codeTemplates)) {
+          setSelectedCodeTemplates(router.query.codeTemplates);
+        } else {
+          setSelectedCodeTemplates(JSON.parse(router.query.codeTemplates));
+        }
+      }
+      if (router.query.sort) {
+        setSort(
+          Array.isArray(router.query.sort)
+            ? router.query.sort.join(", ") // Join array into a single string
+            : router.query.sort // Directly assign if it's a string
+        );
+      }
+
+      setFilter(filter);
     }
   }, [router.isReady, router.query]);
 
@@ -65,6 +91,7 @@ export default function Example() {
         {
           params: {
             limit: templatesLimit,
+            currentPage: 2,
           },
         }
       );
@@ -79,81 +106,151 @@ export default function Example() {
       setError("Failed to fetch code templates");
     }
   };
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const token = Cookies.get("accessToken");
-        const codeTemplateNames = selectedCodeTemplates.map((name) => name);
 
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs`,
-          {
+  useEffect(() => {
+    if (filter.title !== null) {
+      const fetchBlogs = async () => {
+        try {
+          const codeTemplateNames = selectedCodeTemplates.map((name) => name);
+
+          const token = Cookies.get("accessToken");
+
+          // Base configuration
+          const config: AxiosRequestConfig = {
+            params: {
+              title: filter.title,
+              description: filter.description,
+              tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
+              codeTemplateNames: JSON.stringify(codeTemplateNames),
+              page: page,
+            },
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+
+          // Add Authorization header and withCredentials only if token exists
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+            config.withCredentials = true;
+          }
+
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs`,
+            config
+          );
+
+          setPosts(response.data.blogs);
+          console.log(response.data);
+          setTotalBlogs(response.data.totalBlogs);
+          setTotalPages(response.data.totalPages);
+
+          setLoading(false);
+        } catch (err) {
+          setError("Failed to load the blog.");
+          setLoading(false);
+        }
+      };
+
+      const fetchSortedBlogs = async () => {
+        try {
+          const codeTemplateNames = selectedCodeTemplates.map((name) => name);
+
+          const token = Cookies.get("accessToken");
+
+          // Base configuration
+          const config: AxiosRequestConfig = {
             params: {
               title: filter.title,
               description: filter.description,
               tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
               codeTemplateNames: JSON.stringify(codeTemplateNames),
             },
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+
+          // Add Authorization header and withCredentials only if token exists
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+            config.withCredentials = true;
           }
-        );
 
-        setPosts(response.data.blogs);
-        setTotalBlogs(response.data.totalBlogs);
-        setTotalPages(response.data.totalPages);
-
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to load the blog.");
-        setLoading(false);
-      }
-    };
-
-    const fetchSortedBlogs = async () => {
-      try {
-        const token = Cookies.get("accessToken");
-        if (!token) {
-          console.error("Access token is missing");
-          return;
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/sortByRatings`,
+            config
+          );
+          setPosts(response.data);
+          setLoading(false);
+        } catch (err) {
+          setError("Failed to load the blog.");
+          setLoading(false);
         }
+      };
 
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/sortByRatings`,
-          {
+      const fetchSortByReports = async () => {
+        try {
+          const codeTemplateNames = selectedCodeTemplates.map((name) => name);
+
+          const token = Cookies.get("accessToken");
+
+          // Base configuration
+          const config: AxiosRequestConfig = {
             params: {
               title: filter.title,
               description: filter.description,
-              tags: JSON.stringify(filter.tags.split(",")),
+              tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
+              codeTemplateNames: JSON.stringify(codeTemplateNames),
             },
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+
+          // Add Authorization header and withCredentials only if token exists
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+            config.withCredentials = true;
           }
-        );
-        setPosts(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to load the blog.");
-        setLoading(false);
+
+          const response = await api.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/sortByReports`,
+            config
+          );
+          setPosts(response.data);
+          setLoading(false);
+        } catch (err) {
+          setError("Failed to load the blog.");
+          setLoading(false);
+        }
+      };
+
+      fetchCodeTemplates();
+
+      if (sort === "rating_desc") {
+        fetchSortedBlogs();
+      } else if (sort === "default") {
+        fetchBlogs();
+      } else {
+        fetchSortByReports();
       }
-    };
-
-    fetchCodeTemplates();
-
-    if (sort === "rating_desc") {
-      fetchSortedBlogs();
-    } else {
-      fetchBlogs();
     }
 
     // Update URL parameters based on state
-    // if (router.isReady) {
-    //   router.push({
-    //     pathname: "",
-    //     query: {
-    //       filter.title,
-    //       filter.description,
-    //       filter.tags,
-    //       page,
-    //     },
-    //   });
-    // }
+    if (router.isReady) {
+      router.push({
+        pathname: "/blogs/viewBlogs",
+        query: {
+          title: filter.title,
+          description: filter.description,
+          tags: filter.tags,
+          codeTemplates: selectedCodeTemplates,
+          page,
+          sort,
+        },
+      });
+    }
   }, [filter, sort, blogsUpdate, selectedCodeTemplates]);
 
   const handleClick = (bid) => {
@@ -223,21 +320,24 @@ export default function Example() {
       <Header />
       <div className="bg-black mt-20 py-24 sm:py-12 ">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:mx-0">
-            <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Blogs
-            </h2>
+          <div className="flex items-center justify-between mt-2">
+            <div className="mx-auto max-w-2xl lg:mx-0">
+              <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white ">
+                Blogs
+              </h2>
+            </div>
+            {isLoggedIn && <CreateBlogButton />}
           </div>
           {/* Filters Section */}
           <div className="mt-8">
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap gap-x-4 gap-y-4">
               <input
                 type="text"
                 name="title"
                 placeholder="Search by title"
-                value={filter.title}
+                value={filter.title === null ? "" : filter.title}
                 onChange={handleFilterChange}
-                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               />
               <input
                 type="text"
@@ -245,7 +345,7 @@ export default function Example() {
                 placeholder="Search by description"
                 value={filter.description}
                 onChange={handleFilterChange}
-                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               />
               <input
                 type="text"
@@ -253,15 +353,13 @@ export default function Example() {
                 placeholder="Search by tags"
                 value={filter.tags}
                 onChange={handleFilterChange}
-                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               />
-              {/* Sort by ratings */}
-
               <select
                 name="sortBy"
                 value={sort}
                 onChange={handleSortChange}
-                className="w-full p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
               >
                 <option value="default">Sort by default</option>
                 <option value="rating_desc">Sort by rating (descending)</option>
@@ -333,7 +431,7 @@ export default function Example() {
             {loading ? (
               <div className="text-white">Loading...</div>
             ) : error ? (
-              <div>{error}</div>
+              <div className="text-white">{error}</div>
             ) : posts.length > 0 ? (
               posts.map((post) => (
                 <article
@@ -391,7 +489,7 @@ export default function Example() {
                           {post.user.profile.lastName}
                         </a>
                       </p>
-                      <p className="text-gray-200">{post.user.username}</p>
+                      <p className="text-gray-200">@{post.user.username}</p>
                     </div>
                   </div>
                 </article>

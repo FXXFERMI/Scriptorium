@@ -35,6 +35,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Set both access and refresh tokens in cookies
     res.setHeader('Set-Cookie', [
  
+      cookie.serialize('accessToken', accessToken, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 15 * 60, // 15 minutes for access token
+      }),
       cookie.serialize('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

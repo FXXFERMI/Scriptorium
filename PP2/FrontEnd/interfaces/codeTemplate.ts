@@ -1,15 +1,16 @@
-export interface blogType {
-    bid: number;
+export interface codeTemplateType {
+    cid: number;
     title: string;
-    description: string;
+    explanation: string;
+    language: string;
     tags: Array<{name: string}>;
-    Hidden: boolean;
     uid: number;
     user: {username: string, profile: {avatar: string, firstName: string, lastName: string}}
-    codeTemplates: Array<{cid: number, title: string}>;
+    blogs: Array<{bid: number, title: string}>;
     upvotes: number;
     downvotes: number;
     hasUpvoted: boolean;
     hasDownvoted: boolean;
   }
+  
   

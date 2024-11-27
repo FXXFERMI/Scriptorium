@@ -53,8 +53,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     replier: { connect: { uid: Number(user.uid) } },
                     content,
                 },
+                include: {
+                    owner: true, 
+                    replier: {
+                        include: {
+                            profile: {
+                                select: {
+                                    avatar: true, // Select the avatar URL
+                                },
+                            }, 
+                        
+                        }, 
+                    },
+                    ratings: true
+                },
             });
-            res.status(201).json(CreateReply);
+
+            const upvotes = CreateReply.ratings.filter(rating => rating.upvote === true).length;
+            const downvotes = CreateReply.ratings.filter(rating => rating.downvote === true).length;
+
+            // Check if the logged-in user voted on this comment
+            const userVote = CreateReply.ratings.find(rating => rating.uid === user?.uid);
+            const hasUpvoted = userVote?.upvote === true;
+            const hasDownvoted = userVote?.downvote === true;
+            res.status(201).json({...CreateReply, upvotes, downvotes, hasUpvoted, hasDownvoted});
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
