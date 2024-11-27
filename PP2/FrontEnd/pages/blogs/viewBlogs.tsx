@@ -29,6 +29,7 @@ export default function Example() {
   const [totalTemplates, setTotalTemplates] = useState(0);
   const [templatesLimit, setTemplatesLimit] = useState(10);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const lightMode = false;
 
   useEffect(() => {
     const token = Cookies.get("accessToken");
@@ -314,11 +315,15 @@ export default function Example() {
   return (
     <>
       <Header />
-      <div className="bg-black mt-20 py-24 sm:py-12 ">
+      <div className={` mt-20 py-24 sm:py-12 ${lightMode && "bg-white"}`}>
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex items-center justify-between mt-2">
             <div className="mx-auto max-w-2xl lg:mx-0">
-              <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white ">
+              <h2
+                className={`text-pretty text-4xl font-semibold tracking-tight ${
+                  lightMode ? "text-black" : "text-white"
+                } `}
+              >
                 Blogs
               </h2>
             </div>
@@ -333,7 +338,9 @@ export default function Example() {
                 placeholder="Search by title"
                 value={filter.title === null ? "" : filter.title}
                 onChange={handleFilterChange}
-                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className={`basis-64 p-2  rounded-md text-gray-300 border border-gray-600 text-gray-300 ${
+                  !lightMode && "bg-gray-900"
+                } `}
               />
               <input
                 type="text"
@@ -341,7 +348,9 @@ export default function Example() {
                 placeholder="Search by description"
                 value={filter.description}
                 onChange={handleFilterChange}
-                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className={`basis-64 p-2  rounded-md text-gray-300 border border-gray-600 text-gray-300 ${
+                  !lightMode && "bg-gray-900"
+                } `}
               />
               <input
                 type="text"
@@ -349,13 +358,17 @@ export default function Example() {
                 placeholder="Search by tags"
                 value={filter.tags}
                 onChange={handleFilterChange}
-                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className={`basis-64 p-2  rounded-md text-gray-300 border border-gray-600 text-gray-300 ${
+                  !lightMode && "bg-gray-900"
+                } `}
               />
               <select
                 name="sortBy"
                 value={sort}
                 onChange={handleSortChange}
-                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className={`basis-64 p-2  rounded-md text-gray-300 border border-gray-600 text-gray-300 ${
+                  !lightMode && "bg-gray-900"
+                } `}
               >
                 <option value="default">Sort by default</option>
                 <option value="rating_desc">Sort by rating (descending)</option>
@@ -367,15 +380,17 @@ export default function Example() {
             <button
               type="button"
               onClick={() => setFilterOpen(!filterOpen)}
-              className="flex items-center justify-between w-full py-4 text-left"
+              className={`flex items-center justify-between w-full py-4 text-left ${
+                lightMode ? "text-black" : "text-white"
+              }`}
             >
-              <span className="text-lg font-medium text-white">
+              <span className={`text-lg font-medium `}>
                 Filter By Code Templates
               </span>
               {filterOpen ? (
-                <span className="text-lg font-medium text-white"> - </span>
+                <span className="text-lg font-medium "> - </span>
               ) : (
-                <span className="text-lg font-medium text-white"> + </span>
+                <span className="text-lg font-medium "> + </span>
               )}
             </button>
 
@@ -383,7 +398,12 @@ export default function Example() {
               <div>
                 <div className="mb-3">
                   {codeTemplates.map((template, index) => (
-                    <div key={index} className="flex items-center text-white">
+                    <div
+                      key={index}
+                      className={`flex items-center ${
+                        lightMode ? "text-black" : "text-white"
+                      }`}
+                    >
                       <input
                         type="checkbox"
                         id={`template-${template}`}
@@ -391,10 +411,7 @@ export default function Example() {
                         onChange={() => handleCheckboxChange(template)}
                         className="mr-2"
                       />
-                      <label
-                        htmlFor={`template-${template}`}
-                        className="text-white"
-                      >
+                      <label htmlFor={`template-${template}`} className="">
                         {template}
                       </label>
                     </div>
@@ -411,13 +428,15 @@ export default function Example() {
                     v
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={displayLessTemplates}
-                    className="mt-2 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-                  >
-                    <>Show Less ^</>
-                  </button>
+                  codeTemplates.length !== totalTemplates && (
+                    <button
+                      type="button"
+                      onClick={displayLessTemplates}
+                      className="mt-2 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                    >
+                      <>Show Less ^</>
+                    </button>
+                  )
                 )}
               </div>
             )}
@@ -425,19 +444,24 @@ export default function Example() {
 
           <div className="mx-auto mt-3 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 pt-3 sm:mt-3 sm:pt-3 lg:mx-0 lg:max-w-none lg:grid-cols-3 mb-6 pb-4">
             {loading ? (
-              <div className="text-white">Loading...</div>
+              <div className={`${lightMode ? "text-black" : "text-white"}`}>
+                Loading...
+              </div>
             ) : error ? (
-              <div className="text-white">{error}</div>
+              <div className={`${lightMode ? "text-black" : "text-white"}`}>
+                {error}
+              </div>
             ) : posts.length > 0 ? (
               posts.map((post) => (
                 <article
                   key={post.bid}
-                  className="flex max-w-xl flex-col items-start justify-between border border-gray-600 rounded-md p-5 bg-gray-900"
+                  className={`flex max-w-xl flex-col items-start justify-between  rounded-md p-5  ${
+                    lightMode
+                      ? "text-black"
+                      : "border border-gray-600 bg-gray-900"
+                  }`}
                 >
                   <div className="flex flex-wrap items-center gap-x-4 text-xs ">
-                    {/* <time dateTime={post.datetime} className="text-gray-500">
-                  {post.date}
-                </time> */}
                     {post.tags && post.tags.length > 0 ? (
                       post.tags.map((tag, index) => (
                         <span
@@ -452,7 +476,11 @@ export default function Example() {
                     )}
                   </div>
                   <div className="group relative ">
-                    <h3 className="mt-3 text-lg/6 font-semibold text-gray-100 group-hover:text-gray-600">
+                    <h3
+                      className={`mt-3 text-lg/6 font-semibold  group-hover:text-gray-600 ${
+                        lightMode ? "text-black" : "text-gray-100"
+                      }`}
+                    >
                       <button
                         onClick={() => {
                           handleClick(post.bid);
@@ -463,7 +491,11 @@ export default function Example() {
                         {post.title}
                       </button>
                     </h3>
-                    <p className="mt-5 line-clamp-3 text-sm/6 text-gray-200">
+                    <p
+                      className={`mt-5 line-clamp-3 text-sm/6  ${
+                        lightMode ? "text-gray-600" : "text-gray-200"
+                      }`}
+                    >
                       {post.description}
                     </p>
                   </div>
@@ -478,14 +510,24 @@ export default function Example() {
                       className="h-10 w-10 rounded-full bg-gray-50"
                     />
                     <div className="text-sm/6">
-                      <p className="font-semibold text-gray-200">
+                      <p
+                        className={`font-semibold  ${
+                          lightMode ? "text-gray-900" : "text-gray-200"
+                        }`}
+                      >
                         <a>
                           <span className="absolute inset-0" />
                           {post.user.profile.firstName}{" "}
                           {post.user.profile.lastName}
                         </a>
                       </p>
-                      <p className="text-gray-200">@{post.user.username}</p>
+                      <p
+                        className={` ${
+                          lightMode ? "text-gray-600" : "text-gray-200"
+                        }`}
+                      >
+                        @{post.user.username}
+                      </p>
                     </div>
                   </div>
                 </article>

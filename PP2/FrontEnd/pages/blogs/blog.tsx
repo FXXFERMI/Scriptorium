@@ -43,8 +43,18 @@ const DisplayBlog = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [commentsFetched, setCommentsFetched] = useState(false);
+  const lightMode = false;
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null); // Reference to the textarea
+  const blogRef = useRef(null);
+  const templatesRef = useRef(null);
+
+  useEffect(() => {
+    if (blogRef.current && templatesRef.current) {
+      const blogHeight = blogRef.current.offsetHeight;
+      templatesRef.current.style.maxHeight = `${blogHeight}px`;
+    }
+  }, [blog]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -510,12 +520,30 @@ const DisplayBlog = () => {
         }
       );
 
-      const updatedComments = [...comments]; // Create a copy of the comments array
-      updatedComments[index].upvotes = response.data.upvotes;
-      updatedComments[index].downvotes = response.data.downvotes;
-      updatedComments[index].hasUpvoted = response.data.hasUpvoted;
-      updatedComments[index].hasDownvoted = response.data.hasDownvoted;
-      setComments(updatedComments);
+      if (sortComment === "rating_desc") {
+        const sortedResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/comments/sortByRatings`,
+          {
+            params: {
+              bid: blog.bid,
+              limit: 10,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        setComments(sortedResponse.data);
+      } else {
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[index].upvotes = response.data.upvotes;
+        updatedComments[index].downvotes = response.data.downvotes;
+        updatedComments[index].hasUpvoted = response.data.hasUpvoted;
+        updatedComments[index].hasDownvoted = response.data.hasDownvoted;
+        setComments(updatedComments);
+      }
     } catch (err) {
       setError("Failed to upvote.");
     }
@@ -560,12 +588,30 @@ const DisplayBlog = () => {
         }
       );
 
-      const updatedComments = [...comments]; // Create a copy of the comments array
-      updatedComments[index].upvotes = response.data.upvotes;
-      updatedComments[index].downvotes = response.data.downvotes;
-      updatedComments[index].hasUpvoted = response.data.hasUpvoted;
-      updatedComments[index].hasDownvoted = response.data.hasDownvoted;
-      setComments(updatedComments);
+      if (sortComment === "rating_desc") {
+        const sortedResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/comments/sortByRatings`,
+          {
+            params: {
+              bid: blog.bid,
+              limit: 10,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        setComments(sortedResponse.data);
+      } else {
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[index].upvotes = response.data.upvotes;
+        updatedComments[index].downvotes = response.data.downvotes;
+        updatedComments[index].hasUpvoted = response.data.hasUpvoted;
+        updatedComments[index].hasDownvoted = response.data.hasDownvoted;
+        setComments(updatedComments);
+      }
     } catch (err) {
       setError("Failed to downvote.");
     }
@@ -607,7 +653,14 @@ const DisplayBlog = () => {
       );
 
       const response = await api.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
       );
 
       const updatedComments = [...comments]; // Create a copy of the comments array
@@ -683,7 +736,14 @@ const DisplayBlog = () => {
         }
       );
       const response = await api.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
       );
 
       const updatedComments = [...comments]; // Create a copy of the comments array
@@ -754,15 +814,32 @@ const DisplayBlog = () => {
   return (
     <div>
       <Header />
-      <div className="container mx-auto p-8 mt-20">
+      <div
+        className={`container mx-auto p-8 mt-20  ${lightMode && "bg-white"}`}
+      >
         {blog ? (
           <>
             <div className="flex flex-col lg:flex-row gap-6">
-              <div className="flex-1 bg-gray-800 p-6 rounded-lg shadow-md">
-                <h1 className="text-5xl font-4 lh-6 ld-04 font-bold text-white mb-6">
+              {/* Blog Section */}
+              <div
+                ref={blogRef}
+                id="blog-section"
+                className={`flex-[3] p-6 rounded-lg shadow-md ${
+                  lightMode ? "" : "bg-gray-800"
+                }`}
+              >
+                <h1
+                  className={`text-5xl font-4 lh-6 ld-04 font-bold mb-6 ${
+                    lightMode ? "text-black" : "text-white"
+                  }`}
+                >
                   {blog.title}
                 </h1>
-                <div className="text-gray-300 flex flex-wrap mb-6">
+                <div
+                  className={`flex flex-wrap mb-6 ${
+                    lightMode ? "text-gray-600" : "text-gray-300"
+                  }`}
+                >
                   tags:
                   {blog.tags && blog.tags.length > 0 ? (
                     blog.tags.map((tag, index) => (
@@ -777,12 +854,18 @@ const DisplayBlog = () => {
                     <span className="text-gray-500">No tags available</span>
                   )}
                 </div>
-                {/* add author section*/}
-                <h1 className="text-gray-200 text-1.5xl font-bold mb-4">
-                  {" "}
+                <h1
+                  className={`text-1.5xl font-bold mb-4 ${
+                    lightMode ? "text-gray-600" : "text-gray-200"
+                  }`}
+                >
                   Written by:
                 </h1>
-                <div className="text-gray-200 flex flex-row items-center mb-6">
+                <div
+                  className={`${
+                    lightMode ? "text-gray-600" : "text-gray-200"
+                  } flex flex-row items-center mb-6`}
+                >
                   <img
                     src={
                       blog.user.profile.avatar.startsWith("/uploads/")
@@ -790,26 +873,19 @@ const DisplayBlog = () => {
                         : blog.user.profile.avatar
                     }
                     alt="Avatar"
-                    width={100}
-                    height={100}
-                    key={
-                      blog.user.profile.avatar.startsWith("/uploads/")
-                        ? `${process.env.NEXT_PUBLIC_API_URL}${blog.user.profile.avatar}`
-                        : blog.user.profile.avatar
-                    }
-                    className="text-gray-200 w-14 h-14 rounded-full"
+                    className="w-14 h-14 rounded-full"
                   />
                   <div className="flex flex-col ml-4">
                     <h2>
-                      {" "}
-                      {blog.user.profile.firstName} {blog.user.profile.lastName}{" "}
+                      {blog.user.profile.firstName} {blog.user.profile.lastName}
                     </h2>
-                    <p className="text-lg"> @{blog.user.username} </p>
+                    <p className="text-lg">@{blog.user.username}</p>
                   </div>
                 </div>
-
                 <p
-                  className="text-gray-300 text-lg font-normal"
+                  className={`text-lg font-normal ${
+                    lightMode ? "text-gray-900" : "text-gray-300"
+                  }`}
                   style={{ whiteSpace: "pre-wrap" }}
                 >
                   {blog.description}
@@ -819,7 +895,7 @@ const DisplayBlog = () => {
                     {/* Upvote button */}
                     <button
                       onClick={() => handleBlogUpvote(blog.bid)}
-                      className={`mr-2 ${
+                      className={`${
                         blog.hasUpvoted
                           ? "text-blue-500 font-bold" // Highlighted when upvoted
                           : "text-gray-500 hover:text-blue-500" // Default state
@@ -827,7 +903,13 @@ const DisplayBlog = () => {
                     >
                       ▲
                     </button>
-                    <span className="text-gray-100">{blog.upvotes}</span>
+                    <span
+                      className={`${
+                        lightMode ? "text-gray-900" : "text-gray-100"
+                      }`}
+                    >
+                      {blog.upvotes}
+                    </span>
 
                     {/* Downvote button */}
                     <button
@@ -840,7 +922,13 @@ const DisplayBlog = () => {
                     >
                       ▼
                     </button>
-                    <span className="text-gray-100">{blog.downvotes}</span>
+                    <span
+                      className={`${
+                        lightMode ? "text-gray-900" : "text-gray-100"
+                      }`}
+                    >
+                      {blog.downvotes}
+                    </span>
                   </div>
 
                   {/* Report button aligned to the right */}
@@ -848,17 +936,31 @@ const DisplayBlog = () => {
                 </div>
               </div>
 
-              <div className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold text-white mb-4">
-                  Code Templates:{" "}
+              <div
+                ref={templatesRef}
+                className={`flex-[1] p-6 rounded-lg shadow-md ${
+                  lightMode ? "" : "bg-gray-800"
+                }`}
+                style={{
+                  overflowY: "auto",
+                }}
+              >
+                <h2
+                  className={`text-2xl font-bold mb-4 ${
+                    lightMode ? "text-gray-700" : "text-gray-200"
+                  }`}
+                >
+                  Code Templates:
                 </h2>
                 <ul className="space-y-4">
-                  {" "}
-                  {/* Add spacing between items */}
                   {blog.codeTemplates.map((template) => (
                     <li
                       key={template.cid}
-                      className="flex items-center justify-between p-4 text-white hover:bg-gray-700 rounded-lg transition duration-300 ease-in-out"
+                      className={`flex items-center justify-between p-4 rounded-lg transition duration-300 ease-in-out ${
+                        lightMode
+                          ? "text-gray-600 hover:text-gray-800"
+                          : "text-white hover:bg-gray-700"
+                      }`}
                     >
                       <Link href={`/execution/${template.cid}`}>
                         {template.title}
@@ -872,16 +974,22 @@ const DisplayBlog = () => {
             <hr className="mt-8" />
             {/* Add comments */}
             <div className="mt-8">
-              <h2 className="text-xl text-gray-100 font-semibold mb-4">
+              <h2
+                className={`text-xl  font-semibold mb-4 ${
+                  lightMode ? " text-gray-100" : "text-gray-100"
+                }`}
+              >
                 Comments
               </h2>
               {/* Sort by ratings */}
-              <div className="flex flex-wrap gap-x-4 gap-y-4 ">
+              <div className="flex flex-wrap sm:w-auto gap-x-4 gap-y-4 ">
                 <select
                   name="sortBy"
                   value={sortComment}
                   onChange={handleSortCommentChange}
-                  className="border p-2 mb-4 bg-gray-900 text-gray-300 rounded-md "
+                  className={`basis-64 p-2 mb-4 rounded-md text-gray-300 border border-gray-600 text-gray-300 ${
+                    !lightMode && "bg-gray-900"
+                  } `}
                 >
                   <option value="default">Sort comments by default</option>
                   <option value="rating_desc">
@@ -892,7 +1000,9 @@ const DisplayBlog = () => {
                   name="sortBy"
                   value={sortReply}
                   onChange={handleSortReplyChange}
-                  className="border p-2 mb-4 bg-gray-900 text-gray-300 rounded-md "
+                  className={`basis-64 p-2 mb-4 rounded-md text-gray-300 border border-gray-600 text-gray-300 ${
+                    !lightMode && "bg-gray-900"
+                  } `}
                 >
                   <option value="default">Sort replies by default</option>
                   <option value="rating_desc">
@@ -922,10 +1032,18 @@ const DisplayBlog = () => {
                           className="w-14 h-14 rounded-full"
                         />
                         <div className="flex flex-col ml-4 w-full">
-                          <p className="text-m text-gray-200">
+                          <p
+                            className={`text-m  ${
+                              lightMode ? "text-gray-900" : "text-gray-200"
+                            }`}
+                          >
                             {comment.user.username}
                           </p>
-                          <p className="break-words text-gray-200">
+                          <p
+                            className={`break-words ${
+                              lightMode ? "text-gray-700" : "text-gray-200"
+                            }`}
+                          >
                             {comment.content}
                           </p>
 
@@ -938,7 +1056,9 @@ const DisplayBlog = () => {
                                 comment.user.username
                               )
                             }
-                            className="mt-2 px-0.5 py-0.5 w-12 text-white hover:text-blue-500 text-sm rounded"
+                            className={`mt-2 px-0.5 py-0.5 w-12 text-white hover:text-blue-500 text-sm rounded ${
+                              lightMode ? "text-gray-900" : "text-white"
+                            }`}
                           >
                             Reply
                           </button>
@@ -960,7 +1080,11 @@ const DisplayBlog = () => {
                           >
                             ▲
                           </button>
-                          <span className="text-gray-100">
+                          <span
+                            className={`${
+                              lightMode ? "text-gray-900" : "text-gray-100"
+                            }`}
+                          >
                             {comment.upvotes}
                           </span>
                           <button
@@ -975,7 +1099,11 @@ const DisplayBlog = () => {
                           >
                             ▼
                           </button>
-                          <span className="text-gray-100 mr-2">
+                          <span
+                            className={`${
+                              lightMode ? "text-gray-900" : "text-gray-100"
+                            }`}
+                          >
                             {comment.downvotes}
                           </span>
                           {isLoggedIn && (
@@ -1012,10 +1140,22 @@ const DisplayBlog = () => {
                                 className="w-12 h-12 rounded-full"
                               />
                               <div className="flex flex-col ml-4 w-full">
-                                <p className="text-m text-gray-200">
+                                <p
+                                  className={`text-m  ${
+                                    lightMode
+                                      ? "text-gray-900"
+                                      : "text-gray-200"
+                                  }`}
+                                >
                                   {reply.replier.username}
                                 </p>
-                                <p className="break-words text-gray-200">
+                                <p
+                                  className={`break-words ${
+                                    lightMode
+                                      ? "text-gray-700"
+                                      : "text-gray-200"
+                                  }`}
+                                >
                                   {reply.content}
                                 </p>
 
@@ -1028,7 +1168,9 @@ const DisplayBlog = () => {
                                       reply.replier.username
                                     )
                                   }
-                                  className="mt-2 px-0.5 py-0.5 w-12 text-white hover:text-blue-500 text-sm rounded"
+                                  className={`mt-2 px-0.5 py-0.5 w-12 text-white hover:text-blue-500 text-sm rounded ${
+                                    lightMode ? "text-gray-900" : "text-white"
+                                  }`}
                                 >
                                   Reply
                                 </button>
@@ -1055,7 +1197,13 @@ const DisplayBlog = () => {
                                 >
                                   ▲
                                 </button>
-                                <span className="text-gray-100">
+                                <span
+                                  className={`${
+                                    lightMode
+                                      ? "text-gray-900"
+                                      : "text-gray-100"
+                                  }`}
+                                >
                                   {reply.upvotes}
                                 </span>
                                 <button
@@ -1075,7 +1223,13 @@ const DisplayBlog = () => {
                                 >
                                   ▼
                                 </button>
-                                <span className="text-gray-100 mr-2">
+                                <span
+                                  className={`${
+                                    lightMode
+                                      ? "text-gray-900"
+                                      : "text-gray-100"
+                                  }`}
+                                >
                                   {reply.downvotes}
                                 </span>
                                 {isLoggedIn && (
@@ -1159,7 +1313,9 @@ const DisplayBlog = () => {
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Add your comment..."
-                      className="w-full h-16 p-3 border border-gray-300 bg-gray-900 rounded-lg resize-none text-white focus:outline-none focus:ring focus:ring-blue-300"
+                      className={`w-full h-16 p-3 border border-gray-300  rounded-lg resize-none  focus:outline-none focus:ring focus:ring-blue-300 ${
+                        lightMode ? "text-black" : "bg-gray-900 text-white"
+                      }`}
                     ></textarea>
                     <div className="mt-2 flex justify-between items-center">
                       {/* Icons */}
