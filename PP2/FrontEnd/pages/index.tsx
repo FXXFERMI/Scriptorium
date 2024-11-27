@@ -10,13 +10,18 @@ import api from "../utils/axiosInstance";
 import { codeTemplateType } from "../interfaces/codeTemplate";
 import { blogType } from "../interfaces/blog";
 import dotenv from "dotenv";
+import { useAuth } from "../contexts/AuthContext";
+
 dotenv.config();
 
 const Header = dynamic(() => import("../components/Header"), { ssr: false }); // Dynamic import for client-side rendering only
 
 const Home: FC = () => {
-  const [newestTemplates, setNewestTemplates] = useState<codeTemplateType[]>([]);
+  const [newestTemplates, setNewestTemplates] = useState<codeTemplateType[]>(
+    []
+  );
   const [topRatedBlogs, setTopRatedBlogs] = useState<blogType[]>([]);
+  const { isLoggedIn, logout, login } = useAuth();
 
   useEffect(() => {
     const fetchNewestCodeTemplates = async () => {
@@ -66,7 +71,7 @@ const Home: FC = () => {
       </Head>
       <Header />
       <section className="text-gray-600 body-font">
-        <div className="max-w-5xl pt-52 pb-24 mx-auto">
+        <div className="max-w-6xl pt-52 pb-24 mx-auto">
           <h1 className="text-80 text-center font-4 lh-6 ld-04 font-bold text-white mb-6">
             Welcome to SFJ: the new way of writing code!
           </h1>
@@ -84,19 +89,30 @@ const Home: FC = () => {
               </div>
             </a>
             <a
-              className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent ml-5 mr-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline"
+              className="ml-5 mr-5 inline-flex items-center py-3 font-semibold text-black transition duration-500 ease-in-out transform bg-transparent bg-white px-7 text-md hover:text-black hover:bg-white focus:shadow-outline"
               href="/blogs/viewBlogs"
             >
               <div className="flex text-lg">
                 <span className="justify-center">View All Blogs</span>
               </div>
             </a>
+
+            {!isLoggedIn && (
+              <a
+                className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent mr-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline "
+                href="/users/register"
+              >
+                <div className="flex text-lg">
+                  <span className="justify-center">Be a Member Today</span>
+                </div>
+              </a>
+            )}
             <a
               className="inline-flex items-center py-3 font-semibold text-black transition duration-500 ease-in-out transform bg-transparent bg-white px-7 text-md hover:text-black hover:bg-white focus:shadow-outline"
-              href="/users/register"
+              href="/execution"
             >
               <div className="flex text-lg">
-                <span className="justify-center">Be a Member Today</span>
+                <span className="justify-center">Start Coding Now</span>
               </div>
             </a>
           </div>
@@ -207,7 +223,9 @@ const Home: FC = () => {
             <div
               key={template.cid}
               className="ktq4 bg-gray-800 p-6 rounded-lg cursor-pointer"
-              onClick={() => window.location.href = `/execution/${template.cid}`}
+              onClick={() =>
+                (window.location.href = `/execution/${template.cid}`)
+              }
             >
               <img
                 className="w-10"
@@ -219,7 +237,9 @@ const Home: FC = () => {
               </h3>
               <p className="pt-2 value-text text-md text-gray-200 fkrr1">
                 {/* {template.explanation} */}
-                {template.explanation.length > 100 ? `${template.explanation.slice(0, 100)}...` : template.explanation}
+                {template.explanation.length > 100
+                  ? `${template.explanation.slice(0, 100)}...`
+                  : template.explanation}
               </p>
             </div>
           ))}
@@ -306,7 +326,9 @@ const Home: FC = () => {
             <div
               key={blog.bid}
               className="ktq4 bg-gray-800 p-6 rounded-lg cursor-pointer"
-              onClick={() => window.location.href = `/blogs/blog?id=${blog.bid}`}
+              onClick={() =>
+                (window.location.href = `/blogs/blog?id=${blog.bid}`)
+              }
             >
               <img
                 src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
@@ -316,7 +338,10 @@ const Home: FC = () => {
                 {blog.title}
               </h3>
               <p className="pt-2 value-text text-md text-gray-200 fkrr1">
-                {blog.description.length > 100 ? `${blog.description.slice(0, 100)}...` : blog.description}              </p>
+                {blog.description.length > 100
+                  ? `${blog.description.slice(0, 100)}...`
+                  : blog.description}{" "}
+              </p>
             </div>
           ))}
         </div>
