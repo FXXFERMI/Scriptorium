@@ -103,65 +103,12 @@ const AdminHeader: React.FC = () => {
                   </button>
                 </>
               ) : (
-                <>
-                  <button onClick={toggleDropdown} className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
-                    Admin Login
-                  </button>
-                  {dropdownOpen && (
-                    <div ref={dropdownRef} className="absolute right-1/3 transform translate-x-1/2 mt-6 w-64 p-4 bg-white shadow-lg z-50">
-                      <form
-                        onSubmit={async (e) => {
-                          e.preventDefault();
-                          const form = e.target as HTMLFormElement;
-                          const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-                          const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-
-                          try {
-                            const response = await api.post(
-                              `${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`,
-                              { email, password },
-                              { withCredentials: true }
-                            );
-                            Cookies.set("accessToken", response.data.accessToken, { path: "/" });
-                            setLoginError(null);
-                            setLoginSuccess("Admin login successful!");
-                            router.push("/admin/dashboard");
-                          } catch (error: any) {
-                            setLoginSuccess(null);
-                            setLoginError(error.response?.data?.message || "Admin login failed");
-                          }
-                        }}
-                        className="flex flex-col items-center"
-                      >
-                        {loginError && (
-                          <div className="mb-4 w-full text-center text-red-500 font-semibold">
-                            {loginError}
-                          </div>
-                        )}
-                        {loginSuccess && (
-                          <div className="mb-4 w-full text-center text-green-500 font-semibold">
-                            {loginSuccess}
-                          </div>
-                        )}
-                        <div className="mb-4 w-full">
-                          <label className="block text-gray-700 font-semibold mb-2">Email:</label>
-                          <input type="email" name="email" className="w-full p-2 border rounded-md" required />
-                        </div>
-                        <div className="mb-4 w-full">
-                          <label className="block text-gray-700 font-semibold mb-2">Password:</label>
-                          <input type="password" name="password" className="w-full p-2 border rounded-md" required />
-                        </div>
-                        <button
-                          type="submit"
-                          className="inline-flex items-center justify-center py-3 px-14 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-gradient-to-r from-red-500 to-red-800 text-md focus:shadow-outline hover:from-red-600 hover:to-red-900 mt-4"
-                        >
-                          Admin Login
-                        </button>
-                      </form>
-                    </div>
-                  )}
-                </>
-              )}
+                  <>
+                    <button onClick={handleLogout} className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                      Logout
+                    </button>
+                  </>
+                )}
             </div>
           </div>
         </div>
