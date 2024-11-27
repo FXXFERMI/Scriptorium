@@ -20,6 +20,7 @@ import { list } from "postcss";
 import { List } from "postcss/lib/list";
 import toast, { Toaster } from "react-hot-toast";
 import Header from "../../components/Header"
+import api from "../../utils/axiosInstance"
 
 //https://www.tailwindtoolbox.com/icons
 // responsive 
@@ -60,15 +61,15 @@ const CodeExecution: React.FC = () => {
         setLanguage(value);
         switch(value){
             case 'python':
-                setCode(`#Online Python code editor \n#Write Python here to execute \nprint("Hello, World!")`);
+                setCode(`#Online code editor. Use the sidebar on the left to choose a language. \n#You are currently using Python. \n#Write Python here to execute \nprint("Hello, World!")`);
                 setFileName('program.py');
                 break;
             case 'c':
-                setCode(` //Online C code editor \n//Write C here to execute \n#include <stdio.h>\n\nint main() {\n    printf("Hello, World!");\n    return 0;\n}`);
+                setCode(` //Online code editor. Use the sidebar on the left to choose a language. \n//You are currently using C. \n//Write C here to execute \n#include <stdio.h>\n\nint main() {\n    printf("Hello, World!");\n    return 0;\n}`);
                 setFileName('program.c')
                 break;
             case 'cpp':
-                setCode(` //Online C++ code editor \n//Write C++ here to execute \n#include <iostream>\n\nint main() {\n    // cout is used to print in C++\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}`);
+                setCode(` //Online code editor. Use the sidebar on the left to choose a language. \n//You are currently using C++. \n//Write C++ here to execute \n#include <iostream>\n\nint main() {\n    // cout is used to print in C++\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}`);
                 setFileName('program.cpp');
                 break;
             case 'java':
@@ -77,26 +78,26 @@ const CodeExecution: React.FC = () => {
                 break;
             case 'javascript':
                 setFileName('program.js');
-                setCode(`//Online JavaScript code editor \n//Write JavaScript here to execute \n console.log("Hello, World!");`);
+                setCode(`//Online code editor. Use the sidebar on the left to choose a language. \n//You are currently using JavaScript. \n//Write JavaScript here to execute \n console.log("Hello, World!");`);
                 break;
             case 'elixir':
-                setCode(`# Online Elixir code editor \n# Write Elixir here to execute \nIO.puts "Hello, World!"`);
+                setCode(`# Online code editor. Use the sidebar on the left to choose a language. \n# You are currently using Elixir. \n# Write Elixir here to execute \nIO.puts "Hello, World!"`);
                 setFileName('program.ex');
                 break;
             case 'go':
-                setCode(`// Online Go code editor \n// Write Go here to execute \npackage main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}`);
+                setCode(`// Online code editor. Use the sidebar on the left to choose a language. \n// You are currently using Go.  \n// Write Go here to execute \npackage main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}`);
                 setFileName('main.go');
                 break;
             case 'php':
-                setCode(`<?php\n// Online PHP code editor \n// Write PHP here to execute \necho "Hello, World!";\n?>`);
+                setCode(`<?php\n// Online code editor. Use the sidebar on the left to choose a language. \n// You are currently using PHP.  \n// Write PHP here to execute \necho "Hello, World!";\n?>`);
                 setFileName('program.php');
                 break;
             case 'ruby':
-                setCode(`# Online Ruby code editor \n# Write Ruby here to execute \nputs "Hello, World!"`);
+                setCode(`# Online code editor. Use the sidebar on the left to choose a language. \n# You are currently using Ruby.  \n# Write Ruby here to execute \nputs "Hello, World!"`);
                 setFileName('program.rb');
                 break;
             case 'rust':
-                setCode(`// Online Rust code editor \n// Write Rust here to execute \nfn main() {\n    println!("Hello, World!");\n}`);
+                setCode(`// Online code editor. Use the sidebar on the left to choose a language. \n// You are currently using Elixir.  \n// Write Rust here to execute \nfn main() {\n    println!("Hello, World!");\n}`);
                 setFileName('main.rs');
                 break;
             default:
@@ -354,11 +355,11 @@ const CodeExecution: React.FC = () => {
                 code
             };
 
-            console.log(updateData, 'update')
+            console.log('update', updateData)
 
             if (id) {
                 try {
-                    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/${id}`, updateData,
+                    const response = await api.put(`/api/CodeTemplates/${id}`, updateData,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`,
@@ -367,7 +368,7 @@ const CodeExecution: React.FC = () => {
                             withCredentials: true,
                         },
                     );
-                    console.log(response.data)
+                    console.log('response', response.data)
                     toast.success('Updated successfully')
                 } catch (error) {
                     toast.error(error.response?.data || error.message)
@@ -404,7 +405,7 @@ const CodeExecution: React.FC = () => {
                 return;
             }
 
-            const response = await axios.post(
+            const response = await api.post(
               `${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/fork`,
               { cid: id },
               {

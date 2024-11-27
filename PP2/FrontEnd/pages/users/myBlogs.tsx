@@ -57,7 +57,7 @@ const MyBlogs: React.FC = () => {
             // limit: itemsPerPage,
           },
         });
-        console.log(response.data);
+        // console.log(response.data);
         // const response = await api.get("/api/Blogs/currUsersBlogs", {
         //   headers: {
         //     Authorization: `Bearer ${token}`,
@@ -67,7 +67,7 @@ const MyBlogs: React.FC = () => {
 
         // setBlogs(response.data);
         setBlogs(response.data.blogs);
-        console.log(response.data);
+        // console.log(response.data);
         setTotalPages(response.data.totalPages);
         setTotalItems(response.data.totalBlogs);
       } catch (err: any) {

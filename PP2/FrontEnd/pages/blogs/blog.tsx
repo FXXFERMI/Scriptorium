@@ -94,6 +94,8 @@ const DisplayBlog = () => {
           config
         );
         let blog = response.data;
+        console.log(response.data);
+        console.log(response);
         setBlog(blog);
         setLoading(false);
       } catch (err) {
@@ -135,7 +137,7 @@ const DisplayBlog = () => {
         setCommentsFetched(true); // Mark comments as fetched
         setTotalPages(totalPages);
         setTotalComments(totalComments);
-        console.log(blog);
+        // console.log(blog);
       } catch (err) {
         setError("Failed to load comments.");
       }
@@ -428,7 +430,6 @@ const DisplayBlog = () => {
           withCredentials: true,
         }
       );
-
       setBlogUpdate((prev) => !prev); // Trigger re-fetch of blog
     } catch (err) {
       setError("Failed to upvote.");

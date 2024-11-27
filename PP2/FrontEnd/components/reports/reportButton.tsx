@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CreateReport from "./reports/CreateReport";
+import CreateReport from "./CreateReport";
 
 const ReportButton = ({ id, type }: { id: number; type: string }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);

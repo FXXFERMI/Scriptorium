@@ -132,6 +132,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
      const codeTemplate = await prisma.codeTemplate.findUnique({
        where: { cid: Number(id) },
        include: {
+        user: {
+          include: {
+              profile: {
+                  select: {
+                      avatar: true, // Select the avatar URL
+                      firstName: true,
+                      lastName: true,
+                  },
+              },
+              
+          }, 
+        },
          blogs: true, 
          tags: true // see the list of blog posts that mention a code template
        },

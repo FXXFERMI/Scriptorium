@@ -272,7 +272,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         };
     });
 
-      return res.status(200).json({blogs: blogsWithVotes,
+      return res.status(200).json({
+        blogs: blogsWithVotes,
         totalBlogs,
         currentPage: pageNumber,
         totalPages: Math.ceil(totalBlogs / itemsPerPage),});
