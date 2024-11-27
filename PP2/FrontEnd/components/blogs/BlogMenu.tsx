@@ -8,10 +8,11 @@ import { DotsVerticalIcon } from "@heroicons/react/solid";
 
 interface BlogMenuProps {
   bid: number;
+  hidden: boolean;
   onSuccess?: () => void; // To be called if delete or edit is successful to refresh the list
 }
 
-const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
+const BlogMenu: React.FC<BlogMenuProps> = ({ bid, hidden, onSuccess }) => {
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
@@ -64,10 +65,21 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
     <div className="relative inline-block text-left">
       <Menu as="div" className="relative">
         <div>
-          <Menu.Button className="inline-flex justify-center w-full text-sm font-medium text-gray-700 hover:text-gray-100 focus:outline-none">
+        <Menu.Button
+            className={`inline-flex justify-center w-full text-sm font-medium text-gray-700 ${
+              hidden ? "opacity-50 cursor-not-allowed" : "hover:text-gray-100 focus:outline-none"
+            }`}
+            disabled={hidden}
+          >
             <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />
           </Menu.Button>
         </div>
+
+        {hidden && (
+          <div className="absolute right-0 mt-1 w-48 p-2 bg-gray-800 text-white rounded-md shadow-lg text-center text-sm">
+            Actions are disabled because this blog is hidden.
+          </div>
+        )}
 
         <Transition
           as={Fragment}
@@ -84,8 +96,11 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
                 {({ active }) => (
                   <button
                     onClick={openEditPopup}
+                    disabled={hidden}
                     className={`${
-                      active ? "bg-blue-500 text-white" : "text-gray-900"
+                      hidden
+                        ? "text-gray-400 cursor-not-allowed"
+                        : active ? "bg-blue-500 text-white" : "text-gray-900"
                     } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                   >
                     Edit
@@ -96,8 +111,11 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, onSuccess }) => {
                 {({ active }) => (
                   <button
                     onClick={openDeleteConfirm}
+                    disabled={hidden}
                     className={`${
-                      active ? "bg-red-500 text-white" : "text-gray-900"
+                      hidden
+                        ? "text-gray-400 cursor-not-allowed"
+                        : active ? "bg-red-500 text-white" : "text-gray-900"
                     } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                   >
                     Delete

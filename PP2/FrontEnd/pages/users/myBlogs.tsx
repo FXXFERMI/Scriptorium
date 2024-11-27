@@ -15,7 +15,7 @@ interface Blog {
   title: string;
   description: string;
   tags: Array<{ tagId: number; name: string }>;
-  hidden: boolean;
+  Hidden: boolean;
 }
 
 const MyBlogs: React.FC = () => {
@@ -67,7 +67,7 @@ const MyBlogs: React.FC = () => {
 
         // setBlogs(response.data);
         setBlogs(response.data.blogs);
-        // console.log(response.data);
+        // console.log(response.data.blogs[0].Hidden);
         setTotalPages(response.data.totalPages);
         setTotalItems(response.data.totalBlogs);
       } catch (err: any) {
@@ -129,11 +129,11 @@ const MyBlogs: React.FC = () => {
                   <p className="text-sm text-gray-500">
                     Tags: {blog.tags.map((tag) => tag.name).join(", ")}
                   </p>
-                  {blog.hidden && (
+                  {blog.Hidden && (
                     <p className="text-red-500 font-bold mt-2">Hidden</p>
                   )}
                 </div>
-                <BlogMenu bid={blog.bid} onSuccess={() => setBlogs((prev) => prev.filter((b) => b.bid !== blog.bid))} />
+                <BlogMenu bid={blog.bid} hidden={blog.Hidden} onSuccess={() => setBlogs((prev) => prev.filter((b) => b.bid !== blog.bid))} />
               </div>
             ))}
           </div>
