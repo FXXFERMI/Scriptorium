@@ -7,6 +7,7 @@ import Header from "../../components/Header";
 import Pagination from "../../components/pagination";
 import CreateBlogButton from "../../components/blogs/CreateBlogButton";
 import api from "../../utils/axiosInstance";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Example() {
   const [posts, setPosts] = useState([]);
@@ -28,15 +29,8 @@ export default function Example() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [totalTemplates, setTotalTemplates] = useState(0);
   const [templatesLimit, setTemplatesLimit] = useState(10);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, logout, login } = useAuth();
   const lightMode = false;
-
-  useEffect(() => {
-    const token = Cookies.get("accessToken");
-    if (token) {
-      setIsLoggedIn(!!token);
-    }
-  }, []);
 
   useEffect(() => {
     if (router.isReady && filter.title === null) {

@@ -9,6 +9,8 @@ import api from "../../utils/axiosInstance";
 import Pagination from "../../components/pagination";
 import ReportButton from "../../components/reports/reportButton";
 import Link from "next/link";
+import { useAuth } from "../../contexts/AuthContext";
+
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
 
@@ -40,9 +42,10 @@ const DisplayBlog = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [sortComment, setSortComment] = useState("default"); // Sort state (by rating)
   const [sortReply, setSortReply] = useState("default"); // Sort state (by rating)
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [commentsFetched, setCommentsFetched] = useState(false);
+  const { isLoggedIn, logout, login } = useAuth();
+
   const lightMode = false;
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null); // Reference to the textarea
@@ -69,7 +72,6 @@ const DisplayBlog = () => {
             },
             withCredentials: true,
           });
-          setIsLoggedIn(!!token);
           setProfile(response.data);
         }
       } catch (error) {

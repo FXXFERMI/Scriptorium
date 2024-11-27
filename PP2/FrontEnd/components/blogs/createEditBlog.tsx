@@ -45,7 +45,6 @@ const CreateEditBlog: React.FC<PopupProps> = ({
   const [newTagInput, setNewTagInput] = useState("");
   const [expandedTags, setExpandedTags] = useState(false);
   const [existingTags, setExistingTags] = useState<Tag[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true); // Track loading state
   const [codeTemplates, setCodeTemplates] = useState<any[]>([]); // For storing available code templates
   const [error, setError] = useState("");
@@ -423,7 +422,7 @@ const CreateEditBlog: React.FC<PopupProps> = ({
                         className={`flex-1 px-2 py-1 border border-gray-700 rounded  ${
                           lightMode
                             ? "bg-gray-100 text-black"
-                            : " bg-gray700 text-white"
+                            : " bg-gray-700 text-white"
                         }`}
                         value={newTagInput}
                         onChange={(e) => setNewTagInput(e.target.value)}
