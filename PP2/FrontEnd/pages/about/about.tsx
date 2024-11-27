@@ -21,11 +21,11 @@ const About: FC = () => {
             </Head>
             <Header />
             <section className="text-gray-600 body-font">
-                <div className="max-w-5xl pt-52 pb-24 mx-auto">
-                    <h1 className="text-80 text-center font-4 lh-6 ld-04 font-bold text-white mb-6">
+                <div className="max-w-5xl pt-24 md:pt-40 pb-16 md:pb-24 mx-auto px-4 sm:px-6">
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl text-center font-extrabold leading-tight text-white mb-6">
                         About SFJ Scriptorium
                     </h1>
-                    <h2 className="text-2xl font-4 font-semibold lh-6 ld-04 pb-11 text-gray-700 text-center">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-medium leading-relaxed text-gray-400 text-center px-4 sm:px-12">
                         Empowering developers with clean, efficient, and inspiring tools to write better code.
                     </h2>
                 </div>

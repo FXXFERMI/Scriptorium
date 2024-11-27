@@ -63,7 +63,7 @@ const DisplayBlog = () => {
           setProfile(response.data);
         }
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        //console.error("Error fetching profile:", error);
       }
     };
     fetchProfile();
@@ -222,7 +222,7 @@ const DisplayBlog = () => {
     try {
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
       if (replyingTo) {
@@ -416,7 +416,7 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
       const response = await api.post(
@@ -451,7 +451,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
       await api.post(
@@ -485,7 +485,7 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
       await api.post(
@@ -536,7 +536,7 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
       await api.post(
@@ -592,7 +592,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
       await api.post(
@@ -669,7 +669,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
       await api.post(

@@ -59,7 +59,7 @@ import Cookies from 'js-cookie';
           return api(originalRequest);
         } catch (err) {
           // Handle refresh token expiry or failure to refresh
-          console.error(err, error.response);
+          //console.error(err, error.response);
           Cookies.remove('accessToken');
           Cookies.remove('refreshToken');
           window.location.href = '/users/login'; // Redirect to login page

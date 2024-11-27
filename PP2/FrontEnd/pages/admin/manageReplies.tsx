@@ -39,7 +39,7 @@ const ManageReplies: React.FC = () => {
                 setTotalPages(Math.ceil(replyResponse.data.totalReplies / itemsPerPage));
                 setTotalItems(replyResponse.data.totalReplies);
             } catch (error: any) {
-                console.error("Error fetching replies:", error);
+                //console.error("Error fetching replies:", error);
                 setError(error.response?.data?.message || "Error fetching replies");
             } finally {
                 setLoading(false);
@@ -81,7 +81,7 @@ const ManageReplies: React.FC = () => {
             setReplies((prevReplies) => prevReplies.filter((reply) => reply.replyId !== replyToHide));
             toast.success("Reply hidden successfully!");
         } catch (error: any) {
-            console.error("Error hiding reply:", error);
+            //console.error("Error hiding reply:", error);
             toast.error(error.response?.data?.message || "Error hiding reply");
         } finally {
             closeModal();

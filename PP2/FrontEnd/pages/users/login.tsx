@@ -34,31 +34,33 @@ const Login = () => {
 
       // Set the success message
       setSuccessMessage("Login successful! Redirecting in 3 seconds...");
+      setError(null);
 
       // Delay the redirect by 3 seconds
       setTimeout(() => {
         router.push('/');
       }, 3000);
     } catch (error: any) {
-      console.error("Login failed:", error);
+      // //console.error("Login failed:", error);
       setError(error.response?.data?.message || "Login failed");
+      setSuccessMessage(null);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <div className="mx-auto mt-[10rem] p-8 bg-black text-white rounded-lg shadow-md">
       <Header />
-      <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-      {successMessage && <p className="text-green-500 text-center mb-4">{successMessage}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <h1 className="text-4xl font-bold mb-8 text-center">Please Login</h1>
+      {error && <p className="text-red-500 text-center mb-4 font-semibold">{error}</p>}
+      {successMessage && <p className="text-green-500 text-center mb-4 font-semibold">{successMessage}</p>}
+      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
         <div>
           <label className="block font-medium mb-1">Username:</label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 border rounded-md bg-white text-black"
           />
         </div>
         <div>
@@ -67,15 +69,17 @@ const Login = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className="w-full p-2 border rounded-md bg-white text-black"
           />
         </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
-        >
-          Login
-        </button>
+        <div className="flex justify-center mt-6">
+          <button
+            type="submit"
+            className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline hover:bg-blue-600"
+          >
+            Login
+          </button>
+        </div>
       </form>
     </div>
   );

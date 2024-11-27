@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ message: 'Admin successfully registered', admin: newAdmin });
   } catch (error) {
-    console.error('Error confirming admin registration:', error);
+    // //console.error('Error confirming admin registration:', error);
     res.status(500).json({ error: 'Failed to confirm admin registration' });
   }
 }

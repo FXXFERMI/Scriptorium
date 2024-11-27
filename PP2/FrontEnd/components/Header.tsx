@@ -212,7 +212,7 @@ const Header: React.FC = () => {
                                                         // setDropdownOpen(false);
                                                         // router.push('/');
                                                     } catch (error: any) {
-                                                        // console.error("Login failed:", error);
+                                                        // //console.error("Login failed:", error);
                                                         setLoginSuccess(null)
                                                         setLoginError(error.response?.data?.message || "Login failed");
                                                     }

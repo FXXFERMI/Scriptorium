@@ -40,7 +40,7 @@ const ManageBlogs: React.FC = () => {
                 setTotalPages(Math.ceil(blogResponse.data.totalBlogs / itemsPerPage));
                 setTotalItems(blogResponse.data.totalBlogs);
             } catch (error: any) {
-                console.error("Error fetching blogs:", error);
+                //console.error("Error fetching blogs:", error);
                 setError(error.response?.data?.message || "Error fetching blogs");
             } finally {
                 setLoading(false);
@@ -83,7 +83,7 @@ const ManageBlogs: React.FC = () => {
             setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.bid !== blogToHide));
             toast.success("Blog hidden successfully!");
         } catch (error: any) {
-            console.error("Error hiding blog:", error);
+            //console.error("Error hiding blog:", error);
             toast.error(error.response?.data?.message || "Error hiding blog");
         } finally {
             closeModal();

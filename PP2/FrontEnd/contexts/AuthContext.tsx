@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 withCredentials: true,
             });
         } catch (error) {
-            console.error("Error logging out:", error);
+            //console.error("Error logging out:", error);
         } finally {
             // Remove cookies regardless of the API call success or failure
             Cookies.remove('accessToken');

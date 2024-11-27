@@ -6,6 +6,8 @@ import Cookies from "js-cookie";
 import Header from "../../components/Header";
 import Pagination from "../../components/pagination";
 import api from "../../utils/axiosInstance";
+import CreateCodeTemplateButton from "../../components/codeTemplates/CreateCodeTemplatsButton"; // Import the button component
+
 
 export default function ViewCodeTemplates() {
     const [templates, setTemplates] = useState([]);
@@ -103,13 +105,17 @@ export default function ViewCodeTemplates() {
     return (
         <>
             <Header />
-            <div className="bg-black mt-20 py-24 sm:py-12 ">
+            <div className="bg-black mt-20 py-24 sm:py-12">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="flex items-center justify-between mt-2">
+                    <div className="flex flex-col sm:flex-row items-center justify-between mt-2 space-y-4 sm:space-y-0">
                         <div className="mx-auto max-w-2xl lg:mx-0">
-                            <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white ">
+                            <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white">
                                 Code Templates
                             </h2>
+                        </div>
+                        {/* Added Create Code Template Button here */}
+                        <div className="flex-shrink-0">
+                            <CreateCodeTemplateButton />
                         </div>
                     </div>
                     {/* Filters Section */}

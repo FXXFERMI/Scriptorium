@@ -88,7 +88,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
-    console.error("Error hiding content:", error);
+    // //console.error("Error hiding content:", error);
     res.status(500).json({ error: error.message });
   }
 }

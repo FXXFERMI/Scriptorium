@@ -43,7 +43,7 @@ const CodeTemplateMenu: React.FC<CodeTemplateMenuProps> = ({ cid, onDelete }) =>
       onDelete();
       closeDeleteConfirm();
     } catch (err: any) {
-      console.error("Error deleting code template:", err);
+      //console.error("Error deleting code template:", err);
       toast.error(err.response?.data?.error || "Error deleting code template", {
         duration: 3000,
         position: "top-center",

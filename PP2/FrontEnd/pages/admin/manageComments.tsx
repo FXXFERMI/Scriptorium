@@ -38,7 +38,7 @@ const ManageComments: React.FC = () => {
                 setTotalPages(Math.ceil(commentResponse.data.totalComments / itemsPerPage));
                 setTotalItems(commentResponse.data.totalComments);
             } catch (error: any) {
-                console.error("Error fetching comments:", error);
+                //console.error("Error fetching comments:", error);
                 setError(error.response?.data?.message || "Error fetching comments");
             } finally {
                 setLoading(false);
@@ -80,7 +80,7 @@ const ManageComments: React.FC = () => {
             setComments((prevComments) => prevComments.filter((comment) => comment.commentId !== commentToHide));
             toast.success("Comment hidden successfully!");
         } catch (error: any) {
-            console.error("Error hiding comment:", error);
+            //console.error("Error hiding comment:", error);
             toast.error(error.response?.data?.message || "Error hiding comment");
         } finally {
             closeModal();

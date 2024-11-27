@@ -26,7 +26,7 @@ const DeleteCodeTemplateButton: React.FC<DeleteCodeTemplateButtonProps> = ({ cid
       // Call the onDelete callback to update parent state
       onDelete();
     } catch (err: any) {
-      console.error("Error deleting code template:", err);
+      //console.error("Error deleting code template:", err);
       alert(err.response?.data?.error || "Error deleting code template");
     }
   };

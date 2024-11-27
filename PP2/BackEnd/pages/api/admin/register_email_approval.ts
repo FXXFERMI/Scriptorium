@@ -54,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ message: 'Confirmation email sent to manager for approval' });
   } catch (error) {
-    console.error('Error sending email:', error);
+    // //console.error('Error sending email:', error);
     res.status(500).json({ error: 'Error registering admin', errorMessage: error.message });
   }
 }

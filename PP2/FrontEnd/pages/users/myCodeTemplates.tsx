@@ -60,7 +60,7 @@ const MyCodeTemplates: React.FC = () => {
         setTotalPages(response.data.totalPages);
         setTotalTemplates(response.data.totalTemplates);
       } catch (err: any) {
-        console.error("Error fetching code templates:", err);
+        //console.error("Error fetching code templates:", err);
         setError(err.response?.data?.error || "Error fetching code templates");
       } finally {
         setLoading(false);

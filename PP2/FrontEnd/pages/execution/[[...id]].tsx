@@ -333,7 +333,7 @@ const CodeExecution: React.FC = () => {
             toast.success("new template created!")
             router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/execution/${response2.data.cid}`);
         } catch (error) {
-            console.error("Error creating template:", error.response?.data || error.message);
+            //console.error("Error creating template:", error.response?.data || error.message);
             toast.error(error.response?.data || error.message);
         }
     }

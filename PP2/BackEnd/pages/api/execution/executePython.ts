@@ -64,7 +64,7 @@ async function executePythonCode(code: string, stdinInput: string) {
     );
 
     process.on('error', (err) => {
-      console.error('Process error:', err);
+      //console.error('Process error:', err);
       reject(new Error('Failed to execute code.'));
     });
 

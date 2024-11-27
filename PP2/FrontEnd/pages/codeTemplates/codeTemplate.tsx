@@ -45,7 +45,7 @@ const DisplayCodeTemplate = () => {
   //         setProfile(response.data);
   //       }
   //     } catch (error) {
-  //       console.error("Error fetching profile:", error);
+  //       //console.error("Error fetching profile:", error);
   //     }
   //   };
   //   fetchProfile();

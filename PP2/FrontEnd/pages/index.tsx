@@ -29,7 +29,7 @@ const Home: FC = () => {
         });
         setNewestTemplates(response.data.codeTemplates);
       } catch (error) {
-        console.error("Error fetching newest code templates:", error);
+        //console.error("Error fetching newest code templates:", error);
       }
     };
 
@@ -42,7 +42,7 @@ const Home: FC = () => {
         });
         setTopRatedBlogs(response.data);
       } catch (error) {
-        console.error("Error fetching top-rated blogs:", error);
+        //console.error("Error fetching top-rated blogs:", error);
       }
     };
 

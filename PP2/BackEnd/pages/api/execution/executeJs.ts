@@ -52,7 +52,7 @@ async function executeJavaScriptCode(code: string, stdinInput: string) {
     }
 
     child.on('error', (err) => {
-      console.error('Process error:', err);
+      //console.error('Process error:', err);
       reject(new Error('Failed to execute code.'));
     });
 

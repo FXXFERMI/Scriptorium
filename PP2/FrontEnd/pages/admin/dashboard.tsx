@@ -86,7 +86,7 @@ export default AdminDashboard;
 //                 setComments(commentResponse.data.comments);
 //                 setReplies(replyResponse.data.replies);
 //             } catch (error: any) {
-//                 console.error("Error fetching admin data:", error);
+//                 //console.error("Error fetching admin data:", error);
 //                 setError(error.response?.data?.message || "Error fetching admin data");
 //             } finally {
 //                 setLoading(false);
@@ -118,7 +118,7 @@ export default AdminDashboard;
 //             setComments((prevComments) => prevComments.filter((comment) => comment.commentId !== contentId));
 //             setReplies((prevReplies) => prevReplies.filter((reply) => reply.replyId !== contentId));
 //         } catch (error: any) {
-//             console.error("Error hiding content:", error);
+//             //console.error("Error hiding content:", error);
 //             alert(error.response?.data?.message || "Error hiding content");
 //         }
 //     };

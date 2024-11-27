@@ -60,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             profile: updatedProfile,
         });
     } catch (error) {
-        console.error("Error updating profile photo:", error);
+        //console.error("Error updating profile photo:", error);
         res.status(500).json({ message: 'Error updating profile photo' });
     }
 }
