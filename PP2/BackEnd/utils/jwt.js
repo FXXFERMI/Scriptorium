@@ -11,7 +11,7 @@ function generateAccessToken({ uid, role }) {
   return jwt.sign(
     { uid, role }, // Payload with uid/aid and role
     ACCESS_TOKEN_SECRET,
-    { expiresIn: '15m' }
+    { expiresIn: '1m' }
   );
 }
 

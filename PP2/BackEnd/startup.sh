@@ -23,7 +23,7 @@ EMAIL_USER=fxxfermi@gmail.com
 EMAIL_PASS=sqbs uafl ikgh vxbg
 MANAGER_EMAIL=fermi.fei@mail.utoronto.ca
 BASE_URL=http://localhost:4000
-ALLOWED_ORIGINS=https://black-sky-0d553331e.5.azurestaticapps.net,http://localhost:3000
+ALLOWED_ORIGINS=https://black-sky-0d553331e.5.azurestaticapps.net,http://localhost:3000,http://localhost:3001
 EOL
 
 # Reset the database

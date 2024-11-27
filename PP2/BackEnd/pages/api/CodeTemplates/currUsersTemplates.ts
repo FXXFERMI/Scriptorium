@@ -9,7 +9,7 @@ interface Filters {
   AND?: Array<{
     tags?: {
       some: {
-        name: {contains: string}; // This will check for each tag specifically
+        name: { contains: string }; // This will check for each tag specifically
       };
     };
   }>;
@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ message: "Invalid or expired token" });
     }
 
-    const { id, title, language, tags, code, page = 1, limit = 10 } = req.query as {id?: string, title?: string, language?: string, tags?: string, code?: string, page?: string, limit?: string};
+    const { id, title, language, tags, code, page = 1, limit = 10 } = req.query as { id?: string, title?: string, language?: string, tags?: string, code?: string, page?: string, limit?: string };
 
     // Set up query filters
     const filters: Filters = {};
@@ -62,8 +62,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       filters.AND = tagsArray.map(tag => ({
         tags: {
-          some: { name: {contains: tag.toLowerCase(),
-            } }, // This will check for each tag
+          some: {
+            name: {
+              contains: tag.toLowerCase(),
+            }
+          }, // This will check for each tag
         },
       }))
     }
@@ -88,9 +91,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: filters,
         skip: skip,
         take: itemsPerPage,
-        include: {tags: true}
+        include: { tags: true }
       });
-      return res.status(200).json(codeTemplates);
+      
+      // Count total number of templates for pagination
+      const totalTemplates = await prisma.codeTemplate.count({
+        where: filters
+      });
+
+      const totalPages = Math.ceil(totalTemplates / itemsPerPage);
+
+      return res.status(200).json({
+        codeTemplates,
+        totalTemplates,
+        totalPages,
+        currentPage: pageNumber
+      });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }

@@ -35,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (role === 'USER') {
       userOrAdmin = await prisma.user.findUnique({ where: { uid } });
     } else if (role === 'ADMIN') {
+      console.log("Admin ID:", uid);
       userOrAdmin = await prisma.systemAdmin.findUnique({ where: { aid: uid } });
     }
 

@@ -91,7 +91,7 @@ export default function Example() {
         {
           params: {
             limit: templatesLimit,
-            currentPage: 2,
+            // currentPage: 2,
           },
         }
       );

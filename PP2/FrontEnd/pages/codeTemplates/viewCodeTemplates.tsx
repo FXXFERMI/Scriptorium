@@ -5,515 +5,229 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Header from "../../components/Header";
 import Pagination from "../../components/pagination";
-import CreateCodeTemplateButton from "../../components/codeTemplates/CreateCodeTemplatsButton";
 import api from "../../utils/axiosInstance";
 
-export default function Example() {
-//   const [posts, setPosts] = useState([]);
-//   const [loading, setLoading] = useState<boolean>(true); // Loading state
-//   const [error, setError] = useState<string>(""); // Error state
-//   const router = useRouter();
-//   const [filter, setFilter] = useState({
-//     title: null,
-//     description: "",
-//     tags: "",
-//   }); // Filter state
-//   const [sort, setSort] = useState("default"); // Sort state (by rating)
-//   const [page, setPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(1);
-//   const [totalBlogs, setTotalBlogs] = useState(0);
-//   const [blogsUpdate, setBlogsUpdate] = useState(false);
-//   const [codeTemplates, setCodeTemplates] = useState([]);
-//   const [selectedCodeTemplates, setSelectedCodeTemplates] = useState([]);
-//   const [filterOpen, setFilterOpen] = useState(false);
-//   const [totalTemplates, setTotalTemplates] = useState(0);
-//   const [templatesLimit, setTemplatesLimit] = useState(10);
-//   const [isLoggedIn, setIsLoggedIn] = useState(false);
+export default function ViewCodeTemplates() {
+    const [templates, setTemplates] = useState([]);
+    const [loading, setLoading] = useState<boolean>(true); // Loading state
+    const [error, setError] = useState<string>(""); // Error state
+    const router = useRouter();
+    const [filter, setFilter] = useState({
+        title: "",
+        language: "",
+        tags: "",
+        code: "",
+    }); // Filter state
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalTemplates, setTotalTemplates] = useState(0);
 
-//   useEffect(() => {
-//     const token = Cookies.get("accessToken");
-//     if (token) {
-//       setIsLoggedIn(!!token);
-//     }
-//   }, []);
 
-//   useEffect(() => {
-//     if (router.isReady && filter.title === null) {
-//       let filter: {
-//         title: string;
-//         description: string;
-//         tags: string;
-//       } = { title: "", description: "", tags: "" };
+    useEffect(() => {
+        const fetchCodeTemplates = async () => {
+            try {
+                const token = Cookies.get("accessToken");
 
-//       if (router.query.title) {
-//         filter.title = Array.isArray(router.query.title)
-//           ? router.query.title.join(", ") // Join array into a single string
-//           : router.query.title; // Directly assign if it's a string
-//       }
-//       if (router.query.description) {
-//         filter.description = Array.isArray(router.query.description)
-//           ? router.query.description.join(", ") // Join array elements if it's an array
-//           : router.query.description; // Assign directly if it's a string
-//       }
-//       if (router.query.tags) {
-//         filter.tags = Array.isArray(router.query.tags)
-//           ? router.query.tags.join(", ") // Combine array elements into a string
-//           : router.query.tags; // Assign directly if it's a string
-//       }
-//       if (router.query.page) {
-//         setPage(Number(router.query.page));
-//       } else {
-//         setPage(1);
-//       }
-//       if (router.query.codeTemplates) {
-//         if (Array.isArray(router.query.codeTemplates)) {
-//           setSelectedCodeTemplates(router.query.codeTemplates);
-//         } else {
-//           setSelectedCodeTemplates(JSON.parse(router.query.codeTemplates));
-//         }
-//       }
-//       if (router.query.sort) {
-//         setSort(
-//           Array.isArray(router.query.sort)
-//             ? router.query.sort.join(", ") // Join array into a single string
-//             : router.query.sort // Directly assign if it's a string
-//         );
-//       }
+                // Base configuration
+                const config: AxiosRequestConfig = {
+                    params: {
+                        title: filter.title,
+                        language: filter.language,
+                        tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
+                        page: page,
+                        code: filter.code,
+                    },
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                };
 
-//       setFilter(filter);
-//     }
-//   }, [router.isReady, router.query]);
+                // Add Authorization header and withCredentials only if token exists
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                    config.withCredentials = true;
+                }
 
-//   const fetchCodeTemplates = async () => {
-//     try {
-//       const response = await axios.get(
-//         `${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/getUniqueTitles`,
-//         {
-//           params: {
-//             limit: templatesLimit,
-//             currentPage: 2,
-//           },
-//         }
-//       );
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates`,
+                    config
+                );
 
-//       const codeTemplateTitles = response.data.codeTemplates.map(
-//         (item) => item.title
-//       );
+                setTemplates(response.data.codeTemplates);
+                console.log(response.data);
+                setTotalTemplates(response.data.totalTemplates);
+                setTotalPages(response.data.totalPages);
+                setLoading(false);
+            } catch (err) {
+                setError("Failed to load the code templates.");
+                setLoading(false);
+            }
+        };
 
-//       setCodeTemplates(codeTemplateTitles); // Set the fetched templates
-//       setTotalTemplates(response.data.totalTemplates);
-//     } catch (error) {
-//       setError("Failed to fetch code templates");
-//     }
-//   };
+        if (filter.title !== null) {
+            fetchCodeTemplates();
+        }
 
-//   useEffect(() => {
-//     if (filter.title !== null) {
-//       const fetchBlogs = async () => {
-//         try {
-//           const codeTemplateNames = selectedCodeTemplates.map((name) => name);
+        // Update URL parameters based on state
+        if (router.isReady) {
+            router.push({
+                pathname: "/codeTemplates/viewCodeTemplates",
+                query: {
+                    title: filter.title,
+                    language: filter.language,
+                    tags: filter.tags,
+                    page,
+                    code: filter.code,
+                },
+            });
+        }
+    }, [filter, page]);
 
-//           const token = Cookies.get("accessToken");
+    const handleClick = (cid) => {
+        router.push({
+            pathname: `/execution/`,
+            query: { id: cid, returnUrl: router.asPath },
+        });
+    };
 
-//           // Base configuration
-//           const config: AxiosRequestConfig = {
-//             params: {
-//               title: filter.title,
-//               description: filter.description,
-//               tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
-//               codeTemplateNames: JSON.stringify(codeTemplateNames),
-//               page: page,
-//             },
-//             headers: {
-//               "Content-Type": "application/json",
-//             },
-//           };
+    // Handle filter changes
+    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFilter((prev) => ({ ...prev, [name]: value }));
+    };
 
-//           // Add Authorization header and withCredentials only if token exists
-//           if (token) {
-//             config.headers.Authorization = `Bearer ${token}`;
-//             config.withCredentials = true;
-//           }
+    const handlePageChange = (page: number) => {
+        setPage(page);
+    };
 
-//           const response = await axios.get(
-//             `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs`,
-//             config
-//           );
+    return (
+        <>
+            <Header />
+            <div className="bg-black mt-20 py-24 sm:py-12 ">
+                <div className="mx-auto max-w-7xl px-6 lg:px-8">
+                    <div className="flex items-center justify-between mt-2">
+                        <div className="mx-auto max-w-2xl lg:mx-0">
+                            <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white ">
+                                Code Templates
+                            </h2>
+                        </div>
+                    </div>
+                    {/* Filters Section */}
+                    <div className="mt-8">
+                        <div className="flex flex-wrap gap-x-4 gap-y-4">
+                            <input
+                                type="text"
+                                name="title"
+                                placeholder="Search by title"
+                                value={filter.title}
+                                onChange={handleFilterChange}
+                                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                            />
+                            <input
+                                type="text"
+                                name="language"
+                                placeholder="Search by language"
+                                value={filter.language}
+                                onChange={handleFilterChange}
+                                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                            />
+                            <input
+                                type="text"
+                                name="tags"
+                                placeholder="Search by tags"
+                                value={filter.tags}
+                                onChange={handleFilterChange}
+                                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                            />
 
-//           setPosts(response.data.blogs);
-//           console.log(response.data);
-//           setTotalBlogs(response.data.totalBlogs);
-//           setTotalPages(response.data.totalPages);
+                            <input
+                                type="text"
+                                name="code"
+                                placeholder="Search by code content"
+                                value={filter.code}
+                                onChange={handleFilterChange}
+                                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                            />
+                        </div>
+                    </div>
 
-//           setLoading(false);
-//         } catch (err) {
-//           setError("Failed to load the blog.");
-//           setLoading(false);
-//         }
-//       };
-
-//       const fetchSortedBlogs = async () => {
-//         try {
-//           const codeTemplateNames = selectedCodeTemplates.map((name) => name);
-
-//           const token = Cookies.get("accessToken");
-
-//           // Base configuration
-//           const config: AxiosRequestConfig = {
-//             params: {
-//               title: filter.title,
-//               description: filter.description,
-//               tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
-//               codeTemplateNames: JSON.stringify(codeTemplateNames),
-//             },
-//             headers: {
-//               "Content-Type": "application/json",
-//             },
-//           };
-
-//           // Add Authorization header and withCredentials only if token exists
-//           if (token) {
-//             config.headers.Authorization = `Bearer ${token}`;
-//             config.withCredentials = true;
-//           }
-
-//           const response = await axios.get(
-//             `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/sortByRatings`,
-//             config
-//           );
-//           setPosts(response.data);
-//           setLoading(false);
-//         } catch (err) {
-//           setError("Failed to load the blog.");
-//           setLoading(false);
-//         }
-//       };
-
-//       const fetchSortByReports = async () => {
-//         try {
-//           const codeTemplateNames = selectedCodeTemplates.map((name) => name);
-
-//           const token = Cookies.get("accessToken");
-
-//           // Base configuration
-//           const config: AxiosRequestConfig = {
-//             params: {
-//               title: filter.title,
-//               description: filter.description,
-//               tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
-//               codeTemplateNames: JSON.stringify(codeTemplateNames),
-//             },
-//             headers: {
-//               "Content-Type": "application/json",
-//             },
-//           };
-
-//           // Add Authorization header and withCredentials only if token exists
-//           if (token) {
-//             config.headers.Authorization = `Bearer ${token}`;
-//             config.withCredentials = true;
-//           }
-
-//           const response = await api.get(
-//             `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/sortByReports`,
-//             config
-//           );
-//           setPosts(response.data);
-//           setLoading(false);
-//         } catch (err) {
-//           setError("Failed to load the blog.");
-//           setLoading(false);
-//         }
-//       };
-
-//       fetchCodeTemplates();
-
-//       if (sort === "rating_desc") {
-//         fetchSortedBlogs();
-//       } else if (sort === "default") {
-//         fetchBlogs();
-//       } else {
-//         fetchSortByReports();
-//       }
-//     }
-
-//     // Update URL parameters based on state
-//     if (router.isReady) {
-//       router.push({
-//         pathname: "/blogs/viewBlogs",
-//         query: {
-//           title: filter.title,
-//           description: filter.description,
-//           tags: filter.tags,
-//           codeTemplates: selectedCodeTemplates,
-//           page,
-//           sort,
-//         },
-//       });
-//     }
-//   }, [filter, sort, blogsUpdate, selectedCodeTemplates]);
-
-//   const handleClick = (bid) => {
-//     router.push({
-//       pathname: `/blogs/blog`,
-//       query: { id: bid, returnUrl: router.asPath },
-//     });
-//   };
-
-//   const handleCheckboxChange = (id: number) => {
-//     setSelectedCodeTemplates((prevIds) => {
-//       if (prevIds.includes(id)) {
-//         return prevIds.filter((templateId) => templateId !== id); // Remove if already selected
-//       } else {
-//         return [...prevIds, id]; // Add if not selected
-//       }
-//     });
-//   };
-
-//   // Handle filter changes
-//   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target;
-//     setFilter((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   // Handle sorting changes
-//   const handleSortChange = (e) => {
-//     setSort(e.target.value);
-//   };
-
-//   const hanglePageChange = (page: number) => {
-//     setPage(page);
-//     setBlogsUpdate((prev) => !prev);
-//   };
-
-//   const displayMoreTemplates = async () => {
-//     const numDisplay = codeTemplates.length + 10;
-//     setTemplatesLimit(numDisplay);
-//     try {
-//       const response = await axios.get(
-//         `${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/getUniqueTitles`,
-//         {
-//           params: {
-//             limit: numDisplay,
-//           },
-//         }
-//       );
-//       const codeTemplateTitles = response.data.codeTemplates.map(
-//         (item) => item.title
-//       );
-
-//       setCodeTemplates(codeTemplateTitles);
-//     } catch (err) {
-//       setError("Failed to load more replies.");
-//     }
-//   };
-
-//   const displayLessTemplates = () => {
-//     setCodeTemplates(codeTemplates.slice(0, 10));
-//     setTemplatesLimit(10);
-//   };
-
-//   const hasMoreTemplates = totalTemplates > codeTemplates.length;
-
-//   return (
-//     <>
-//       <Header />
-//       <div className="bg-black mt-20 py-24 sm:py-12 ">
-//         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-//           <div className="flex items-center justify-between mt-2">
-//             <div className="mx-auto max-w-2xl lg:mx-0">
-//               <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white ">
-//                 Blogs
-//               </h2>
-//             </div>
-//             {isLoggedIn && <CreateCodeTemplateButton />}
-//           </div>
-//           {/* Filters Section */}
-//           <div className="mt-8">
-//             <div className="flex flex-wrap gap-x-4 gap-y-4">
-//               <input
-//                 type="text"
-//                 name="title"
-//                 placeholder="Search by title"
-//                 value={filter.title === null ? "" : filter.title}
-//                 onChange={handleFilterChange}
-//                 className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
-//               />
-//               <input
-//                 type="text"
-//                 name="description"
-//                 placeholder="Search by description"
-//                 value={filter.description}
-//                 onChange={handleFilterChange}
-//                 className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
-//               />
-//               <input
-//                 type="text"
-//                 name="tags"
-//                 placeholder="Search by tags"
-//                 value={filter.tags}
-//                 onChange={handleFilterChange}
-//                 className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
-//               />
-//               <select
-//                 name="sortBy"
-//                 value={sort}
-//                 onChange={handleSortChange}
-//                 className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
-//               >
-//                 <option value="default">Sort by default</option>
-//                 <option value="rating_desc">Sort by rating (descending)</option>
-//               </select>
-//             </div>
-//           </div>
-
-//           <div className="border-b border-gray-200">
-//             <button
-//               type="button"
-//               onClick={() => setFilterOpen(!filterOpen)}
-//               className="flex items-center justify-between w-full py-4 text-left"
-//             >
-//               <span className="text-lg font-medium text-white">
-//                 Filter By Code Templates
-//               </span>
-//               {filterOpen ? (
-//                 <span className="text-lg font-medium text-white"> - </span>
-//               ) : (
-//                 <span className="text-lg font-medium text-white"> + </span>
-//               )}
-//             </button>
-
-//             {filterOpen && (
-//               <div>
-//                 <div className="mb-3">
-//                   {codeTemplates.map((template, index) => (
-//                     <div key={index} className="flex items-center text-white">
-//                       <input
-//                         type="checkbox"
-//                         id={`template-${template}`}
-//                         checked={selectedCodeTemplates.includes(template)}
-//                         onChange={() => handleCheckboxChange(template)}
-//                         className="mr-2"
-//                       />
-//                       <label
-//                         htmlFor={`template-${template}`}
-//                         className="text-white"
-//                       >
-//                         {template}
-//                       </label>
-//                     </div>
-//                   ))}
-//                 </div>
-//                 {hasMoreTemplates ? (
-//                   <button
-//                     type="button"
-//                     onClick={displayMoreTemplates}
-//                     className="mt-2 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-//                   >
-//                     Show More (
-//                     {Math.min(10, totalTemplates - codeTemplates.length)} more)
-//                     v
-//                   </button>
-//                 ) : (
-//                   <button
-//                     type="button"
-//                     onClick={displayLessTemplates}
-//                     className="mt-2 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-//                   >
-//                     <>Show Less ^</>
-//                   </button>
-//                 )}
-//               </div>
-//             )}
-//           </div>
-
-//           <div className="mx-auto mt-3 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 pt-3 sm:mt-3 sm:pt-3 lg:mx-0 lg:max-w-none lg:grid-cols-3 mb-6 pb-4">
-//             {loading ? (
-//               <div className="text-white">Loading...</div>
-//             ) : error ? (
-//               <div className="text-white">{error}</div>
-//             ) : posts.length > 0 ? (
-//               posts.map((post) => (
-//                 <article
-//                   key={post.bid}
-//                   className="flex max-w-xl flex-col items-start justify-between border border-gray-600 rounded-md p-5 bg-gray-900"
-//                 >
-//                   <div className="flex flex-wrap items-center gap-x-4 text-xs ">
-//                     {/* <time dateTime={post.datetime} className="text-gray-500">
-//                   {post.date}
-//                 </time> */}
-//                     {post.tags && post.tags.length > 0 ? (
-//                       post.tags.map((tag, index) => (
-//                         <span
-//                           key={index}
-//                           className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm ml-2 mr-2 mb-2"
-//                         >
-//                           {tag.name.charAt(0).toUpperCase() + tag.name.slice(1)}
-//                         </span>
-//                       ))
-//                     ) : (
-//                       <span className="text-gray-500"></span>
-//                     )}
-//                   </div>
-//                   <div className="group relative ">
-//                     <h3 className="mt-3 text-lg/6 font-semibold text-gray-100 group-hover:text-gray-600">
-//                       <button
-//                         onClick={() => {
-//                           handleClick(post.bid);
-//                         }}
-//                         className="relative"
-//                       >
-//                         <span className="absolute inset-0" />
-//                         {post.title}
-//                       </button>
-//                     </h3>
-//                     <p className="mt-5 line-clamp-3 text-sm/6 text-gray-200">
-//                       {post.description}
-//                     </p>
-//                   </div>
-//                   <div className="relative mt-8 flex items-center gap-x-4">
-//                     <img
-//                       alt=""
-//                       src={
-//                         post.user.profile.avatar.startsWith("/uploads/")
-//                           ? `${process.env.NEXT_PUBLIC_API_URL}${post.user.profile.avatar}`
-//                           : post.user.profile.avatar
-//                       }
-//                       className="h-10 w-10 rounded-full bg-gray-50"
-//                     />
-//                     <div className="text-sm/6">
-//                       <p className="font-semibold text-gray-200">
-//                         <a>
-//                           <span className="absolute inset-0" />
-//                           {post.user.profile.firstName}{" "}
-//                           {post.user.profile.lastName}
-//                         </a>
-//                       </p>
-//                       <p className="text-gray-200">@{post.user.username}</p>
-//                     </div>
-//                   </div>
-//                 </article>
-//               ))
-//             ) : (
-//               <div className="text-white mb-6 pb-4">No blogs available</div>
-//             )}
-//           </div>
-//           {/* Pagination Controls */}
-//           <Pagination
-//             page={page}
-//             totalPages={totalPages}
-//             totalItems={totalBlogs}
-//             itemsPerPage={10}
-//             onPageChange={hanglePageChange}
-//           />
-//         </div>
-//       </div>
-//     </>
-//   );
-
-return (
-    <div >
-        <CreateCodeTemplateButton />
-    </div>
-);
+                    <div className="mx-auto mt-3 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 pt-3 sm:mt-3 sm:pt-3 lg:mx-0 lg:max-w-none lg:grid-cols-3 mb-6 pb-4">
+                        {loading ? (
+                            <div className="text-white">Loading...</div>
+                        ) : error ? (
+                            <div className="text-white">{error}</div>
+                        ) : templates.length > 0 ? (
+                            templates.map((template) => (
+                                <article
+                                    key={template.cid}
+                                    className="flex max-w-xl flex-col items-start justify-between border border-gray-600 rounded-md p-5 bg-gray-900"
+                                >
+                                    <div className="flex flex-wrap items-center gap-x-4 text-xs ">
+                                        {template.tags && template.tags.length > 0 ? (
+                                            template.tags.map((tag, index) => (
+                                                <span
+                                                    key={index}
+                                                    className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm ml-2 mr-2 mb-2"
+                                                >
+                                                    {tag.name.charAt(0).toUpperCase() + tag.name.slice(1)}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-gray-500"></span>
+                                        )}
+                                    </div>
+                                    <div className="group relative ">
+                                        <h3 className="mt-3 text-lg/6 font-semibold text-gray-100 group-hover:text-gray-600">
+                                            <button
+                                                onClick={() => {
+                                                    handleClick(template.cid);
+                                                }}
+                                                className="relative"
+                                            >
+                                                <span className="absolute inset-0" />
+                                                {template.title}
+                                            </button>
+                                        </h3>
+                                        <p className="mt-5 line-clamp-3 text-sm/6 text-gray-200">
+                                            {template.explanation}
+                                        </p>
+                                    </div>
+                                    <div className="relative mt-8 flex items-center gap-x-4">
+                                        <img
+                                            alt=""
+                                            src={
+                                                template.user.profile.avatar.startsWith("/uploads/")
+                                                    ? `${process.env.NEXT_PUBLIC_API_URL}${template.user.profile.avatar}`
+                                                    : template.user.profile.avatar
+                                            }
+                                            className="h-10 w-10 rounded-full bg-gray-50"
+                                        />
+                                        <div className="text-sm/6">
+                                            <p className="font-semibold text-gray-200">
+                                                <a>
+                                                    <span className="absolute inset-0" />
+                                                    {template.user.profile.firstName} {template.user.profile.lastName}
+                                                </a>
+                                            </p>
+                                            <p className="text-gray-200">@{template.user.username}</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))
+                        ) : (
+                            <div className="text-white mb-6 pb-4">No code templates available</div>
+                        )}
+                    </div>
+                    {/* Pagination Controls */}
+                    <Pagination
+                        page={page}
+                        totalPages={totalPages}
+                        totalItems={totalTemplates}
+                        itemsPerPage={10}
+                        onPageChange={handlePageChange}
+                    />
+                </div>
+            </div>
+        </>
+    );
 }
