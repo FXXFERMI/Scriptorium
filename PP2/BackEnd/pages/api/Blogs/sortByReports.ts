@@ -64,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }, // This will check for each tag
       },
-    }))
+    }));
   }
 
   // Verify the token from the Authorization header for 'ADMIN' role
@@ -108,18 +108,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       codeTemplates: {
         some: { title: codeTemplateName }
       }
-    }))
+    }));
 
     if (filters.AND) {
-      filters.AND = filters.AND.concat(codeTemplateFilter)
+      filters.AND = filters.AND.concat(codeTemplateFilter);
     } else {
-      filters.AND = codeTemplateFilter
+      filters.AND = codeTemplateFilter;
     }
 
   }
 
 
-  filters.Hidden = false
+  filters.Hidden = false;
+
   try {
     const pageNumber = Number(page) > 0 ? Number(page) : 1;
     const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
@@ -145,10 +146,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           },
         },
-        tags: true
+        tags: true,
+        reports: {
+          select: {
+            explanation: true,
+          },
+        },
       },
     });
-    res.status(200).json(blogs);
+
+    const totalBlogs = await prisma.blog.count({
+      where: filters,
+  });
+
+    return res.status(200).json({blogs: blogs, 
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalBlogs / itemsPerPage),
+      totalBlogs: totalBlogs
+    });
   } catch (error) {
     res.status(500).json({ error: "Something went wrong." });
   }
