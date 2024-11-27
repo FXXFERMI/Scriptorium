@@ -3,10 +3,12 @@ import { verifyAccessToken } from '../../../utils/jwt';
 import * as cookie from 'cookie';
 import applyCors from '../../../utils/cors';
 import { NextApiRequest, NextApiResponse } from 'next';
+
 interface Filters {
     ownerId?: number;
     replierId?: number;
     commentId?: number;
+    Hidden?: boolean;
 }
 
 
@@ -39,22 +41,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(401).json({ error: 'Authentication token is required' });
     }
 
-    // Verify the access token and decode the user info
-    const decodedToken = verifyAccessToken(token);
-    const { role } = decodedToken;
-
-    // Check if the user has the ADMIN role
-    if (role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Forbidden: Only admins can hide content' });
+    let user;
+    try {
+      user = verifyAccessToken(token);
+      if (user.role !== "ADMIN") {
+        return res.status(403).json({ message: "Forbidden: Only admins can access their blogs" });
+      }
+    } catch (error) {
+      return res.status(403).json({ message: "Invalid or expired token" });
     }
 
+    // // Verify the access token and decode the user info
+    // const decodedToken = verifyAccessToken(token);
+    // const { role } = decodedToken;
+
+    // // Check if the user has the ADMIN role
+    // if (role !== 'ADMIN') {
+    //     return res.status(403).json({ error: 'Forbidden: Only admins can hide content' });
+    // }
+
+    filters.Hidden = false
     try {
         const pageNumber = Number(page) > 0 ? Number(page) : 1;
         const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
         const skip = (pageNumber - 1) * itemsPerPage;
 
         const replies = await prisma.reply.findMany({
-            where: filters,
+            // where: filters,
+            where: { ...filters, comment: { Hidden: false, blog: { Hidden: false, }, }, },
             skip: skip,
             take: itemsPerPage,
             include: { reports: true }, // include related models
@@ -77,7 +91,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
             return res.status(403).json({ error: 'Invalid or expired token' });
         }
-        res.status(500).json({ error: "Something went wrong." });
+        res.status(500).json({ error: "Something went wrong.", errorDetails: error.message });
     }
 
 }

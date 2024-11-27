@@ -129,7 +129,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
       return res.status(201).json(blog);
     } catch (error) {
-      console.error("Error creating blog:", error);
+      // //console.error("Error creating blog:", error);
       return res.status(500).json({ message: error.message });
     }
 
@@ -278,7 +278,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         currentPage: pageNumber,
         totalPages: Math.ceil(totalBlogs / itemsPerPage),});
     } catch (error) {
-      console.error("Error fetching blogs:", error);
+      //console.error("Error fetching blogs:", error);
       return res.status(500).json({ error: error.message });
     }
   } else {

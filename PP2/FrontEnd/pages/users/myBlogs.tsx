@@ -71,7 +71,7 @@ const MyBlogs: React.FC = () => {
         setTotalPages(response.data.totalPages);
         setTotalItems(response.data.totalBlogs);
       } catch (err: any) {
-        console.error("Error fetching blogs:", err);
+        //console.error("Error fetching blogs:", err);
         setError(err.response?.data?.error || "Error fetching blogs");
       } finally {
         setLoading(false);

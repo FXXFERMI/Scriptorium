@@ -34,7 +34,7 @@ const CreateReport: React.FC<PopupProps> = ({ id, type, onClose }) => {
     try {
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
 
@@ -46,7 +46,7 @@ const CreateReport: React.FC<PopupProps> = ({ id, type, onClose }) => {
       } else if (type === "comment") {
         data.commentId = id;
       } else {
-        console.error("Invalid report details");
+        //console.error("Invalid report details");
         return;
       }
 

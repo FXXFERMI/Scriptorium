@@ -5,6 +5,9 @@ import { useAuth } from "../../contexts/AuthContext";
 // import Footer from '../../components/Footer';
 import Link from "next/link";
 import Cookies from "js-cookie";
+import Pagination from "../../components/pagination";
+import CodeTemplateMenu from "../../components/codeTemplates/CodeTemplatesMenu";
+import CreateCodeTemplateButton from "../../components/codeTemplates/CreateCodeTemplatsButton";
 
 interface CodeTemplate {
   cid: number;
@@ -18,7 +21,11 @@ const MyCodeTemplates: React.FC = () => {
   const [codeTemplates, setCodeTemplates] = useState<CodeTemplate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalTemplates, setTotalTemplates] = useState<number>(0);
   const { isLoggedIn } = useAuth();
+  const [filter, setFilter] = useState({ title: "", language: "", tags: "", code: "" });
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -34,20 +41,26 @@ const MyCodeTemplates: React.FC = () => {
         if (!token) {
           throw new Error("Access token is missing");
         }
+        // Make API request to fetch code templates for the logged-in user with pagination and filters
+        const response = await api.get("/api/CodeTemplates/currUsersTemplates", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            page: currentPage,
+            limit: 10,
+            title: filter.title,
+            language: filter.language,
+            tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
+            code: filter.code,
+          },
+        });
 
-        // Make API request to fetch code templates for the logged-in user
-        const response = await api.get(
-          "/api/CodeTemplates/currUsersTemplates",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setCodeTemplates(response.data);
+        setCodeTemplates(response.data.codeTemplates);
+        setTotalPages(response.data.totalPages);
+        setTotalTemplates(response.data.totalTemplates);
       } catch (err: any) {
-        console.error("Error fetching code templates:", err);
+        //console.error("Error fetching code templates:", err);
         setError(err.response?.data?.error || "Error fetching code templates");
       } finally {
         setLoading(false);
@@ -55,14 +68,12 @@ const MyCodeTemplates: React.FC = () => {
     };
 
     fetchCodeTemplates();
-  }, [isLoggedIn]);
+  }, [isLoggedIn, currentPage, filter]);
 
   if (!isLoggedIn) {
     return (
       <div className="text-center mt-20">
-        <h2 className="text-3xl font-bold">
-          Please log in to view your code templates
-        </h2>
+        <h2 className="text-3xl font-bold">Please log in to view your code templates</h2>
         <Link
           href="/users/login"
           className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
@@ -73,11 +84,60 @@ const MyCodeTemplates: React.FC = () => {
     );
   }
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFilter((prev) => ({ ...prev, [name]: value }));
+  };
+
   return (
     <div>
       {/* <Header /> */}
-      <main className="max-w-4xl mx-auto mt-10 p-4">
-        <h1 className="text-4xl font-bold mb-8">My Code Templates</h1>
+      <main className="container max-w-screen-lg mx-auto mt-10 p-4">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl text-white font-bold">My Code Templates</h1>
+          <CreateCodeTemplateButton />
+        </div>
+
+        {/* Filter Inputs */}
+        <div className="mb-6 flex flex-wrap gap-4">
+          <input
+            type="text"
+            name="title"
+            placeholder="Filter by title"
+            value={filter.title}
+            onChange={handleFilterChange}
+            className="p-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+          />
+          <input
+            type="text"
+            name="language"
+            placeholder="Filter by language"
+            value={filter.language}
+            onChange={handleFilterChange}
+            className="p-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+          />
+          <input
+            type="text"
+            name="tags"
+            placeholder="Filter by tags (comma separated)"
+            value={filter.tags}
+            onChange={handleFilterChange}
+            className="p-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+          />
+          <input
+            type="text"
+            name="code"
+            placeholder="Filter by code content"
+            value={filter.code}
+            onChange={handleFilterChange}
+            className="p-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+          />
+        </div>
+
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
@@ -85,23 +145,39 @@ const MyCodeTemplates: React.FC = () => {
         ) : codeTemplates.length > 0 ? (
           <div className="space-y-6">
             {codeTemplates.map((template) => (
-              <div key={template.cid} className="bg-white p-6 shadow-md">
-                <h2 className="text-2xl font-bold mb-2">{template.title}</h2>
-                <p className="text-sm text-gray-500 mb-4">
-                  Language: {template.language}
-                </p>
-                <p className="text-gray-700 mb-4">
-                  Tags: {template.tags.map((tag) => tag.name).join(", ")}
-                </p>
-                {/* <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">
-                  <code>{template.code}</code>
-                </pre> */}
+              <div
+                key={template.cid}
+                className="bg-black p-6 shadow-md flex justify-between border border-white text-white"
+              >
+                <div>
+                  <h2
+                    className="text-2xl font-bold mb-2 cursor-pointer transition hover:bg-gray-300 hover:shadow-lg hover:scale-105"
+                  >
+                    {template.title}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Tags: {template.tags.map((tag) => tag.name).join(", ")}
+                  </p>
+                </div>
+                <CodeTemplateMenu
+                  cid={template.cid}
+                  onDelete={() => setCodeTemplates((prev) => prev.filter((t) => t.cid !== template.cid))}
+                />
               </div>
             ))}
           </div>
         ) : (
           <p className="text-gray-700">No code templates found.</p>
         )}
+
+        {/* Pagination Controls */}
+        <Pagination
+          page={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          totalItems={totalTemplates}
+          itemsPerPage={10}
+        />
       </main>
       {/* <Footer /> */}
     </div>

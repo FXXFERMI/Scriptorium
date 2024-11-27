@@ -35,6 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (role === 'USER') {
       userOrAdmin = await prisma.user.findUnique({ where: { uid } });
     } else if (role === 'ADMIN') {
+      console.log("Admin ID:", uid);
       userOrAdmin = await prisma.systemAdmin.findUnique({ where: { aid: uid } });
     }
 
@@ -60,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json({ accessToken: newAccessToken });
   } catch (error) {
-    console.error(error);
+    // //console.error(error);
     res.status(403).json({ message: 'Invalid or expired refresh token' });
   }
 }

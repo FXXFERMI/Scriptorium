@@ -18,7 +18,7 @@ const DeleteBlogButton: React.FC<DeleteBlogButtonProps> = ({ bid }) => {
   };
 
   const handleError = (error: string) => {
-    console.error("Error deleting blog:", error);
+    //console.error("Error deleting blog:", error);
     setIsDeleting(false);
   };
 

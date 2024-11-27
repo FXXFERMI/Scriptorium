@@ -44,7 +44,7 @@ const Profile = () => {
 
                 setProfile(response.data);
             } catch (error) {
-                console.error("Error fetching profile:", error);
+                //console.error("Error fetching profile:", error);
             }
         };
         fetchProfile();
@@ -54,7 +54,7 @@ const Profile = () => {
         try {
             // const token = Cookies.get('accessToken');
             // if (!token) {
-            //     console.error("Access token is missing");
+            //     //console.error("Access token is missing");
             //     return;
             // }
 
@@ -79,7 +79,7 @@ const Profile = () => {
             setEditMode(false);
             setRefreshKey((prev) => prev + 1);
         } catch (error) {
-            console.error("Error updating profile:", error);
+            //console.error("Error updating profile:", error);
         }
     };
 
@@ -90,7 +90,7 @@ const Profile = () => {
         try {
             // const token = Cookies.get('accessToken');
             // if (!token) {
-            //     console.error("Access token is missing");
+            //     //console.error("Access token is missing");
             //     return;
             // }
 
@@ -118,7 +118,7 @@ const Profile = () => {
             setShowAvatarSelection(false);
             setRefreshKey((prev) => prev + 1);
         } catch (error) {
-            console.error("Error updating avatar:", error);
+            //console.error("Error updating avatar:", error);
         }
     };
 
@@ -132,13 +132,13 @@ const Profile = () => {
     const handleFileUpload = async () => {
         // const token = Cookies.get('accessToken');
         // if (!token) {
-        //     console.error("Access token is missing");
+        //     //console.error("Access token is missing");
         //     return;
         // }
 
         const fileInput = document.getElementById('avatarUpload') as HTMLInputElement;
         if (!fileInput.files || fileInput.files.length === 0) {
-            console.error("No file selected");
+            //console.error("No file selected");
             return;
         }
 
@@ -169,7 +169,7 @@ const Profile = () => {
             setShowAvatarSelection(false);
             setRefreshKey((prev) => prev + 1);
         } catch (error) {
-            console.error("Error uploading avatar:", error);
+            //console.error("Error uploading avatar:", error);
         }
     };
 
@@ -192,7 +192,7 @@ const Profile = () => {
             {/* <Header /> */}
             <section className="text-gray-600 body-font">
 
-                <div className="max-w-5xl pt-52 pb-24 mx-auto">
+                <div className="max-w-5xl pt-40 pb-24 mx-auto">
                     <h1 className="text-4xl font-bold text-center mb-6" >
                         {profile.firstName} {profile.lastName}
                     </h1>
@@ -218,125 +218,121 @@ const Profile = () => {
 
                     <div className="flex justify-center gap-4 mb-6">
                         <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline"
                             onClick={() => setEditMode(true)}
                         >
                             Edit Profile
                         </button>
                         <button
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline"
                             onClick={() => setShowAvatarSelection(true)}
                         >
                             Change Avatar
                         </button>
                     </div>
 
-                    {
-                        editMode && (
-                            <div className="p-6 bg-gray-800 rounded-lg shadow-md mb-6" >
-                                <h2 className="text-2xl font-semibold mb-4" > Edit Profile Information </h2>
-                                < div className="space-y-4" >
-                                    <input
-                                        type="text"
-                                        placeholder="First Name"
-                                        defaultValue={profile.firstName}
-                                        onChange={(e) => setUpdatedFirstName(e.target.value)}
-                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Last Name"
-                                        defaultValue={profile.lastName}
-                                        onChange={(e) => setUpdatedLastName(e.target.value)}
-                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Phone Number"
-                                        defaultValue={profile.phoneNumber}
-                                        onChange={(e) => setUpdatedPhoneNumber(e.target.value)}
-                                        className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
-                                    />
-                                </div>
-                                {/* < div className="flex gap-4 mt-4" >
+                    {editMode && (
+                        <div className="p-6 bg-gray-800 rounded-lg shadow-md mb-6">
+                            <h2 className="text-2xl font-semibold mb-4">Edit Profile Information</h2>
+                            <div className="space-y-4">
+                                <input
+                                    type="text"
+                                    placeholder="First Name"
+                                    defaultValue={profile.firstName}
+                                    onChange={(e) => setUpdatedFirstName(e.target.value)}
+                                    className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Last Name"
+                                    defaultValue={profile.lastName}
+                                    onChange={(e) => setUpdatedLastName(e.target.value)}
+                                    className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Phone Number"
+                                    defaultValue={profile.phoneNumber}
+                                    onChange={(e) => setUpdatedPhoneNumber(e.target.value)}
+                                    className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-gray-300"
+                                />
+                            </div>
+                            {/* < div className="flex gap-4 mt-4" >
                                 <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleProfileUpdate} > Save Changes </button>
                                 < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setEditMode(false)}> Cancel </button>
                             </div> */}
-                                <div className="flex justify-end mt-4 gap-4">
-                                    <button
-                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                                        onClick={handleProfileUpdate}
-                                    >
-                                        Save Changes
-                                    </button>
-                                    <button
-                                        className="bg-gray-600 text-gray-300 px-4 py-2 rounded hover:bg-gray-500"
-                                        onClick={() => setEditMode(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
+                            <div className="flex justify-end mt-4 gap-4">
+                                <button
+                                    className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out bg-gradient-to-r from-green-500 to-green-600 px-14 text-md focus:shadow-outline"
+                                    onClick={handleProfileUpdate}
+                                >
+                                    Save Changes
+                                </button>
+                                <button
+                                    className="inline-flex items-center py-3 font-semibold tracking-tighter text-gray-300 transition duration-500 ease-in-out bg-gray-600 px-14 text-md hover:bg-gray-500 focus:shadow-outline"
+                                    onClick={() => setEditMode(false)}
+                                >
+                                    Cancel
+                                </button>
                             </div>
-                        )}
+                        </div>
+                    )}
 
 
-                    {
-                        showAvatarSelection && (
-                            <div className="p-6 bg-gray-800 rounded-lg shadow-md" >
-                                <h2 className="text-2xl font-semibold mb-4" > Select an Avatar </h2>
-                                < div className="flex flex-wrap gap-4 justify-center" >
-                                    {
-                                        availableAvatars.map((avatar) => (
-                                            <img
-                                                key={avatar}
-                                                src={avatar}
-                                                alt="Available Avatar"
-                                                className={`w-16 h-16 rounded-full cursor-pointer border-2 ${avatar === selectedAvatar ? 'border-blue-500' : 'border-transparent'}`}
-                                                onClick={() => setSelectedAvatar(avatar)
-                                                }
-                                            />
-                                        ))}
-                                </div>
-
-                                < div className="mt-4 flex justify-end gap-4" >
-                                    {/* <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleAvatarUpdate} disabled={!selectedAvatar}> Save Selected Avatar </button>
-                                < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setShowAvatarSelection(false)}> Cancel </button> */}
-                                    <button
-                                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                                        onClick={handleAvatarUpdate}
-                                        disabled={!selectedAvatar}
-                                    >
-                                        Save Selected Avatar
-                                    </button>
-                                    <button
-                                        className="bg-gray-600 text-gray-300 px-4 py-2 rounded hover:bg-gray-500"
-                                        onClick={() => setShowAvatarSelection(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-
-                                < div className="mt-6" >
-                                    <input
-                                        type="file"
-                                        id="avatarUpload"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="text-gray-300"
+                    {showAvatarSelection && (
+                        <div className="p-6 bg-gray-800 rounded-lg shadow-md">
+                            <h2 className="text-2xl font-semibold mb-4">Select an Avatar</h2>
+                            <div className="flex flex-wrap gap-4 justify-center">
+                                {availableAvatars.map((avatar) => (
+                                    <img
+                                        key={avatar}
+                                        src={avatar}
+                                        alt="Available Avatar"
+                                        className={`w-16 h-16 rounded-full cursor-pointer border-2 ${avatar === selectedAvatar ? 'border-blue-500' : 'border-transparent'}`}
+                                        onClick={() => setSelectedAvatar(avatar)}
                                     />
-                                    {uploadedAvatar && (
-                                        <img src={uploadedAvatar} alt="Uploaded Avatar Preview" className="w-16 h-16 rounded-full mt-4" />
-                                    )}
-                                    {/* <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleFileUpload} > Upload and Save </button> */}
-                                    <button
-                                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                                        onClick={handleFileUpload}
-                                    >
-                                        Upload and Save
-                                    </button>
-                                </div>
+                                ))}
                             </div>
-                        )}
+
+                            < div className="mt-4 flex justify-end gap-4" >
+                                {/* <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleAvatarUpdate} disabled={!selectedAvatar}> Save Selected Avatar </button>
+                                < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setShowAvatarSelection(false)}> Cancel </button> */}
+                                <button
+                                    className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out bg-gradient-to-r from-green-500 to-green-600 px-14 text-md focus:shadow-outline"
+                                    onClick={handleAvatarUpdate}
+                                    disabled={!selectedAvatar}
+                                >
+                                    Save Selected Avatar
+                                </button>
+                                <button
+                                    className="inline-flex items-center py-3 font-semibold tracking-tighter text-gray-300 transition duration-500 ease-in-out bg-gray-600 px-14 text-md hover:bg-gray-500 focus:shadow-outline"
+                                    onClick={() => setShowAvatarSelection(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+
+                            < div className="mt-6" >
+                                <input
+                                    type="file"
+                                    id="avatarUpload"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="text-gray-300"
+                                />
+                                {uploadedAvatar && (
+                                    <img src={uploadedAvatar} alt="Uploaded Avatar Preview" className="w-16 h-16 rounded-full mt-4" />
+                                )}
+                                {/* <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={handleFileUpload} > Upload and Save </button> */}
+                                <button
+                                    className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline mt-4"
+                                    onClick={handleFileUpload}
+                                >
+                                    Upload and Save
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 {/* <Footer /> */}
 

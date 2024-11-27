@@ -59,7 +59,7 @@ const CreateEditBlog: React.FC<PopupProps> = ({
       try {
         const token = Cookies.get("accessToken");
         if (!token) {
-          console.error("Access token is missing");
+          //console.error("Access token is missing");
           return;
         }
 
@@ -129,7 +129,7 @@ const CreateEditBlog: React.FC<PopupProps> = ({
     try {
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
 
@@ -165,7 +165,7 @@ const CreateEditBlog: React.FC<PopupProps> = ({
     try {
       const token = Cookies.get("accessToken");
       if (!token) {
-        console.error("Access token is missing");
+        //console.error("Access token is missing");
         return;
       }
 

@@ -3,15 +3,53 @@ import Head from "next/head";
 // import Main from "../components/Main";
 // import Footer from "../components/Footer";
 import { NextSeo } from "next-seo";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
+import api from "../utils/axiosInstance";
+import { codeTemplateType } from "../interfaces/codeTemplate";
+import { blogType } from "../interfaces/blog";
 import dotenv from "dotenv";
 dotenv.config();
 
 const Header = dynamic(() => import("../components/Header"), { ssr: false }); // Dynamic import for client-side rendering only
 
 const Home: FC = () => {
+  const [newestTemplates, setNewestTemplates] = useState<codeTemplateType[]>([]);
+  const [topRatedBlogs, setTopRatedBlogs] = useState<blogType[]>([]);
+
+  useEffect(() => {
+    const fetchNewestCodeTemplates = async () => {
+      try {
+        const response = await api.get("/api/CodeTemplates", {
+          params: {
+            limit: 4,
+            sort: "newest",
+          },
+        });
+        setNewestTemplates(response.data.codeTemplates);
+      } catch (error) {
+        //console.error("Error fetching newest code templates:", error);
+      }
+    };
+
+    const fetchTopRatedBlogs = async () => {
+      try {
+        const response = await api.get("/api/Blogs/sortByRatings", {
+          params: {
+            limit: 2,
+          },
+        });
+        setTopRatedBlogs(response.data);
+      } catch (error) {
+        //console.error("Error fetching top-rated blogs:", error);
+      }
+    };
+
+    fetchNewestCodeTemplates();
+    fetchTopRatedBlogs();
+  }, []);
+
   return (
     <div className="text-black bg-black">
       <NextSeo
@@ -39,7 +77,7 @@ const Home: FC = () => {
           <div className="ml-6 text-center">
             <a
               className="inline-flex items-center py-3 font-semibold text-black transition duration-500 ease-in-out transform bg-transparent bg-white px-7 text-md md:mt-0 hover:text-black hover:bg-white focus:shadow-outline"
-              href="/"
+              href="/codeTemplates/viewCodeTemplates"
             >
               <div className="flex text-lg">
                 <span className="justify-center">View All Code Templates</span>
@@ -85,7 +123,7 @@ const Home: FC = () => {
           </video>
         </div>
 
-        <h2 className="pt-40 mb-1 text-2xl font-semibold tracking-tighter text-center text-gray-200 lg:text-7xl md:text-6xl">
+        {/* <h2 className="pt-40 mb-1 text-2xl font-semibold tracking-tighter text-center text-gray-200 lg:text-7xl md:text-6xl">
           Clean and tidy code.
         </h2>
         <br />
@@ -154,9 +192,40 @@ const Home: FC = () => {
               porttitor.
             </p>
           </div>
+        </div> */}
+        {/* Clean and Tidy Code Section */}
+        <h2 className="pt-40 mb-1 text-2xl font-semibold tracking-tighter text-center text-gray-200 lg:text-7xl md:text-6xl">
+          Clean and tidy code.
+        </h2>
+        <br />
+        <p className="mx-auto text-xl text-center text-gray-300 font-normal leading-relaxed fs521 lg:w-2/3">
+          Discover beautifully crafted, ready-to-use code templates to kickstart
+          your next project effortlessly.
+        </p>
+        <div className="pt-12 pb-24 max-w-4xl mx-auto fsac4 md:px-1 px-3 grid gap-8 grid-cols-1 md:grid-cols-2">
+          {newestTemplates.map((template) => (
+            <div
+              key={template.cid}
+              className="ktq4 bg-gray-800 p-6 rounded-lg cursor-pointer"
+              onClick={() => window.location.href = `/execution/${template.cid}`}
+            >
+              <img
+                className="w-10"
+                src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+                alt="icon"
+              />
+              <h3 className="pt-3 font-semibold text-lg text-white">
+                {template.title}
+              </h3>
+              <p className="pt-2 value-text text-md text-gray-200 fkrr1">
+                {/* {template.explanation} */}
+                {template.explanation.length > 100 ? `${template.explanation.slice(0, 100)}...` : template.explanation}
+              </p>
+            </div>
+          ))}
         </div>
 
-        <h2 className="pt-40 mb-1 text-2xl font-semibold tracking-tighter text-center text-gray-200 lg:text-7xl md:text-6xl">
+        {/* <h2 className="pt-40 mb-1 text-2xl font-semibold tracking-tighter text-center text-gray-200 lg:text-7xl md:text-6xl">
           Ideas that Inspire.
         </h2>
         <br />
@@ -197,7 +266,7 @@ const Home: FC = () => {
               sodales tellus ex nec odio.
             </p>
           </div>
-        </div>
+        </div> */}
         {/* <section className="relative pb-24">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
                     <div className="py-24 md:py-36">
@@ -223,6 +292,34 @@ const Home: FC = () => {
                     </div>
                 </div>
             </section> */}
+        {/* Ideas that Inspire Section */}
+        <h2 className="pt-40 mb-1 text-2xl font-semibold tracking-tighter text-center text-gray-200 lg:text-7xl md:text-6xl">
+          Ideas that Inspire.
+        </h2>
+        <br />
+        <p className="mx-auto text-xl text-center text-gray-300 font-normal leading-relaxed fs521 lg:w-2/3">
+          Dive into expert-written blogs for insights, tips, and the latest
+          trends in the world of coding and development.
+        </p>
+        <div className="pt-32 pb-32 max-w-6xl mx-auto fsac4 md:px-1 px-3 grid gap-8 grid-cols-1 md:grid-cols-2">
+          {topRatedBlogs.map((blog) => (
+            <div
+              key={blog.bid}
+              className="ktq4 bg-gray-800 p-6 rounded-lg cursor-pointer"
+              onClick={() => window.location.href = `/blogs/blog?id=${blog.bid}`}
+            >
+              <img
+                src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+                alt="feature image"
+              />
+              <h3 className="pt-3 font-semibold text-lg text-white">
+                {blog.title}
+              </h3>
+              <p className="pt-2 value-text text-md text-gray-200 fkrr1">
+                {blog.description.length > 100 ? `${blog.description.slice(0, 100)}...` : blog.description}              </p>
+            </div>
+          ))}
+        </div>
       </section>
       {/* <Footer /> */}
     </div>

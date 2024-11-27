@@ -12,7 +12,7 @@ import { useAuth } from '../../contexts/AuthContext';
 // const Home = () => <div><h2>Home Page</h2><p>Welcome to the home page!</p></div>;
 // const MyBlogs = () => <div className="text-white text-2xl font-semibold"><h2>My Blogs Page</h2><p>Learn more Blogs on this page.</p></div>;
 // const MyCodeTemplates = () => <div className="text-white text-2xl font-semibold"><h2>My Code Templates Page</h2><p>Here are the Code Templates we offer.</p></div>;
-const Settings = () => <div className="text-white text-2xl font-semibold"><h2>Settings Page</h2><p>Get in touch with us here.</p></div>;
+// const Settings = () => <div className="text-white text-2xl font-semibold"><h2>Settings Page</h2><p>Get in touch with us here.</p></div>;
 
 const UserCenter: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -43,8 +43,8 @@ const UserCenter: React.FC = () => {
         return <MyBlogs />;
       case 'MyCodeTemplates':
         return <MyCodeTemplates />;
-      case 'Settings':
-        return <Settings />;
+      // case 'Settings':
+      //   return <Settings />;
       case 'Profile':
         return <Profile />;
       default:
@@ -87,11 +87,11 @@ const UserCenter: React.FC = () => {
             <li className="mb-2">
               <br />
             </li>
-            <li className="mb-2">
+            {/* <li className="mb-2">
               <button onClick={() => setSelectedOption('Settings')} className="block hover:text-indigo-400 w-full text-left">
                 Settings
               </button>
-            </li>
+            </li> */}
             <li className="mb-2">
               <button onClick={() => handleLogout()} className="block hover:text-indigo-400 w-full text-left">
                 Logout

@@ -77,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         res.status(200).json({ message: 'Rating updated successfully', rating });
     } catch (error) {
-        console.error("Error updating rating:", error);
+        //console.error("Error updating rating:", error);
         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
             return res.status(403).json({ message: 'Invalid or expired token' });
         }

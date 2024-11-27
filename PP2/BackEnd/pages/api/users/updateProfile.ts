@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (!token) {
-    console.error("Access token is missing in cookies.");
+    //console.error("Access token is missing in cookies.");
     return res.status(401).json({ message: 'Authentication token is required' });
   }
 
@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     user = verifyAccessToken(token);
   } catch (error) {
-    console.error("Token verification error:", error);
+    //console.error("Token verification error:", error);
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 
@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       profile: updatedProfile,
     });
   } catch (error) {
-    console.error("Error updating profile:", error);
+    //console.error("Error updating profile:", error);
     res.status(500).json({ message: 'Error updating profile' });
   }
 }

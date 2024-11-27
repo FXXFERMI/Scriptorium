@@ -10,12 +10,19 @@ import api from '../utils/axiosInstance';
 const Header: React.FC = () => {
     const [navbarOpen, setNavbarOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
     // const [loginModalOpen, setLoginModalOpen] = useState(false);
     // const [isClient, setIsClient] = useState(false);
     const router = useRouter();
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const adminDropdownRef = useRef<HTMLDivElement>(null);
+
     const [loginError, setLoginError] = useState<string | null>(null);
     const [loginSuccess, setLoginSuccess] = useState<string | null>(null);
+
+    const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
+    const [adminLoginSuccess, setAdminLoginSuccess] = useState<string | null>(null);
+
     const { isLoggedIn, logout, login } = useAuth();
 
     // console.log("login", isLoggedIn);
@@ -30,7 +37,9 @@ const Header: React.FC = () => {
         logout();
         setLoginError(null);
         setLoginSuccess(null);
-        router.push('/');
+        setAdminLoginError(null);
+        setAdminLoginSuccess(null);
+        router.push("/");
     };
 
     // useEffect(() => {
@@ -59,22 +68,32 @@ const Header: React.FC = () => {
         setLoginSuccess(null);
     };
 
+    const toggleAdminDropdown = () => {
+        setAdminDropdownOpen(!adminDropdownOpen);
+        setAdminLoginError(null);
+        setAdminLoginSuccess(null);
+    };
+
     const handleClickOutside = (event: MouseEvent) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
             setDropdownOpen(false);
         }
+
+        if (adminDropdownRef.current && !adminDropdownRef.current.contains(event.target as Node)) {
+            setAdminDropdownOpen(false);
+        }
     };
 
     useEffect(() => {
-        if (dropdownOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
+        if (dropdownOpen || adminDropdownOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
         } else {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         }
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [dropdownOpen]);
+    }, [dropdownOpen, adminDropdownOpen]);
 
     return (
         <header className="fixed top-0 w-full clearNav z-50">
@@ -125,7 +144,10 @@ const Header: React.FC = () => {
                         >
                             Blogs
                         </a>
-                        <a className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                        <a
+                            className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04"
+                            href="/codeTemplates/viewCodeTemplates"
+                        >
                             Code Templates
                         </a>
                         {/* <a className="mr-12 md:ml-11 ml-0 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
@@ -165,7 +187,7 @@ const Header: React.FC = () => {
                                         </a>
                                     </Link> */}
                                     <button onClick={toggleDropdown} className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
-                                        Login
+                                        User Login
                                     </button>
                                     {dropdownOpen && (
                                         <div ref={dropdownRef} className="absolute right-1/3 transform translate-x-1/2 mt-6 w-64 p-4 bg-white shadow-lg z-50">
@@ -190,7 +212,7 @@ const Header: React.FC = () => {
                                                         // setDropdownOpen(false);
                                                         // router.push('/');
                                                     } catch (error: any) {
-                                                        // console.error("Login failed:", error);
+                                                        // //console.error("Login failed:", error);
                                                         setLoginSuccess(null)
                                                         setLoginError(error.response?.data?.message || "Login failed");
                                                     }
@@ -230,6 +252,63 @@ const Header: React.FC = () => {
                                                     className="inline-flex items-center justify-center py-3 px-14 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-gradient-to-r from-blue-500 to-blue-800 text-md focus:shadow-outline hover:from-blue-600 hover:to-blue-900 mt-4"
                                                 >
                                                     Login
+                                                </button>
+                                            </form>
+                                        </div>
+                                    )}
+
+                                    <button onClick={toggleAdminDropdown} className="mr-5 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                                        Admin Login
+                                    </button>
+                                    {adminDropdownOpen && (
+                                        <div ref={adminDropdownRef} className="absolute right-1/3 transform translate-x-1/2 mt-6 w-64 p-4 bg-white shadow-lg z-50">
+                                            <form
+                                                onSubmit={async (e) => {
+                                                    e.preventDefault();
+                                                    const form = e.target as HTMLFormElement;
+                                                    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+                                                    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+
+                                                    try {
+                                                        const response = await api.post(
+                                                            `${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`,
+                                                            { email, password },
+                                                            { withCredentials: true }
+                                                        );
+                                                        Cookies.set("accessToken", response.data.accessToken, { path: "/" });
+                                                        setAdminLoginError(null);
+                                                        setAdminLoginSuccess("Admin login successful!");
+                                                        router.push("/admin/dashboard");
+                                                    } catch (error: any) {
+                                                        setAdminLoginSuccess(null);
+                                                        setAdminLoginError(error.response?.data?.message || "Admin login failed");
+                                                    }
+                                                }}
+                                                className="flex flex-col items-center"
+                                            >
+                                                {adminLoginError && (
+                                                    <div className="mb-4 w-full text-center text-red-500 font-semibold">
+                                                        {adminLoginError}
+                                                    </div>
+                                                )}
+                                                {adminLoginSuccess && (
+                                                    <div className="mb-4 w-full text-center text-green-500 font-semibold">
+                                                        {adminLoginSuccess}
+                                                    </div>
+                                                )}
+                                                <div className="mb-4 w-full">
+                                                    <label className="block text-gray-700 font-semibold mb-2">Email:</label>
+                                                    <input type="email" name="email" className="w-full p-2 border rounded-md" required />
+                                                </div>
+                                                <div className="mb-4 w-full">
+                                                    <label className="block text-gray-700 font-semibold mb-2">Password:</label>
+                                                    <input type="password" name="password" className="w-full p-2 border rounded-md" required />
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    className="inline-flex items-center justify-center py-3 px-14 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-gradient-to-r from-red-500 to-red-800 text-md focus:shadow-outline hover:from-red-600 hover:to-red-900 mt-4"
+                                                >
+                                                    Admin Login
                                                 </button>
                                             </form>
                                         </div>
