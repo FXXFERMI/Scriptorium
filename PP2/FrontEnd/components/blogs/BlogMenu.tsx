@@ -53,7 +53,8 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, hidden, onSuccess }) => {
         closeDeleteConfirm();
       }
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || "Failed to delete blog";
+      const errorMessage =
+        error.response?.data?.error || "Failed to delete blog";
       toast.error(errorMessage, {
         duration: 3000,
         position: "top-center",
@@ -62,12 +63,14 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, hidden, onSuccess }) => {
   };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left z-20">
       <Menu as="div" className="relative">
         <div>
-        <Menu.Button
+          <Menu.Button
             className={`inline-flex justify-center w-full text-sm font-medium text-gray-700 ${
-              hidden ? "opacity-50 cursor-not-allowed" : "hover:text-gray-100 focus:outline-none"
+              hidden
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:text-gray-100 focus:outline-none"
             }`}
             disabled={hidden}
           >
@@ -100,7 +103,9 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, hidden, onSuccess }) => {
                     className={`${
                       hidden
                         ? "text-gray-400 cursor-not-allowed"
-                        : active ? "bg-blue-500 text-white" : "text-gray-900"
+                        : active
+                        ? "bg-blue-500 text-white"
+                        : "text-gray-900"
                     } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                   >
                     Edit
@@ -115,7 +120,9 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, hidden, onSuccess }) => {
                     className={`${
                       hidden
                         ? "text-gray-400 cursor-not-allowed"
-                        : active ? "bg-red-500 text-white" : "text-gray-900"
+                        : active
+                        ? "bg-red-500 text-white"
+                        : "text-gray-900"
                     } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                   >
                     Delete
@@ -142,7 +149,10 @@ const BlogMenu: React.FC<BlogMenuProps> = ({ bid, hidden, onSuccess }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-70 text-white">
           <div className="bg-black p-6 rounded-lg shadow-md w-96 text-center">
             <h2 className="text-lg font-bold mb-4">Delete Blog</h2>
-            <p className="mb-6">Are you sure you want to delete this blog? This action cannot be undone.</p>
+            <p className="mb-6">
+              Are you sure you want to delete this blog? This action cannot be
+              undone.
+            </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={handleDelete}

@@ -10,7 +10,7 @@ import Pagination from "../../components/pagination";
 import ReportButton from "../../components/reports/reportButton";
 import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
-
+import toast, { Toaster } from "react-hot-toast";
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
 
@@ -428,9 +428,10 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to upvote!");
         return;
       }
+
       const response = await api.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/${bid}/rate`,
         { upvote, downvote },
@@ -463,7 +464,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to downvote!");
         return;
       }
       await api.post(
@@ -497,7 +498,7 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to upvote!");
         return;
       }
       await api.post(
@@ -566,7 +567,7 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to downvote!");
         return;
       }
       await api.post(
@@ -640,7 +641,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to upvote!");
         return;
       }
       await api.post(
@@ -724,7 +725,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to downvote!");
         return;
       }
       await api.post(
@@ -1343,6 +1344,15 @@ const DisplayBlog = () => {
           </div>
         )}
       </div>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            margin: "0 auto",
+            textAlign: "center",
+          },
+        }}
+      />
     </div>
   );
 };

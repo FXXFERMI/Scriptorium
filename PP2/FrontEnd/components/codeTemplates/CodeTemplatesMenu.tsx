@@ -11,7 +11,10 @@ interface CodeTemplateMenuProps {
   onDelete: () => void;
 }
 
-const CodeTemplateMenu: React.FC<CodeTemplateMenuProps> = ({ cid, onDelete }) => {
+const CodeTemplateMenu: React.FC<CodeTemplateMenuProps> = ({
+  cid,
+  onDelete,
+}) => {
   const router = useRouter();
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
@@ -56,7 +59,7 @@ const CodeTemplateMenu: React.FC<CodeTemplateMenuProps> = ({ cid, onDelete }) =>
   };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left z-20">
       <Menu as="div" className="relative">
         <div>
           <Menu.Button className="inline-flex justify-center w-full text-sm font-medium text-gray-700 hover:text-white focus:outline-none">
@@ -109,7 +112,10 @@ const CodeTemplateMenu: React.FC<CodeTemplateMenuProps> = ({ cid, onDelete }) =>
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-70 text-white">
           <div className="bg-black p-6 rounded-lg shadow-md w-96 text-center">
             <h2 className="text-lg font-bold mb-4">Delete Code Template</h2>
-            <p className="mb-6">Are you sure you want to delete this code template? This action cannot be undone.</p>
+            <p className="mb-6">
+              Are you sure you want to delete this code template? This action
+              cannot be undone.
+            </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={handleDeleteTemplate}

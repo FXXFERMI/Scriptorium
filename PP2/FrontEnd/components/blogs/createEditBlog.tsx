@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import api from "../../utils/axiosInstance";
 import Cookies from "js-cookie";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 interface CreateBlogData {
   title: string;
@@ -151,10 +152,22 @@ const CreateEditBlog: React.FC<PopupProps> = ({
       );
 
       if (response.status === 201) {
-        router.push(`/blogs/blog?id=${response.data.bid}`); // Redirect to blog listing
+        router.push({
+          pathname: `/blogs/blog`,
+          query: { id: response.data.bid },
+        });
+        toast.success("Blog created successfully!", {
+          duration: 3000,
+          position: "top-center",
+        });
       }
     } catch (error: any) {
-      setError(error.response?.data?.error || "Failed to create blog");
+      const errorMessage =
+        error.response?.data?.error || "Failed to create blog";
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: "top-center",
+      });
     }
   };
 
@@ -190,7 +203,12 @@ const CreateEditBlog: React.FC<PopupProps> = ({
         if (onSuccess) onSuccess();
       }
     } catch (error: any) {
-      setError(error.response?.data?.error || "Failed to edit blog");
+      const errorMessage =
+        error.response?.data?.error || "Failed to create blog";
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: "top-center",
+      });
     }
   };
 
@@ -457,6 +475,15 @@ const CreateEditBlog: React.FC<PopupProps> = ({
           </form>
         )}
       </div>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            margin: "0 auto",
+            textAlign: "center",
+          },
+        }}
+      />
     </div>
   );
 };

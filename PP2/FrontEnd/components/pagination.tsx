@@ -65,7 +65,10 @@ const Pagination = ({
           <p className="text-sm text-gray-300">
             Showing{" "}
             {/* <span className="font-medium">{Math.min(totalItems, 1)}</span> to{" "} */}
-            <span className="font-medium">{page * itemsPerPage - itemsPerPage + 1}</span> to{" "}
+            <span className="font-medium">
+              {totalItems == 0 ? "0" : page * itemsPerPage - itemsPerPage + 1}
+            </span>{" "}
+            to{" "}
             <span className="font-medium">
               {Math.min(page * itemsPerPage, totalItems)}
             </span>{" "}
