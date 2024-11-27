@@ -9,6 +9,7 @@ const Login = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
   const { login } = useAuth();  // Use the login function from AuthContext
 
@@ -20,7 +21,7 @@ const Login = () => {
         { username, password },
         { withCredentials: true }
       );
-      
+
       // Set the access token and refresh token in cookies
       Cookies.set('accessToken', response.data.accessToken, { path: '/' });
       // console.log(Cookies.get('accessToken'))
@@ -30,9 +31,14 @@ const Login = () => {
       login();
 
       // console.log("Login successful:", response.data);
-      
-      // Redirect to the homepage after successful login
-      router.push('/');
+
+      // Set the success message
+      setSuccessMessage("Login successful! Redirecting in 3 seconds...");
+
+      // Delay the redirect by 3 seconds
+      setTimeout(() => {
+        router.push('/');
+      }, 3000);
     } catch (error: any) {
       console.error("Login failed:", error);
       setError(error.response?.data?.message || "Login failed");
@@ -44,6 +50,7 @@ const Login = () => {
       <Header />
       <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {successMessage && <p className="text-green-500 text-center mb-4">{successMessage}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block font-medium mb-1">Username:</label>

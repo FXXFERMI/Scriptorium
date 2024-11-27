@@ -15,6 +15,7 @@ const Header: React.FC = () => {
     const router = useRouter();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [loginError, setLoginError] = useState<string | null>(null);
+    const [loginSuccess, setLoginSuccess] = useState<string | null>(null);
     const { isLoggedIn, logout, login } = useAuth();
 
     // console.log("login", isLoggedIn);
@@ -27,6 +28,8 @@ const Header: React.FC = () => {
 
     const handleLogout = () => {
         logout();
+        setLoginError(null);
+        setLoginSuccess(null);
         router.push('/');
     };
 
@@ -53,6 +56,7 @@ const Header: React.FC = () => {
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
         setLoginError(null);
+        setLoginSuccess(null);
     };
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -115,7 +119,10 @@ const Header: React.FC = () => {
                             About
                             {/* </a> */}
                         </Link>
-                        <a className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
+                        <a
+                            className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04"
+                            href="/blogs/viewBlogs"
+                        >
                             Blogs
                         </a>
                         <a className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
@@ -178,10 +185,13 @@ const Header: React.FC = () => {
                                                         );
                                                         Cookies.set('accessToken', response.data.accessToken, { path: '/' });
                                                         login();
-                                                        setDropdownOpen(false);
+                                                        setLoginError(null);
+                                                        setLoginSuccess("Login successful!")
+                                                        // setDropdownOpen(false);
                                                         // router.push('/');
                                                     } catch (error: any) {
                                                         // console.error("Login failed:", error);
+                                                        setLoginSuccess(null)
                                                         setLoginError(error.response?.data?.message || "Login failed");
                                                     }
                                                 }}
@@ -190,6 +200,11 @@ const Header: React.FC = () => {
                                                 {loginError && (
                                                     <div className="mb-4 w-full text-center text-red-500 font-semibold">
                                                         {loginError}
+                                                    </div>
+                                                )}
+                                                {loginSuccess && (
+                                                    <div className="mb-4 w-full text-center text-green-500 font-semibold">
+                                                        {loginSuccess}
                                                     </div>
                                                 )}
                                                 <div className="mb-4 w-full">

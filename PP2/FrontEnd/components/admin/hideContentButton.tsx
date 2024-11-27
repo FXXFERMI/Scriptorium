@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CreateReport from "./CreateReport";
+import CreateReport from "../reports/CreateReport";
 import HideContent from "./hideContent";
 
 const ReportButton = ({ id, type }: { id: number; type: string }) => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import api from "../utils/axiosInstance";
+import api from "../../utils/axiosInstance";
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -20,12 +20,16 @@ interface PopupProps {
   edit?: boolean;
   bid?: number;
   onClose: () => void;
+  onSuccess?: () => void;
+  disableRedirect?: boolean;
 }
 
 const CreateEditBlog: React.FC<PopupProps> = ({
   edit = false,
   bid,
   onClose,
+  onSuccess,
+  disableRedirect = false,
 }) => {
   const router = useRouter();
 
@@ -184,7 +188,7 @@ const CreateEditBlog: React.FC<PopupProps> = ({
       );
 
       if (response.status === 200) {
-        router.push(`/blogs/blog?id=${response.data.bid}`); // Redirect to blog listing
+        if (onSuccess) onSuccess();
       }
     } catch (error: any) {
       setError(error.response?.data?.error || "Failed to edit blog");

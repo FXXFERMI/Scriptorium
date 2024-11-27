@@ -30,7 +30,7 @@ import Cookies from 'js-cookie';
         originalRequest._retry = true;
 
         try {
-          // console.log("0000000000000000000000000000000");
+          console.log("0000000000000000000000000000000");
           // const refreshToken = Cookies.get('refreshToken');
           // if (!refreshToken) {
           //   throw new Error('Refresh token is missing');
@@ -42,16 +42,16 @@ import Cookies from 'js-cookie';
           const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, null, {
             withCredentials: true,
           });
-          // console.log("11111111111111111111111111111111");
+          console.log("11111111111111111111111111111111");
           // console.log(response.data);
           const { accessToken } = response.data;
-          // console.log("222222222222222222222222222222222");
+          console.log("222222222222222222222222222222222");
           // Set new access token in cookies
           Cookies.set('accessToken', accessToken, { path: '/' });
-          // console.log("3333333333333333333333333333333333");
+          console.log("3333333333333333333333333333333333");
           // Update authorization header
           originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
-          // console.log("44444444444444444444444444444444444");
+          console.log("44444444444444444444444444444444444");
           // Retry original request
           // authContext.refreshLoginStatus();
           return api(originalRequest);

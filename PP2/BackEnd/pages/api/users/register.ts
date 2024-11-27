@@ -31,6 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Username already exists' });
     }
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; 
+    // At least 8 characters, 1 uppercase, 1 lowercase, 1 digit, 1 special character
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+      });
+    }
+
     const existingEmail = await prisma.user.findUnique({
       where: { email },
     });

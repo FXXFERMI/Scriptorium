@@ -32,6 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Validate required fields
     if (!cid) {
+      console.log(cid);
       return res.status(400).json({ error: "cid is required" });
     }
 

@@ -7,7 +7,7 @@ import { userProfileType } from "../../interfaces/user";
 import Cookies from "js-cookie";
 import api from "../../utils/axiosInstance";
 import Pagination from "../../components/pagination";
-import ReportButton from "../../components/reportButton";
+import ReportButton from "../../components/reports/reportButton";
 import Link from "next/link";
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
@@ -104,6 +104,8 @@ const DisplayBlog = () => {
           config
         );
         let blog = response.data;
+        console.log(response.data);
+        console.log(response);
         setBlog(blog);
         setLoading(false);
       } catch (err) {
@@ -145,7 +147,7 @@ const DisplayBlog = () => {
         setCommentsFetched(true); // Mark comments as fetched
         setTotalPages(totalPages);
         setTotalComments(totalComments);
-        console.log(blog);
+        // console.log(blog);
       } catch (err) {
         setError("Failed to load comments.");
       }
@@ -438,7 +440,6 @@ const DisplayBlog = () => {
           withCredentials: true,
         }
       );
-
       setBlogUpdate((prev) => !prev); // Trigger re-fetch of blog
     } catch (err) {
       setError("Failed to upvote.");

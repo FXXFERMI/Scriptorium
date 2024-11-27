@@ -9,7 +9,7 @@ interface Filters {
   AND?: Array<{
     tags?: {
       some: {
-        name: {contains: string}; // This will check for each tag specifically
+        name: { contains: string }; // This will check for each tag specifically
       };
     };
   }>;
@@ -19,18 +19,23 @@ interface Filters {
 }
 
 
+
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Apply CORS
   await applyCors(req, res);
 
+
   // POST: Create a new code template
   if (req.method === "POST") {
-    const { title, explanation, language, tags, code } = req.body as {title: string, explanation: string, language: string, tags: string[], code: string};
+    const { title, explanation, language, tags, code } = req.body as { title: string, explanation: string, language: string, tags: string[], code: string };
+
 
     // Validate required fields
     if (!title || !tags || !code || !language) {
       return res.status(400).json({ error: "title, tags, language, and code are required" });
     }
+
 
     // Verify the token from the Authorization header
     // const token = req.headers.authorization?.split(" ")[1];
@@ -39,6 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!token) {
       return res.status(401).json({ message: "Authentication token is required" });
     }
+
 
     let user;
     try {
@@ -50,8 +56,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ message: "Invalid or expired token" });
     }
 
+
     // Process tags and ensure uniqueness
-    const uniqueTagsArray:string[] = Array.from(new Set(tags));
+    const uniqueTagsArray: string[] = Array.from(new Set(tags));
+
 
     try {
       // Ensure all tags exist in the database
@@ -63,14 +71,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
 
+
       // Find tags that do not exist
       const existingTagNames = existingTags.map(tag => tag.name);
       const newTagNames = uniqueTagsArray.filter(tag => !existingTagNames.includes(tag.toLowerCase()));
+
 
       // Create new tags if needed
       await prisma.tag.createMany({
         data: newTagNames.map(tag => ({ name: tag })),
       });
+
 
       const newTagsArray = await prisma.tag.findMany({
         where: {
@@ -79,12 +90,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           })), // Check for existing tags
         },
 
+
       });
+
 
       // Combine existing and newly created tags
       const allTags = [...existingTags, ...newTagsArray];
 
+
       const tagsId = allTags.map(tag => (tag.tagId))
+
 
       const codeTemplate = await prisma.codeTemplate.create({
         data: {
@@ -101,14 +116,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       });
 
-      return res.status(201).json({codeTemplate, cid: codeTemplate.cid});
+
+      return res.status(201).json({ codeTemplate, cid: codeTemplate.cid });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
 
+
     // GET: Retrieve code templates
   } else if (req.method === "GET") {
-    const { cid, title, language, tags, code, uid, page = 1, limit = 10 } = req.query as {cid?: string, title?: string, language?: string, tags?: string, code?: string, uid?: string, page?: string, limit?: string};
+    const { cid, title, language, tags, code, uid, page = 1, limit = 10 } = req.query as { cid?: string, title?: string, language?: string, tags?: string, code?: string, uid?: string, page?: string, limit?: string };
+
+
 
 
     // Set up query filters
@@ -137,20 +156,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
 
+
+
       filters.AND = tagsArray.map(tag => ({
         tags: {
-          some: { name: {contains: tag.toLowerCase(),
-            } }, // This will check for each tag
+          some: {
+            name: {
+              contains: tag.toLowerCase(),
+            }
+          }, // This will check for each tag
         },
       }))
     }
+
+
 
 
     try {
       const pageNumber = Number(page) > 0 ? Number(page) : 1;
       const itemsPerPage = Number(limit) > 0 ? Number(limit) : 10;
       const skip = (pageNumber - 1) * itemsPerPage;
-      
+
+
 
       // Retrieve code templates, with filters applied
       const codeTemplates = await prisma.codeTemplate.findMany({
@@ -158,19 +185,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         skip,
         take: itemsPerPage,
         include: {
+          user: {
+            include: {
+                profile: {
+                    select: {
+                        avatar: true, // Select the avatar URL
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+                
+            }, 
+          },
           tags: true
         }
       });
 
+
       const totalTemplates = await prisma.codeTemplate.count({
         where: filters,
-    });
+      });
 
-      return res.status(200).json({codeTemplates, totalTemplates,  currentPage: pageNumber,
-        totalPages: Math.ceil(totalTemplates / itemsPerPage)});
+
+      return res.status(200).json({
+        codeTemplates,
+        totalTemplates,
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalTemplates / itemsPerPage)
+      });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
+
 
   } else {
     return res.status(405).json({ error: "Method not allowed" });
