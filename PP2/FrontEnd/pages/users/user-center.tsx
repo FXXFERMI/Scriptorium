@@ -58,7 +58,7 @@ const UserCenter: React.FC = () => {
       {/* Sidebar */}
       <div
         id="sidebar"
-        className={`absolute bg-gray-800 text-white w-56 min-h-screen overflow-y-auto transition-transform transform ease-in-out duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`absolute z-50 bg-gray-800 text-white w-56 min-h-screen overflow-y-auto transition-transform transform ease-in-out duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
       >
         <div className="p-4">

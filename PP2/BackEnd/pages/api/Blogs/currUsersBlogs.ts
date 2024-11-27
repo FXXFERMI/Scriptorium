@@ -88,7 +88,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: {
           uid: user.uid
         },
-        include: {tags: true},
+        include: {tags: true,
+          // Hidden: true
+        },
         skip: skip,
         take: itemsPerPage
       });

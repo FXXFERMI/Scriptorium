@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
@@ -32,7 +32,7 @@ export interface blogType {
     bid: number;
     title: string;
 }
-  
+
 const CodeExecution: React.FC = () => {
     const [code, setCode] = useState<string>("");
     const [language, setLanguage] = useState<string>("Python");
@@ -67,7 +67,7 @@ const CodeExecution: React.FC = () => {
     }
     const handleLanguageChange = (value: string) => {
         setLanguage(value);
-        switch(value){
+        switch (value) {
             case 'python':
                 setCode(`#Online Python code editor \n#Write Python here to execute \nprint("Hello, World!")`);
                 setFileName('program.py');
@@ -114,8 +114,8 @@ const CodeExecution: React.FC = () => {
         }
         setLanguageChange(true);
     }
- 
-    
+
+
     useEffect(() => {
         setCodeTemplate();
         checkAuth();
@@ -133,8 +133,8 @@ const CodeExecution: React.FC = () => {
                 setBlogs(response.data.blogs);
                 response.data.tags && setTags(response.data.tags.map((tag: { tagId: number; name: string }) => tag.name));
                 setTitle(response.data.title)
-                
-                switch(language){
+
+                switch (language) {
                     case 'python':
                         setFileName('program.py');
                         break;
@@ -168,7 +168,7 @@ const CodeExecution: React.FC = () => {
                     default:
                         setFileName('script.py');
                 }
-                
+
             } catch (err) {
                 console.log(err)
                 toast.error('Failed to fetch the code template. Please try again.');
@@ -321,7 +321,7 @@ const CodeExecution: React.FC = () => {
 
             console.log(response.data, 'bjfdsjeshejkrejrwersjwehh')
 
-            if(response.data.error){
+            if (response.data.error) {
                 setOutput(response.data.error);
             }
             else if (response.data.stderr.length > 1) {
@@ -330,10 +330,10 @@ const CodeExecution: React.FC = () => {
             else if (response.data.stdout.length > 1) {
                 setOutput(response.data.stdout)
             }
-          
-           
 
-        } 
+
+
+        }
         catch (e) {
             console.log(e.response)
             setOutput(e.response)
@@ -343,7 +343,7 @@ const CodeExecution: React.FC = () => {
         }
     };
 
- 
+
 
     const handleStdIn = (value: string | undefined) => {
         if (value) {
@@ -354,10 +354,10 @@ const CodeExecution: React.FC = () => {
 
     const handleNewCodeTemplate = async () => {
         const token = Cookies.get("accessToken");
-            if (!token) {
-                toast.error('Please login to save code!')
-                return;
-            }
+        if (!token) {
+            toast.error('Please login to save code!')
+            return;
+        }
 
         try {
 
@@ -369,7 +369,7 @@ const CodeExecution: React.FC = () => {
                 code
             };
 
-            const response2 = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates`, updateData,
+            const response2 = await api.post(`/api/CodeTemplates`, updateData,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -379,6 +379,7 @@ const CodeExecution: React.FC = () => {
                 },
 
             );
+            console.log("Step4", response2.data)
             toast.success("new template created!")
             router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/execution/${response2.data.cid}`);
         } catch (error) {
@@ -456,23 +457,23 @@ const CodeExecution: React.FC = () => {
             }
 
             const response = await api.post(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/fork`,
-              { cid: id },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-                withCredentials: true,
-              }
+                `${process.env.NEXT_PUBLIC_API_URL}/api/CodeTemplates/fork`,
+                { cid: id },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                }
             );
             toast.success('Template forked successfully:', response.data);
             router.push(`${process.env.NEXT_PUBLIC_BASE_URL}/execution/${response.data.template.cid}`);
 
         } catch (error) {
-                toast.error('Error forking template:', error.response?.data || error.message);
-            
-          }
+            toast.error('Error forking template:', error.response?.data || error.message);
+
+        }
 
     };
 
@@ -482,161 +483,181 @@ const CodeExecution: React.FC = () => {
 
 
         <>
-            <Header /> 
+            <Header />
             {/* <div className="mt-20 w-full"> */}
-                <div className={`flex mt-20 flex flex-col  items-center space-y-4 w-full ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}>
-                    <div className="flex ml-10 flex-row items-center space-x-10 flex-wrap">
-                            <div className={`flex ${!lightMode ? 'text-white': 'text-black'} space-x-1 items-center ${!lightMode && 'bg-black'}`}>
+            {/* <div className={`flex mt-[15rem] md:mt-[10rem] lg:mt-[10rem] flex flex-col  items-center space-y-4 w-full ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}> */}
+            <div className={`flex mt-[15rem] md:mt-[10rem] lg:mt-[10rem] flex flex-col  items-center space-y-4 w-full ${lightMode ? 'bg-custom-gray' : 'bg-black'}`}>
+                <div className="flex ml-10 flex-row items-center space-x-10 flex-wrap">
+                    {/* <div className={`flex ${!lightMode ? 'text-white': 'text-black'} space-x-1 items-center ${!lightMode && 'bg-black'}`}>
                                 {ctNameInput ? <input className="mt-2 text-black max-w-10" onChange={(e) => setTempName(e.target.value)} /> : <div>{title}</div>}
                                 <button onClick={() => handleSettingTitle()}>
                                     <svg className="h-4 w-4 text-gray-400" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
                                     </svg>
                                 </button>
-                            </div>
+                            </div> */}
 
-                            <div className= {`flex max-w-[30%] max-h-10 flex-wrap  overflow-y-scroll space-x-1 pl-2 ${!lightMode ? 'text-white': 'text-black'}`}>
-                                <div className="mt-1.5">tags: 
-                                </div>
-                                <input placeholder="Enter a tag" value={tagInput} onChange={(e) => setTagInput(e.target.value)} 
-                                className="pl-1 mt-2 text-black border rounded max-w-[130px] max-h-[22px] " />
-                                <button onClick={() => setTags((prevTags) => [...prevTags, tagInput])}>
-                                    <svg className="h-6 w-6 text-amber-500"  viewBox="0 0 24 24"  fill="none"  
-                                    stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round">  
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />  <line x1="12" y1="8" x2="12" 
+                    {/* <div className={`flex max-w-[30%] max-h-10 flex-wrap  overflow-y-scroll space-x-1 pl-2 ${!lightMode ? 'text-white' : 'text-black'}`}>
+                        <div className="mt-1.5">tags:
+                        </div>
+                        <input placeholder="Enter a tag" value={tagInput} onChange={(e) => setTagInput(e.target.value)}
+                            className="pl-1 mt-2 text-black rounded max-w-[130px] max-h-[22px] " /> */}
+                        {/* className="pl-1 mt-2 text-black border rounded max-w-[130px] max-h-[22px] " /> */}
+                        {/* <button onClick={() => setTags((prevTags) => [...prevTags, tagInput])}>
+                            <svg className="h-6 w-6 text-amber-500" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />  <line x1="12" y1="8" x2="12"
                                     y2="16" />  <line x1="8" y1="12" x2="16" y2="12" /></svg>
-                                </button>
-                                {tags && tags.map((tag, index) => {
-                                return (
-                                    <Chip
-                                        key={index} 
-                                        label={tag}
-                                        variant="outlined"
-                                        onDelete={() =>
-                                            setTags(tags.filter((tag2, index2) => index2 !== index))
-                                          }
-                                        sx={{
-                                            color: lightMode ? 'black' : 'white',
-                                        borderColor: 'white',
-                                        mt:1,
+                        </button>
+                        {tags && tags.map((tag, index) => {
+                            return (
+                                <Chip
+                                    key={index}
+                                    label={tag}
+                                    variant="outlined"
+                                    onDelete={() =>
+                                        setTags(tags.filter((tag2, index2) => index2 !== index))
+                                    }
+                                    sx={{
+                                        color: lightMode ? 'black' : 'white',
+                                        // borderColor: 'white',
+                                        mt: 1,
                                         '& .MuiChip-deleteIcon': {
                                             color: 'gray',
                                         },
                                     }}
-                                  />
-                                );
-                            })}</div>
-                            
-                            <div className="flex space-x-2">
-                                <div className={`${!lightMode ? 'text-white': 'text-black'}`} >Choose Language: </div>
-                                <select
-                                    className="max-w-xs py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    id="language"
-                                    value={language}
-                                    onChange={(e) => handleLanguageChange(e.target.value)}
-                                    >
-                                    <option value="python">Python</option>
-                                    <option value="c">C</option>
-                                    <option value="cpp">C++</option>
-                                    <option value="java">Java</option>
-                                    <option value="javascript">JavaScript</option>
-                                    <option value="elixir">Elixir</option>
-                                    <option value="php">PHP</option>
-                                    <option value="ruby">Ruby</option>
-                                    <option value="rust">Rust</option>
-                                    <option value="go">go</option>
-                                </select>
-                            </div>
-                            
-                            <div className="flex space-x-2">
-                                <div className={`${!lightMode ? 'text-white': 'text-black'}`}>Explanation: </div>
-                                <input
-                                    onChange={(e) => setExplanation(e.target.value)}
-                                    placeholder="Enter explanation...."
-                                    className="p-1 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-500"
                                 />
+                            );
+                        })}
+                    </div> */}
+
+                    {/* <div className="flex space-x-2">
+                        <div className={`${!lightMode ? 'text-white' : 'text-black'}`} >Choose Language: </div>
+                        <select
+                            className="max-w-xs py-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-grey-500"
+                            // className="max-w-xs py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-grey-500"
+                            id="language"
+                            value={language}
+                            onChange={(e) => handleLanguageChange(e.target.value)}
+                        >
+                            <option value="python">Python</option>
+                            <option value="c">C</option>
+                            <option value="cpp">C++</option>
+                            <option value="java">Java</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="elixir">Elixir</option>
+                            <option value="php">PHP</option>
+                            <option value="ruby">Ruby</option>
+                            <option value="rust">Rust</option>
+                            <option value="go">go</option>
+                        </select>
+                    </div> */}
+
+                    {/* <div className="flex space-x-2">
+                        <div className={`${!lightMode ? 'text-white' : 'text-black'}`}>Explanation: </div>
+                        <input
+                            onChange={(e) => setExplanation(e.target.value)}
+                            placeholder="Enter explanation...."
+                            className="p-1 rounded focus:outline-none focus:ring focus:ring-blue-500"
+                        // className="p-1 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-500"
+                        />
+                    </div> */}
+
+                </div>
+                <div className={`flex flex-col lg:flex-row relative w-full ${lightMode ? 'bg-custom-gray' : 'bg-grey-500'} `}>
+                {/* <div className={`flex flex-col lg:flex-row relative w-full ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} `}> */}
+                    {/* <div className={`flex flex-col lg:flex-row relative w-full ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} border border-gray-700`}> */}
+                    <div className="w-full lg:w-1/2 flex flex-col">
+                        <div className={`flex justify-between w-full h-15 ${lightMode ? 'bg-custom-gray' : 'bg-black'}`}>
+                            {/* <div className={`flex justify-between w-full h-15 ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}> */}
+                            <div className={`${!lightMode ? 'text-white' : 'text-black'} ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} h-full p-2`}>{fileName}</div>
+                            {/* <div className={`${!lightMode ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} h-full p-2 border border-gray-600`}>{fileName}</div> */}
+                            <div className="flex">
+                                {/* <div className="flex border border-gray-700"> */}
+                                <button className={`${!lightMode ? 'text-white' : 'text-black'} pl-1 pr-1 h-full `} onClick={handleSave}>Save</button>
+                                {/* <button className={`${!lightMode ? 'text-white': 'text-black'} pl-1 pr-1 h-full border border-gray-600`} onClick={handleSave}>Save</button> */}
+                                <button className={`${!lightMode ? 'text-white' : 'text-black'} pl-1 pr-1 w-full`} onClick={execute}>Run</button>
+                                {/* <button className={`${!lightMode ? 'text-white': 'text-black'} pl-1 pr-1 w-full border border-gray-600`} onClick={execute}>Run</button> */}
                             </div>
-                   
                         </div>
-                    <div className={`flex flex-col lg:flex-row relative w-full ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} border border-gray-700`}>
-                            <div className="w-full lg:w-1/2 flex flex-col">
-                                <div className={`flex justify-between w-full h-15 ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}>
-                                    <div className={`${!lightMode ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} h-full p-2 border border-gray-600`}>{fileName}</div>
-                                    <div className="flex border border-gray-700">
-                                        <button className={`${!lightMode ? 'text-white': 'text-black'} pl-1 pr-1 h-full border border-gray-600`} onClick={handleSave}>Save</button>
-                                        <button className={`${!lightMode ? 'text-white': 'text-black'} pl-1 pr-1 w-full border border-gray-600`} onClick={execute}>Run</button>
-                                    </div>
-                                </div>
-                                
-                                    <CodeMirror
-                                        value={code}
-                                        extensions={[getLanguageMode()]}
-                                        onChange={(value) => setCode(value)}
-                                        theme={lightMode ? [myTheme2, vscodeLight] : [myTheme1, vscodeDark]}
-                                    />
-                               
-                            </div>
-                            <div className="min-h-[500px] w-full lg:w-1/2 flex flex-col mt-6 lg:mt-0">
-                                <div className={`flex justify-between max-h-[80px] ${lightMode ? 'bg-gray-200' : 'bg-black'}`}>
-                                    <div className={`${!lightMode ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray-300' : 'bg-custom-dark-blue'} p-2 border `}>Output</div>
-                                    <div className="flex">
-                                        <button  onClick={() => handleFork()} className={`${!lightMode ? 'text-white': 'text-black'} border border-gray-600 pl-10 pr-10`}>Fork</button>
-                                        <div className="relative">
-                                            <button
-                                                className={`${!lightMode ? 'text-white' : 'text-black'} border border-gray-600 pl-4 h-full pr-4`}
-                                                onClick={ () => setIsDropdownVisible((prev) => !prev)}
-                                            >
-                                                StdInput
-                                            </button>
 
-                                            {isDropdownVisible && (
-                                                <div className="w-[200%] absolute right-5 mt-2 p-2 border border-gray-300 rounded shadow-lg bg-white z-10">
-                                                <div className="text-black w-full mb-3">
-                                                    Standard input:
-                                                </div>
-                                                <textarea
-                                                    onChange={(e) => handleStdIn(e.target.value)}
-                                                    rows={3}
-                                                    placeholder="Enter standard input each on 1 line...."
-                                                    className="w-[100%] p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-500"
-                                                />
-                                                </div>
-                                            )}
+                        <CodeMirror
+                            value={code}
+                            extensions={[getLanguageMode()]}
+                            onChange={(value) => setCode(value)}
+                            theme={lightMode ? [myTheme2, vscodeLight] : [myTheme1, vscodeDark]}
+                        />
+
+                    </div>
+                    <div className="min-h-[500px] w-full lg:w-1/2 flex flex-col mt-6 lg:mt-0">
+                        <div className={`flex justify-between max-h-[80px] ${lightMode ? 'bg-gray-200' : 'bg-black'}`}>
+                            <div className={`${!lightMode ? 'text-white' : 'text-black'} ${lightMode ? 'bg-custom-gray-300' : 'bg-custom-dark-blue'} p-2 `}>Output</div>
+                            {/* <div className={`${!lightMode ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray-300' : 'bg-custom-dark-blue'} p-2 border `}>Output</div> */}
+                            <div className="flex">
+                                <button onClick={() => handleFork()} className={`${!lightMode ? 'text-white' : 'text-black'} pl-10 pr-10`}>Fork</button>
+                                {/* <button  onClick={() => handleFork()} className={`${!lightMode ? 'text-white': 'text-black'} border border-gray-600 pl-10 pr-10`}>Fork</button> */}
+                                <div className="relative">
+                                    <button
+                                        className={`${!lightMode ? 'text-white' : 'text-black'} pl-4 h-full pr-4`}
+                                        // className={`${!lightMode ? 'text-white' : 'text-black'} border border-gray-600 pl-4 h-full pr-4`}
+                                        onClick={() => setIsDropdownVisible((prev) => !prev)}
+                                    >
+                                        StdInput
+                                    </button>
+
+                                    {isDropdownVisible && (
+                                        <div className="w-[200%] absolute right-5 mt-2 p-2 rounded shadow-lg bg-white z-10">
+                                            {/* <div className="w-[200%] absolute right-5 mt-2 p-2 border border-gray-300 rounded shadow-lg bg-white z-10"> */}
+                                            <div className="text-black w-full mb-3">
+                                                Standard input:
+                                            </div>
+                                            <textarea
+                                                onChange={(e) => handleStdIn(e.target.value)}
+                                                rows={3}
+                                                placeholder="Enter standard input each on 1 line...."
+                                                className="w-[100%] p-2 rounded focus:outline-none focus:ring focus:ring-blue-500"
+                                            // className="w-[100%] p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-500"
+                                            />
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
-                                <div className="p-5  h-80 font-mono text-gray-500 border border-gray-700 overflow-y-scroll ">
-                                    {loading ? <div>Compiling...</div> : <pre className="whitespace-pre-wrap break-words w-full">{output}</pre>}
-                                </div >
-
-                                <div className={`p-2 font-mono ${!lightMode ? 'text-white': 'text-black'} border border-gray-700 w-20`}>  BLOGS </div>
-                                <div className={`p-5 font-mono ${!lightMode ? 'text-white': 'text-black'} min-h-[40%] overflow-y-scroll border border-gray-700`}>
-                                    <ul className="space-y-4 h-[100%]">
-                                    {blogs.map((blog, index) => (
-                                            <li
-                                                key={blog.bid}
-                                                className={`flex items-center justify-between p-4 ${!lightMode ? 'text-white': 'text-black'} hover:bg-gray-700 rounded-lg transition duration-300 ease-in-out`}
-                                            >
-                                            <Link href={`/blogs/blog?id=${blog.bid}`}>
-                                                {blog.title}
-                                            </Link>
-                                            </li>))
-                                    }
-                                    </ul>
-                                </div>
-                                <Toaster
-                                    position="bottom-right"
-                                    reverseOrder={false}
-                                    toastOptions={{
-                                        style: {
-                                            background: '#333',
-                                            color: '#fff',
-                                        },
-                                    }}
-                                />
                             </div>
+                        </div>
+                        <div className="p-5  h-80 font-mono text-gray-500 overflow-y-scroll ">
+                            {/* <div className="p-5  h-80 font-mono text-gray-500 border border-gray-700 overflow-y-scroll "> */}
+                            {loading ? <div>Compiling...</div> : <pre className="whitespace-pre-wrap break-words w-full">{output}</pre>}
+                        </div >
+
+                        <div className={`p-2 font-mono ${!lightMode ? 'text-white' : 'text-black'} w-20`}>  BLOGS </div>
+                        {/* <div className={`p-2 font-mono ${!lightMode ? 'text-white': 'text-black'} border border-gray-700 w-20`}>  BLOGS </div> */}
+                        <div className={`p-5 font-mono ${!lightMode ? 'text-white' : 'text-black'} min-h-[40%] overflow-y-scroll border border-gray-700`}>
+                            {/* <div className={`p-5 font-mono ${!lightMode ? 'text-white': 'text-black'} min-h-[40%] overflow-y-scroll border border-gray-700`}> */}
+                            <ul className="space-y-4 h-[100%]">
+                                {blogs.map((blog, index) => (
+                                    <li
+                                        key={blog.bid}
+                                        className={`flex items-center justify-between p-4 ${!lightMode ? 'text-white' : 'text-black'} hover:bg-gray-700 rounded-lg transition duration-300 ease-in-out`}
+                                    >
+                                        <Link href={`/blogs/blog?id=${blog.bid}`}>
+                                            {blog.title}
+                                        </Link>
+                                    </li>))
+                                }
+                            </ul>
+                        </div>
+                        <Toaster
+                            position="bottom-right"
+                            reverseOrder={false}
+                            toastOptions={{
+                                style: {
+                                    background: '#333',
+                                    color: '#fff',
+                                },
+                            }}
+                        />
                     </div>
                 </div>
+            </div>
             {/* </div> */}
         </>
 
