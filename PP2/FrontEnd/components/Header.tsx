@@ -215,6 +215,7 @@ const Header: React.FC = () => {
 
                                                     try {
                                                         console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+                                                        console.log('NEXT_PUBLIC_BASE_URL:', process.env.NEXT_PUBLIC_BASE_URL);
 
                                                         const response = await api.post(
                                                             `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
