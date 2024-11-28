@@ -11,6 +11,7 @@ import ReportButton from "../../components/reports/reportButton";
 import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
 import toast, { Toaster } from "react-hot-toast";
+import { useTheme } from "../../contexts/ThemeContext";
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
 

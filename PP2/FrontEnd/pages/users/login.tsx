@@ -4,8 +4,11 @@ import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
 import Header from '../../components/Header';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Login = () => {
+  const { theme } = useTheme();
+
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +51,7 @@ const Login = () => {
   };
 
   return (
-    <div className="mx-auto mt-[10rem] p-8 bg-black text-white rounded-lg shadow-md">
+    <div className={`mx-auto mt-[10rem] p-8 rounded-lg shadow-md bg-${theme === "dark" ? "black" : "white"} text-${theme === "dark" ? "white" : "black"}`}>
       <Header />
       <h1 className="text-4xl font-bold mb-8 text-center">Please Login</h1>
       {error && <p className="text-red-500 text-center mb-4 font-semibold">{error}</p>}
@@ -60,7 +63,7 @@ const Login = () => {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === "dark" ? "white" : "gray-100"} text-${theme === "dark" ? "black" : "black"}`}
           />
         </div>
         <div>
@@ -69,7 +72,7 @@ const Login = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === "dark" ? "white" : "gray-100"} text-${theme === "dark" ? "black" : "black"}`}
           />
         </div>
         <div className="flex justify-center mt-6">

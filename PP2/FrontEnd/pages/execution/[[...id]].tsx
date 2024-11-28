@@ -22,6 +22,7 @@ import Header from "../../components/Header";
 import api from "../../utils/axiosInstance";
 import Link from "next/link";
 import { TitleOutlined } from "@mui/icons-material";
+import { useTheme } from "../../contexts/ThemeContext";
 
 //https://www.tailwindtoolbox.com/icons
 // responsive
@@ -34,6 +35,7 @@ export interface blogType {
 }
 
 const CodeExecution: React.FC = () => {
+  const { theme } = useTheme();
   const [code, setCode] = useState<string>("");
   const [language, setLanguage] = useState<string>("Python");
   const [stdinInput, setStdinInput] = useState<string>("");
@@ -52,6 +54,7 @@ const CodeExecution: React.FC = () => {
   const [languageChange, setLanguageChange] = useState<boolean>(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [showTags, setShowTags] = useState(false); // State to control dropdown visibility
+
 
   const router = useRouter();
 
@@ -532,17 +535,17 @@ const CodeExecution: React.FC = () => {
     <>
       <Header />
       {/* <div className="mt-20 w-full"> */}
-      {/* <div className={`flex mt-[15rem] md:mt-[10rem] lg:mt-[10rem] flex flex-col  items-center space-y-4 w-full ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}> */}
+      {/* <div className={`flex mt-[15rem] md:mt-[10rem] lg:mt-[10rem] flex flex-col  items-center space-y-4 w-full ${light ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}> */}
       <div
         className={`flex mt-[15rem] md:mt-[10rem] lg:mt-[10rem] flex flex-col  items-center space-y-4 w-full ${
-          lightMode ? "bg-custom-gray" : "bg-black"
+          theme === "light" ? "bg-custom-gray" : "bg-black"
         }`}
       >
         <div className="flex ml-10 flex-row items-center space-x-10 flex-wrap">
           <div
             className={`flex ${
-              !lightMode ? "text-white" : "text-black"
-            } space-x-1 items-center ${!lightMode && "bg-black"}`}
+              theme === "dark" ? "text-white" : "text-black"
+            } space-x-1 items-center ${theme === "dark" && "bg-black"}`}
           >
             {ctNameInput ? (
               <input
@@ -572,7 +575,7 @@ const CodeExecution: React.FC = () => {
 
           <div
             className={`relative flex max-w-[30%] max-h-10   space-x-1 pl-2 ${
-              !lightMode ? "text-white" : "text-black"
+              theme === "dark" ? "text-white" : "text-black"
             }`}
           >
             <div className="mt-1.5">tags:</div>
@@ -644,7 +647,7 @@ const CodeExecution: React.FC = () => {
           </div>
 
           <div className="flex space-x-2 ">
-            <div className={`${!lightMode ? "text-white" : "text-black"}`}>
+            <div className={`${theme === "dark" ? "text-white" : "text-black"}`}>
               Choose Language:{" "}
             </div>
             <select
@@ -668,7 +671,7 @@ const CodeExecution: React.FC = () => {
           </div>
 
           <div className="flex space-x-2">
-            <div className={`${!lightMode ? "text-white" : "text-black"}`}>
+            <div className={`${theme === "dark" ? "text-white" : "text-black"}`}>
               Explanation:{" "}
             </div>
             <input
@@ -694,33 +697,33 @@ const CodeExecution: React.FC = () => {
             >
               {/* <div className={`flex justify-between w-full h-15 ${lightMode ? 'bg-custom-gray' : 'bg-black'} border border-gray-700`}> */}
               <div
-                className={`${!lightMode ? "text-white" : "text-black"} ${
+                className={`${theme === "dark" ? "text-white" : "text-white"} ${
                   lightMode ? "bg-custom-gray" : "bg-custom-dark-blue"
                 } h-full p-2`}
               >
                 {fileName}
               </div>
-              {/* <div className={`${!lightMode ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} h-full p-2 border border-gray-600`}>{fileName}</div> */}
+              {/* <div className={`${theme === "dark" ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray' : 'bg-custom-dark-blue'} h-full p-2 border border-gray-600`}>{fileName}</div> */}
               <div className="flex">
                 {/* <div className="flex border border-gray-700"> */}
                 <button
                   className={`${
-                    !lightMode ? "text-white" : "text-black"
+                    theme === "dark" ? "text-white" : "text-white"
                   } pl-1 pr-1 h-full `}
                   onClick={handleSave}
                 >
                   Save
                 </button>
-                {/* <button className={`${!lightMode ? 'text-white': 'text-black'} pl-1 pr-1 h-full border border-gray-600`} onClick={handleSave}>Save</button> */}
+                {/* <button className={`${theme === "dark" ? 'text-white': 'text-black'} pl-1 pr-1 h-full border border-gray-600`} onClick={handleSave}>Save</button> */}
                 <button
                   className={`${
-                    !lightMode ? "text-white" : "text-black"
+                    theme === "dark" ? "text-white" : "text-white"
                   } pl-1 pr-1 w-full`}
                   onClick={execute}
                 >
                   Run
                 </button>
-                {/* <button className={`${!lightMode ? 'text-white': 'text-black'} pl-1 pr-1 w-full border border-gray-600`} onClick={execute}>Run</button> */}
+                {/* <button className={`${theme === "dark" ? 'text-white': 'text-black'} pl-1 pr-1 w-full border border-gray-600`} onClick={execute}>Run</button> */}
               </div>
             </div>
 
@@ -740,29 +743,29 @@ const CodeExecution: React.FC = () => {
               }`}
             >
               <div
-                className={`${!lightMode ? "text-white" : "text-black"} ${
+                className={`${theme === "dark" ? "text-white" : "text-white"} ${
                   lightMode ? "bg-custom-gray-300" : "bg-custom-dark-blue"
                 } p-2 `}
               >
                 Output
               </div>
-              {/* <div className={`${!lightMode ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray-300' : 'bg-custom-dark-blue'} p-2 border `}>Output</div> */}
+              {/* <div className={`${theme === "dark" ? 'text-white': 'text-black'} ${lightMode ? 'bg-custom-gray-300' : 'bg-custom-dark-blue'} p-2 border `}>Output</div> */}
               <div className="flex">
                 <button
                   onClick={() => handleFork()}
                   className={`${
-                    !lightMode ? "text-white" : "text-black"
+                    theme === "dark" ? "text-white" : "text-white"
                   } pl-10 pr-10`}
                 >
                   Fork
                 </button>
-                {/* <button  onClick={() => handleFork()} className={`${!lightMode ? 'text-white': 'text-black'} border border-gray-600 pl-10 pr-10`}>Fork</button> */}
+                {/* <button  onClick={() => handleFork()} className={`${theme === "dark" ? 'text-white': 'text-black'} border border-gray-600 pl-10 pr-10`}>Fork</button> */}
                 <div className="relative">
                   <button
                     className={`${
-                      !lightMode ? "text-white" : "text-black"
+                      theme === "dark" ? "text-white" : "text-white"
                     } pl-4 h-full pr-4`}
-                    // className={`${!lightMode ? 'text-white' : 'text-black'} border border-gray-600 pl-4 h-full pr-4`}
+                    // className={`${theme === "dark" ? 'text-white' : 'text-black'} border border-gray-600 pl-4 h-full pr-4`}
                     onClick={() => setIsDropdownVisible((prev) => !prev)}
                   >
                     StdInput
@@ -799,25 +802,25 @@ const CodeExecution: React.FC = () => {
 
             <div
               className={`p-2 font-mono ${
-                !lightMode ? "text-white" : "text-black"
+                theme === "dark" ? "text-white" : "text-black"
               } w-20`}
             >
               {" "}
               BLOGS{" "}
             </div>
-            {/* <div className={`p-2 font-mono ${!lightMode ? 'text-white': 'text-black'} border border-gray-700 w-20`}>  BLOGS </div> */}
+            {/* <div className={`p-2 font-mono ${theme === "dark" ? 'text-white': 'text-black'} border border-gray-700 w-20`}>  BLOGS </div> */}
             <div
               className={`p-5 font-mono ${
-                !lightMode ? "text-white" : "text-black"
+                theme === "dark" ? "text-white" : "text-black"
               } min-h-[40%] overflow-y-scroll border border-gray-700`}
             >
-              {/* <div className={`p-5 font-mono ${!lightMode ? 'text-white': 'text-black'} min-h-[40%] overflow-y-scroll border border-gray-700`}> */}
+              {/* <div className={`p-5 font-mono ${theme === "dark" ? 'text-white': 'text-black'} min-h-[40%] overflow-y-scroll border border-gray-700`}> */}
               <ul className="space-y-4 h-[100%]">
                 {blogs.map((blog, index) => (
                   <li
                     key={blog.bid}
                     className={`flex items-center justify-between p-4 ${
-                      !lightMode ? "text-white" : "text-black"
+                      theme === "dark" ? "text-white" : "text-black"
                     } hover:bg-gray-700 rounded-lg transition duration-300 ease-in-out`}
                   >
                     <Link href={`/blogs/blog?id=${blog.bid}`}>

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Header from '../../components/Header';
 import api from '../../utils/axiosInstance';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Register = () => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -79,7 +81,7 @@ const Register = () => {
   };
 
   return (
-    <div className="mx-auto mt-[10rem] p-8 bg-black text-white rounded-lg shadow-md">
+    <div className={`mx-auto mt-[10rem] p-8 bg-${theme === 'dark' ? 'black' : 'gray-100'} text-${theme === 'dark' ? 'white' : 'black'} rounded-lg shadow-md`}>
       <Header />
       <h1 className="text-4xl font-bold mb-8 text-center">Register</h1>
       {error && <p className="text-red-500 text-center mb-4 font-semibold">{error}</p>}
@@ -92,7 +94,7 @@ const Register = () => {
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -102,7 +104,7 @@ const Register = () => {
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -112,7 +114,7 @@ const Register = () => {
             name="username"
             value={formData.username}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -122,7 +124,7 @@ const Register = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -132,7 +134,7 @@ const Register = () => {
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -142,7 +144,7 @@ const Register = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -152,10 +154,10 @@ const Register = () => {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md bg-white text-black"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
-        <div className="flex justify-center mt-6 text-black">
+        <div className="flex justify-center mt-6">
           <button
             type="submit"
             className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline hover:bg-blue-600"
@@ -164,7 +166,6 @@ const Register = () => {
           </button>
         </div>
       </form>
-
     </div>
   );
 };
