@@ -8,6 +8,7 @@ import Pagination from "../../components/pagination";
 import CreateBlogButton from "../../components/blogs/CreateBlogButton";
 import api from "../../utils/axiosInstance";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Example() {
   const { theme } = useTheme();
@@ -30,14 +31,8 @@ export default function Example() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [totalTemplates, setTotalTemplates] = useState(0);
   const [templatesLimit, setTemplatesLimit] = useState(10);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = Cookies.get("accessToken");
-    if (token) {
-      setIsLoggedIn(!!token);
-    }
-  }, []);
+  const { isLoggedIn, logout, login } = useAuth();
+  const lightMode = false;
 
   useEffect(() => {
     if (router.isReady && filter.title === null) {
@@ -373,7 +368,9 @@ export default function Example() {
             <button
               type="button"
               onClick={() => setFilterOpen(!filterOpen)}
-              className="flex items-center justify-between w-full py-4 text-left"
+              className={`flex items-center justify-between w-full py-4 text-left ${
+                lightMode ? "text-black" : "text-white"
+              }`}
             >
               <span className={`text-lg font-medium text-${theme === 'dark' ? 'white' : 'black'}`}>
                 Filter By Code Templates
@@ -414,13 +411,15 @@ export default function Example() {
                     v
                   </button>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={displayLessTemplates}
-                    className="mt-2 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-                  >
-                    <>Show Less ^</>
-                  </button>
+                  codeTemplates.length !== totalTemplates && (
+                    <button
+                      type="button"
+                      onClick={displayLessTemplates}
+                      className="mt-2 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                    >
+                      <>Show Less ^</>
+                    </button>
+                  )
                 )}
               </div>
             )}

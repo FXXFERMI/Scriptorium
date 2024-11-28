@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     withCredentials: true,
   });
-  console.log("step1")
+  // console.log("step1")
 
   api.interceptors.request.use(
     async (config) => {
@@ -22,7 +22,7 @@ import Cookies from 'js-cookie';
     }
   );
 
-  console.log("step2")
+  // console.log("step2")
   api.interceptors.response.use(
     (response) => response,
     async (error) => {

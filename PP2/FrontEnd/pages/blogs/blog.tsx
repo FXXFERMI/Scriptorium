@@ -9,7 +9,8 @@ import api from "../../utils/axiosInstance";
 import Pagination from "../../components/pagination";
 import ReportButton from "../../components/reports/reportButton";
 import Link from "next/link";
-import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
+import toast, { Toaster } from "react-hot-toast";
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
 
@@ -42,11 +43,22 @@ const DisplayBlog = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [sortComment, setSortComment] = useState("default"); // Sort state (by rating)
   const [sortReply, setSortReply] = useState("default"); // Sort state (by rating)
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [commentsFetched, setCommentsFetched] = useState(false);
+  const { isLoggedIn, logout, login } = useAuth();
+
+  const lightMode = false;
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null); // Reference to the textarea
+  const blogRef = useRef(null);
+  const templatesRef = useRef(null);
+
+  useEffect(() => {
+    if (blogRef.current && templatesRef.current) {
+      const blogHeight = blogRef.current.offsetHeight;
+      templatesRef.current.style.maxHeight = `${blogHeight}px`;
+    }
+  }, [blog]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -61,7 +73,6 @@ const DisplayBlog = () => {
             },
             withCredentials: true,
           });
-          setIsLoggedIn(!!token);
           setProfile(response.data);
         }
       } catch (error) {
@@ -418,9 +429,10 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to upvote!");
         return;
       }
+
       const response = await api.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/Blogs/${bid}/rate`,
         { upvote, downvote },
@@ -453,7 +465,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to downvote!");
         return;
       }
       await api.post(
@@ -487,7 +499,7 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to upvote!");
         return;
       }
       await api.post(
@@ -513,12 +525,30 @@ const DisplayBlog = () => {
         }
       );
 
-      const updatedComments = [...comments]; // Create a copy of the comments array
-      updatedComments[index].upvotes = response.data.upvotes;
-      updatedComments[index].downvotes = response.data.downvotes;
-      updatedComments[index].hasUpvoted = response.data.hasUpvoted;
-      updatedComments[index].hasDownvoted = response.data.hasDownvoted;
-      setComments(updatedComments);
+      if (sortComment === "rating_desc") {
+        const sortedResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/comments/sortByRatings`,
+          {
+            params: {
+              bid: blog.bid,
+              limit: 10,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        setComments(sortedResponse.data);
+      } else {
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[index].upvotes = response.data.upvotes;
+        updatedComments[index].downvotes = response.data.downvotes;
+        updatedComments[index].hasUpvoted = response.data.hasUpvoted;
+        updatedComments[index].hasDownvoted = response.data.hasDownvoted;
+        setComments(updatedComments);
+      }
     } catch (err) {
       setError("Failed to upvote.");
     }
@@ -538,7 +568,7 @@ const DisplayBlog = () => {
       }
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to downvote!");
         return;
       }
       await api.post(
@@ -563,12 +593,30 @@ const DisplayBlog = () => {
         }
       );
 
-      const updatedComments = [...comments]; // Create a copy of the comments array
-      updatedComments[index].upvotes = response.data.upvotes;
-      updatedComments[index].downvotes = response.data.downvotes;
-      updatedComments[index].hasUpvoted = response.data.hasUpvoted;
-      updatedComments[index].hasDownvoted = response.data.hasDownvoted;
-      setComments(updatedComments);
+      if (sortComment === "rating_desc") {
+        const sortedResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/comments/sortByRatings`,
+          {
+            params: {
+              bid: blog.bid,
+              limit: 10,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        setComments(sortedResponse.data);
+      } else {
+        const updatedComments = [...comments]; // Create a copy of the comments array
+        updatedComments[index].upvotes = response.data.upvotes;
+        updatedComments[index].downvotes = response.data.downvotes;
+        updatedComments[index].hasUpvoted = response.data.hasUpvoted;
+        updatedComments[index].hasDownvoted = response.data.hasDownvoted;
+        setComments(updatedComments);
+      }
     } catch (err) {
       setError("Failed to downvote.");
     }
@@ -594,7 +642,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to upvote!");
         return;
       }
       await api.post(
@@ -610,7 +658,14 @@ const DisplayBlog = () => {
       );
 
       const response = await api.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
       );
 
       const updatedComments = [...comments]; // Create a copy of the comments array
@@ -671,7 +726,7 @@ const DisplayBlog = () => {
 
       const token = Cookies.get("accessToken");
       if (!token) {
-        //console.error("Access token is missing");
+        toast.error("Please login to downvote!");
         return;
       }
       await api.post(
@@ -686,7 +741,14 @@ const DisplayBlog = () => {
         }
       );
       const response = await api.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/replies/${replyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
       );
 
       const updatedComments = [...comments]; // Create a copy of the comments array
@@ -757,7 +819,9 @@ const DisplayBlog = () => {
   return (
     <div className={`bg-${theme === 'dark' ? 'black' : 'white'}`}>
       <Header />
-      <div className="container mx-auto p-8 mt-20">
+      <div
+        className={`container mx-auto p-8 mt-20  ${lightMode && "bg-white"}`}
+      >
         {blog ? (
           <>
             <div className="flex flex-col lg:flex-row gap-6">
@@ -793,26 +857,17 @@ const DisplayBlog = () => {
                         : blog.user.profile.avatar
                     }
                     alt="Avatar"
-                    width={100}
-                    height={100}
-                    key={
-                      blog.user.profile.avatar.startsWith("/uploads/")
-                        ? `${process.env.NEXT_PUBLIC_API_URL}${blog.user.profile.avatar}`
-                        : blog.user.profile.avatar
-                    }
-                    className="text-gray-200 w-14 h-14 rounded-full"
+                    className="w-14 h-14 rounded-full"
                   />
                   <div className="flex flex-col ml-4">
                     <h2>
-                      {" "}
-                      {blog.user.profile.firstName} {blog.user.profile.lastName}{" "}
+                      {blog.user.profile.firstName} {blog.user.profile.lastName}
                     </h2>
                     <p className={`text-lg text-${theme === 'dark' ? 'gray-300' : 'gray-700'}`}>
                       @{blog.user.username}
                     </p>
                   </div>
                 </div>
-
                 <p
                   className={`text-${theme === 'dark' ? 'gray-300' : 'gray-800'} text-lg font-normal`}
                   style={{ whiteSpace: "pre-wrap" }}
@@ -856,8 +911,6 @@ const DisplayBlog = () => {
                   Code Templates:{" "}
                 </h2>
                 <ul className="space-y-4">
-                  {" "}
-                  {/* Add spacing between items */}
                   {blog.codeTemplates.map((template) => (
                     <li
                       key={template.cid}
@@ -865,6 +918,7 @@ const DisplayBlog = () => {
                       <Link href={`/execution/${template.cid}`}>
                         {template.title}
                       </Link>
+                      <div className="mt-2 text-sm">{template.explanation}</div>
                     </li>
                   ))}
                 </ul>
@@ -878,7 +932,7 @@ const DisplayBlog = () => {
                 Comments
               </h2>
               {/* Sort by ratings */}
-              <div className="flex flex-wrap gap-x-4 gap-y-4 ">
+              <div className="flex flex-wrap sm:w-auto gap-x-4 gap-y-4 ">
                 <select
                   name="sortBy"
                   value={sortComment}
@@ -1012,10 +1066,22 @@ const DisplayBlog = () => {
                                 className="w-12 h-12 rounded-full"
                               />
                               <div className="flex flex-col ml-4 w-full">
-                                <p className="text-m text-gray-200">
+                                <p
+                                  className={`text-m  ${
+                                    lightMode
+                                      ? "text-gray-900"
+                                      : "text-gray-200"
+                                  }`}
+                                >
                                   {reply.replier.username}
                                 </p>
-                                <p className="break-words text-gray-200">
+                                <p
+                                  className={`break-words ${
+                                    lightMode
+                                      ? "text-gray-700"
+                                      : "text-gray-200"
+                                  }`}
+                                >
                                   {reply.content}
                                 </p>
 
@@ -1028,7 +1094,9 @@ const DisplayBlog = () => {
                                       reply.replier.username
                                     )
                                   }
-                                  className="mt-2 px-0.5 py-0.5 w-12 text-white hover:text-blue-500 text-sm rounded"
+                                  className={`mt-2 px-0.5 py-0.5 w-12 text-white hover:text-blue-500 text-sm rounded ${
+                                    lightMode ? "text-gray-900" : "text-white"
+                                  }`}
                                 >
                                   Reply
                                 </button>
@@ -1054,7 +1122,13 @@ const DisplayBlog = () => {
                                 >
                                   ▲
                                 </button>
-                                <span className="text-gray-100">
+                                <span
+                                  className={`${
+                                    lightMode
+                                      ? "text-gray-900"
+                                      : "text-gray-100"
+                                  }`}
+                                >
                                   {reply.upvotes}
                                 </span>
                                 <button
@@ -1073,7 +1147,13 @@ const DisplayBlog = () => {
                                 >
                                   ▼
                                 </button>
-                                <span className="text-gray-100 mr-2">
+                                <span
+                                  className={`${
+                                    lightMode
+                                      ? "text-gray-900"
+                                      : "text-gray-100"
+                                  }`}
+                                >
                                   {reply.downvotes}
                                 </span>
                                 {isLoggedIn && (
@@ -1142,8 +1222,8 @@ const DisplayBlog = () => {
                   </button>
                 </span>
               )}
-              {isLoggedIn && (
-                <div className={`flex items-start gap-4 rounded-lg p-4 shadow-sm bg-${theme === 'dark' ? 'gray-900' : 'gray-100'}`}>
+              {isLoggedIn && profile && (
+                <div className="flex items-start gap-4 rounded-lg p-4 shadow-sm">
                   {/* User Avatar */}
                   <img
                     src={profile.avatarUrl}
@@ -1184,6 +1264,15 @@ const DisplayBlog = () => {
           </div>
         )}
       </div>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            margin: "0 auto",
+            textAlign: "center",
+          },
+        }}
+      />
     </div>
   );
 };

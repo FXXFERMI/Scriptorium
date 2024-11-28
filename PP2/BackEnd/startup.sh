@@ -39,8 +39,6 @@ npx prisma migrate dev --name init
 # # Seed the database with an initial admin user test
 echo "Creating initial admin user..."
 node seedAdmin.js
-echo "Creating initial admin user..."
-node seedAdmin.js
 cd dockerFiles
 
 echo "Building elixir image..."
@@ -52,7 +50,6 @@ docker build -t cpp-app -f Dockerfile.cpp .
 echo "Building go image..."
 docker build -t go-app -f Dockerfile.go .
 echo "Building java image..."
-docker build -t java-app -f Dockerfile.java .
 docker build -t java-app -f Dockerfile.java .
 echo "Building js image..."
 docker build -t js-app -f Dockerfile.js .

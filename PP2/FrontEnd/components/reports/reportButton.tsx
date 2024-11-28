@@ -5,6 +5,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 const ReportButton = ({ id, type }: { id: number; type: string }) => {
   const { theme } = useTheme();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const lightMode = false;
 
   const openPopup = () => setIsPopupOpen(true);
   const closePopup = () => setIsPopupOpen(false);

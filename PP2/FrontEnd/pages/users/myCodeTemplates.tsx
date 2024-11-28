@@ -18,6 +18,7 @@ interface CodeTemplate {
   tags: Array<{ tagId: number; name: string }>;
   code: string;
   language: string;
+  isForked: boolean;
 }
 
 const MyCodeTemplates: React.FC = () => {
@@ -29,7 +30,12 @@ const MyCodeTemplates: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalTemplates, setTotalTemplates] = useState<number>(0);
   const { isLoggedIn } = useAuth();
-  const [filter, setFilter] = useState({ title: "", language: "", tags: "", code: "" });
+  const [filter, setFilter] = useState({
+    title: "",
+    language: "",
+    tags: "",
+    code: "",
+  });
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -46,19 +52,22 @@ const MyCodeTemplates: React.FC = () => {
           throw new Error("Access token is missing");
         }
         // Make API request to fetch code templates for the logged-in user with pagination and filters
-        const response = await api.get("/api/CodeTemplates/currUsersTemplates", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            page: currentPage,
-            limit: 10,
-            title: filter.title,
-            language: filter.language,
-            tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
-            code: filter.code,
-          },
-        });
+        const response = await api.get(
+          "/api/CodeTemplates/currUsersTemplates",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: {
+              page: currentPage,
+              limit: 10,
+              title: filter.title,
+              language: filter.language,
+              tags: filter.tags && JSON.stringify(filter.tags.split(", ")),
+              code: filter.code,
+            },
+          }
+        );
 
         setCodeTemplates(response.data.codeTemplates);
         setTotalPages(response.data.totalPages);
@@ -77,7 +86,9 @@ const MyCodeTemplates: React.FC = () => {
   if (!isLoggedIn) {
     return (
       <div className="text-center mt-20">
-        <h2 className="text-3xl font-bold">Please log in to view your code templates</h2>
+        <h2 className="text-3xl font-bold">
+          Please log in to view your code templates
+        </h2>
         <Link
           href="/users/login"
           className="mt-4 inline-block bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
@@ -171,10 +182,17 @@ const MyCodeTemplates: React.FC = () => {
                   <p className={`text-sm text-${theme === "dark" ? "gray-300" : "gray-600"}`}>
                     Tags: {template.tags.map((tag) => tag.name).join(", ")}
                   </p>
+                  {template.isForked && (
+                    <p className="text-blue-500 font-bold mt-2">Forked</p>
+                  )}
                 </div>
                 <CodeTemplateMenu
                   cid={template.cid}
-                  onDelete={() => setCodeTemplates((prev) => prev.filter((t) => t.cid !== template.cid))}
+                  onDelete={() =>
+                    setCodeTemplates((prev) =>
+                      prev.filter((t) => t.cid !== template.cid)
+                    )
+                  }
                 />
               </div>
             ))}

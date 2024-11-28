@@ -57,7 +57,7 @@ export default function ViewCodeTemplates() {
                 );
 
                 setTemplates(response.data.codeTemplates);
-                console.log(response.data);
+                // console.log(response.data);
                 setTotalTemplates(response.data.totalTemplates);
                 setTotalPages(response.data.totalPages);
                 setLoading(false);
@@ -184,8 +184,8 @@ export default function ViewCodeTemplates() {
                                         )}
                                     </div>
                                     <div className="group relative ">
-                                        <h3 className={`mt-3 text-lg/6 font-semibold text-${theme === "dark" ? "gray-100" : "gray-800"} group-hover:text-gray-600`}>
-                                            <button
+                                    <h3 className={`mt-3 text-lg/6 font-semibold text-${theme === "dark" ? "gray-100" : "gray-800"} group-hover:text-gray-600`}>
+                                    <button
                                                 onClick={() => {
                                                     handleClick(template.cid);
                                                 }}
@@ -195,8 +195,13 @@ export default function ViewCodeTemplates() {
                                                 {template.title}
                                             </button>
                                         </h3>
+                                        {template.isForked && (
+                                            <p className="bg-blue-300 text-blue-800 py-1 px-2 rounded-full max-w-[60px] text-xs ml-2 mr-2 mb-2 mt-2">
+                                                Forked
+                                            </p>
+                                        )}
                                         <p className={`mt-5 line-clamp-3 text-sm/6 text-${theme === "dark" ? "gray-200" : "gray-700"}`}>
-                                            {template.explanation}
+                                        {template.explanation}
                                         </p>
                                     </div>
                                     <div className="relative mt-8 flex items-center gap-x-4">
@@ -210,8 +215,8 @@ export default function ViewCodeTemplates() {
                                             className="h-10 w-10 rounded-full bg-gray-50"
                                         />
                                         <div className="text-sm/6">
-                                            <p className={`font-semibold text-${theme === "dark" ? "gray-200" : "gray-800"}`}>
-                                                <a>
+                                        <p className={`font-semibold text-${theme === "dark" ? "gray-200" : "gray-800"}`}>
+                                        <a>
                                                     <span className="absolute inset-0" />
                                                     {template.user.profile.firstName} {template.user.profile.lastName}
                                                 </a>

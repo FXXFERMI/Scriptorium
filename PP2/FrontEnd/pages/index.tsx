@@ -10,6 +10,8 @@ import api from "../utils/axiosInstance";
 import { codeTemplateType } from "../interfaces/codeTemplate";
 import { blogType } from "../interfaces/blog";
 import dotenv from "dotenv";
+import { useAuth } from "../contexts/AuthContext";
+
 dotenv.config();
 
 import { useTheme } from "../contexts/ThemeContext"; // Import useTheme
@@ -21,6 +23,7 @@ const Home: FC = () => {
   const { theme } = useTheme();
   const [newestTemplates, setNewestTemplates] = useState<codeTemplateType[]>([]);
   const [topRatedBlogs, setTopRatedBlogs] = useState<blogType[]>([]);
+  const { isLoggedIn, logout, login } = useAuth();
 
   useEffect(() => {
     const fetchNewestCodeTemplates = async () => {
@@ -89,19 +92,30 @@ const Home: FC = () => {
               </div>
             </a>
             <a
-              className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent ml-5 mr-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline"
+              className="ml-5 mr-5 inline-flex items-center py-3 font-semibold text-black transition duration-500 ease-in-out transform bg-transparent bg-white px-7 text-md hover:text-black hover:bg-white focus:shadow-outline"
               href="/blogs/viewBlogs"
             >
               <div className="flex text-lg">
                 <span className="justify-center">View All Blogs</span>
               </div>
             </a>
+
+            {!isLoggedIn && (
+              <a
+                className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent mr-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline "
+                href="/users/register"
+              >
+                <div className="flex text-lg">
+                  <span className="justify-center">Be a Member Today</span>
+                </div>
+              </a>
+            )}
             <a
               className={`inline-flex items-center py-3 font-semibold text-${theme === 'dark' ? 'black' : 'black'} transition duration-500 ease-in-out transform bg-transparent bg-${theme === 'dark' ? 'white' : 'black'} px-7 text-md hover:text-${theme === 'dark' ? 'black' : 'white'} hover:bg-${theme === 'dark' ? 'white' : 'black'} focus:shadow-outline`}
               href="/users/register"
             >
               <div className="flex text-lg">
-                <span className="justify-center">Be a Member Today</span>
+                <span className="justify-center">Start Coding Now</span>
               </div>
             </a>
           </div>
@@ -223,7 +237,9 @@ const Home: FC = () => {
               </h3>
               <p className={`pt-2 value-text text-md text-${theme === 'dark' ? 'gray-200' : 'gray-100'} fkrr1`}>
                 {/* {template.explanation} */}
-                {template.explanation.length > 100 ? `${template.explanation.slice(0, 100)}...` : template.explanation}
+                {template.explanation.length > 100
+                  ? `${template.explanation.slice(0, 100)}...`
+                  : template.explanation}
               </p>
             </div>
           ))}

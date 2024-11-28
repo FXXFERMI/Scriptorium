@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import api from "../../utils/axiosInstance";
 import Cookies from "js-cookie";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 interface CreateBlogData {
   title: string;
@@ -45,7 +46,6 @@ const CreateEditBlog: React.FC<PopupProps> = ({
   const [newTagInput, setNewTagInput] = useState("");
   const [expandedTags, setExpandedTags] = useState(false);
   const [existingTags, setExistingTags] = useState<Tag[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true); // Track loading state
   const [codeTemplates, setCodeTemplates] = useState<any[]>([]); // For storing available code templates
   const [error, setError] = useState("");
@@ -53,6 +53,7 @@ const CreateEditBlog: React.FC<PopupProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loadingNextPage, setLoadingNextPage] = useState(false); // Check if the next page is loading
+  const lightMode = false;
 
   useEffect(() => {
     const fetchBlog = async (bid: number) => {
@@ -151,10 +152,22 @@ const CreateEditBlog: React.FC<PopupProps> = ({
       );
 
       if (response.status === 201) {
-        router.push(`/blogs/blog?id=${response.data.bid}`); // Redirect to blog listing
+        router.push({
+          pathname: `/blogs/blog`,
+          query: { id: response.data.bid },
+        });
+        toast.success("Blog created successfully!", {
+          duration: 3000,
+          position: "top-center",
+        });
       }
     } catch (error: any) {
-      setError(error.response?.data?.error || "Failed to create blog");
+      const errorMessage =
+        error.response?.data?.error || "Failed to create blog";
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: "top-center",
+      });
     }
   };
 
@@ -190,7 +203,12 @@ const CreateEditBlog: React.FC<PopupProps> = ({
         if (onSuccess) onSuccess();
       }
     } catch (error: any) {
-      setError(error.response?.data?.error || "Failed to edit blog");
+      const errorMessage =
+        error.response?.data?.error || "Failed to create blog";
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: "top-center",
+      });
     }
   };
 
@@ -260,7 +278,11 @@ const CreateEditBlog: React.FC<PopupProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-70"
       style={{ backdropFilter: "blur(5px)" }}
     >
-      <div className="max-w-2xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-xl relative z-60 border border-gray-700">
+      <div
+        className={`max-w-2xl mx-auto p-6  rounded-lg shadow-xl relative z-60 border border-gray-700 ${
+          lightMode ? "text-black bg-gray-100" : " bg-gray-800 text-white"
+        }`}
+      >
         {/* Title */}
         <h2 className="text-2xl font-semibold mb-4">
           {edit ? "Edit Blog" : "Create Blog"}
@@ -268,7 +290,9 @@ const CreateEditBlog: React.FC<PopupProps> = ({
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-300 hover:text-white focus:outline-none"
+          className={`absolute top-4 right-4 text-gray-300  focus:outline-none ${
+            lightMode ? "hover:text-black" : " hover:text-white"
+          }`}
         >
           <span className="material-icons">close</span>
         </button>
@@ -277,12 +301,16 @@ const CreateEditBlog: React.FC<PopupProps> = ({
         ) : (
           <form
             onSubmit={edit ? handleEdit : handleSubmit}
-            className="bg-gray-800 rounded-lg shadow-sm border border-gray-700 p-4"
+            className={` rounded-lg shadow-sm border border-gray-700 p-4 ${
+              lightMode ? "bg-gray-100" : " bg-gray-800"
+            }`}
           >
             <input
               type="text"
               placeholder="Title"
-              className="bg-gray-800 w-full text-xl font-normal text-gray-400 mb-4 border-none focus:outline-none"
+              className={` w-full text-xl font-normal text-gray-400 mb-4 border-none focus:outline-none
+                ${lightMode ? "bg-gray-100" : " bg-gray-800"}
+                `}
               value={formData.title}
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
@@ -291,7 +319,9 @@ const CreateEditBlog: React.FC<PopupProps> = ({
 
             <textarea
               placeholder="Write a description..."
-              className="bg-gray-800 w-full min-h-24 text-gray-400 mb-6 border-none resize-none focus:outline-none"
+              className={`w-full min-h-24 text-gray-400 mb-6 border-none resize-none focus:outline-none ${
+                lightMode ? "bg-gray-100" : " bg-gray-800"
+              }`}
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -362,7 +392,9 @@ const CreateEditBlog: React.FC<PopupProps> = ({
 
                 {showCodeTemplates && (
                   <div
-                    className="absolute left-0 top-16 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-2 z-10"
+                    className={`absolute left-0 top-16 w-64 border border-gray-700 rounded-lg shadow-lg p-2 z-10 ${
+                      lightMode ? "bg-gray-100" : " bg-gray-800"
+                    }`}
                     onScroll={handleScroll}
                     style={{ maxHeight: "200px", overflowY: "auto" }}
                   >
@@ -376,9 +408,13 @@ const CreateEditBlog: React.FC<PopupProps> = ({
                             onChange={() => handleTemplateChange(template.cid)}
                             className="w-4 h-4 text-blue-500 border-gray-600 rounded"
                           />
-                          <label className="ml-2 text-white">
+                          <label
+                            className={`ml-2 ${
+                              lightMode ? "text-gray-600" : " text-white"
+                            }`}
+                          >
                             <strong>{template.title}</strong>
-                            <div className="text-sm text-gray-400">
+                            <div className={`text-sm text-gray-400 `}>
                               tags:{" "}
                               {template.tags.map((tag) => tag.name).join(", ")}
                             </div>
@@ -391,13 +427,21 @@ const CreateEditBlog: React.FC<PopupProps> = ({
 
                 {/* Tag Picker Dropdown */}
                 {showTagPicker && (
-                  <div className="absolute left-0 top-16 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-2 z-10">
+                  <div
+                    className={`absolute left-0 top-16 w-64 border border-gray-700 rounded-lg shadow-lg p-2 z-10 ${
+                      lightMode ? "bg-gray-100" : " bg-gray-800"
+                    }`}
+                  >
                     {/* Add Tag input */}
                     <div className="flex items-center gap-2 p-2">
                       <input
                         type="text"
                         placeholder="Add Tag"
-                        className="flex-1 px-2 py-1 border border-gray-700 rounded bg-gray-700 text-white"
+                        className={`flex-1 px-2 py-1 border border-gray-700 rounded  ${
+                          lightMode
+                            ? "bg-gray-100 text-black"
+                            : " bg-gray-700 text-white"
+                        }`}
                         value={newTagInput}
                         onChange={(e) => setNewTagInput(e.target.value)}
                         onKeyPress={(e) => {
@@ -431,6 +475,15 @@ const CreateEditBlog: React.FC<PopupProps> = ({
           </form>
         )}
       </div>
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            margin: "0 auto",
+            textAlign: "center",
+          },
+        }}
+      />
     </div>
   );
 };
