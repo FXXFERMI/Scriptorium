@@ -1,5 +1,3 @@
-// THIS CODE IS BASED ON CHAT GPT AND NOT OUR ORIGINAL THOUGHTS 
-
 import prisma from '../../../utils/prisma';
 import multer from 'multer';
 import path from 'path';
