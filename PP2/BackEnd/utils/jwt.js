@@ -32,7 +32,7 @@ function verifyAccessToken(token) {
   try {
     return jwt.verify(token, ACCESS_TOKEN_SECRET);
   } catch (error) {
-    console.error("Access token verification failed:", error);
+    //console.error("Access token verification failed:", error);
     throw error;
   }
 }
@@ -42,7 +42,7 @@ function verifyRefreshToken(token) {
   try {
     return jwt.verify(token, REFRESH_TOKEN_SECRET);
   } catch (error) {
-    console.error("Refresh token verification failed:", error);
+    //console.error("Refresh token verification failed:", error);
     throw error;
   }
 }

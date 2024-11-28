@@ -1,0 +1,11 @@
+# Use the official Elixir image
+FROM elixir:1.15.4
+
+
+# Set the working directory
+WORKDIR /code
+
+
+
+# Default command: Run the Elixir script
+CMD ["elixir", "elixir.ex"]

@@ -1,0 +1,7 @@
+Joyce
+general blogs show page
+
+- individual card for each blog [component]
+- comments section
+- replies section
+ 

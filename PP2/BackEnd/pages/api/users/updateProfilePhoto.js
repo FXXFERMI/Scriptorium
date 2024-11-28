@@ -70,7 +70,7 @@ export default async function handler(req, res) {
       profilePhoto: updatedProfile.avatar, // Respond with profilePhoto for consistency
     });
   } catch (error) {
-    console.error("Error uploading profile photo:", error);
+    //console.error("Error uploading profile photo:", error);
     res.status(500).json({ message: 'Error uploading profile photo' });
   }
 }

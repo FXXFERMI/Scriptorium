@@ -2,47 +2,68 @@ import { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
-import Navbar from '../../components/Navbar';
+import Header from '../../components/Header';
+import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Login = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const { theme } = useTheme();
+
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const router = useRouter();
+  const { login } = useAuth();  // Use the login function from AuthContext
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
-        { username, password }
+        { username, password },
+        { withCredentials: true }
       );
-      
-      // Set the access token in cookies
+
+      // Set the access token and refresh token in cookies
       Cookies.set('accessToken', response.data.accessToken, { path: '/' });
-      
-      // Redirect to profile page after successful login
-      // router.push('/users/profile');
-      router.push('/');
+      // console.log(Cookies.get('accessToken'))
+      // Cookies.set('refreshToken', response.data.refreshToken, { path: '/' });
+
+      // Call the login function from AuthContext to set the global login state
+      login();
+
+      // console.log("Login successful:", response.data);
+
+      // Set the success message
+      setSuccessMessage("Login successful! Redirecting in 3 seconds...");
+      setError(null);
+
+      // Delay the redirect by 3 seconds
+      setTimeout(() => {
+        router.push('/');
+      }, 3000);
     } catch (error: any) {
-      console.error("Login failed:", error);
+      // //console.error("Login failed:", error);
       setError(error.response?.data?.message || "Login failed");
+      setSuccessMessage(null);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <Navbar />
-      <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className={`mx-auto mt-[10rem] p-8 rounded-lg shadow-md bg-${theme === "dark" ? "black" : "white"} text-${theme === "dark" ? "white" : "black"}`}>
+      <Header />
+      <h1 className="text-4xl font-bold mb-8 text-center">Please Login</h1>
+      {error && <p className="text-red-500 text-center mb-4 font-semibold">{error}</p>}
+      {successMessage && <p className="text-green-500 text-center mb-4 font-semibold">{successMessage}</p>}
+      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
         <div>
           <label className="block font-medium mb-1">Username:</label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === "dark" ? "white" : "gray-100"} text-${theme === "dark" ? "black" : "black"}`}
           />
         </div>
         <div>
@@ -51,10 +72,17 @@ const Login = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === "dark" ? "white" : "gray-100"} text-${theme === "dark" ? "black" : "black"}`}
           />
         </div>
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Login</button>
+        <div className="flex justify-center mt-6">
+          <button
+            type="submit"
+            className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline hover:bg-blue-600"
+          >
+            Login
+          </button>
+        </div>
       </form>
     </div>
   );

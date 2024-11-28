@@ -4,7 +4,7 @@ const { PrismaClient } = require('@prisma/client'); // Set up Prisma directly in
 const prisma = new PrismaClient();
 
 const ADMIN_EMAIL = 'admin@example.com';
-const ADMIN_PASSWORD = 'securePassword123';
+const ADMIN_PASSWORD = 'AB12cd34!';
 
 async function createAdmin() {
   try {
@@ -15,9 +15,9 @@ async function createAdmin() {
         password: hashedPassword,
       },
     });
-    console.log('Admin user created successfully.');
+    // console.log('Admin user created successfully.');
   } catch (error) {
-    console.error('Error creating admin user:', error);
+    // console.error('Error creating admin user:', error);
   } finally {
     await prisma.$disconnect();
   }

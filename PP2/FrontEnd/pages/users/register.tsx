@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/router';
-import Navbar from '../../components/Navbar';
+import Header from '../../components/Header';
+import api from '../../utils/axiosInstance';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Register = () => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -34,7 +36,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/register`, {
+      const response = await api.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/register`, {
         username: formData.username,
         email: formData.email,
         password: formData.password,
@@ -52,18 +54,39 @@ const Register = () => {
         router.push('/users/login');
       }, 2000);
     } catch (error: any) {
-      console.error("Registration failed:", error);
-      setError(error.response?.data?.message || "Registration failed");
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            const errorMessage = error.response.data.message;
+            if (errorMessage === 'Username, email, phone number, and password are required') {
+              setError('All fields are required. Please complete all fields.');
+            } else if (errorMessage === 'Username already exists') {
+              setError('The username you entered is already in use. Please choose a different username.');
+            } else if (errorMessage === 'Email already exists') {
+              setError('The email you entered is already in use. Please use a different email address.');
+            } else {
+              setError(errorMessage);
+            }
+            break;
+          case 500:
+            setError('Internal server error. Please try again later.');
+            break;
+          default:
+            setError('An unexpected error occurred. Please try again.');
+        }
+      } else {
+        setError('Network error. Please check your internet connection.');
+      }
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <Navbar />
-      <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-      {success && <p className="text-green-500 text-center mb-4">{success}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className={`mx-auto mt-[10rem] p-8 bg-${theme === 'dark' ? 'black' : 'gray-100'} text-${theme === 'dark' ? 'white' : 'black'} rounded-lg shadow-md`}>
+      <Header />
+      <h1 className="text-4xl font-bold mb-8 text-center">Register</h1>
+      {error && <p className="text-red-500 text-center mb-4 font-semibold">{error}</p>}
+      {success && <p className="text-green-500 text-center mb-4 font-semibold">{success}</p>}
+      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
         <div>
           <label className="block font-medium mb-1">First Name:</label>
           <input
@@ -71,7 +94,7 @@ const Register = () => {
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -81,7 +104,7 @@ const Register = () => {
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -91,7 +114,7 @@ const Register = () => {
             name="username"
             value={formData.username}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -101,7 +124,7 @@ const Register = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -111,7 +134,7 @@ const Register = () => {
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -121,7 +144,7 @@ const Register = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
         <div>
@@ -131,10 +154,17 @@ const Register = () => {
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md"
+            className={`w-full p-2 border rounded-md bg-${theme === 'dark' ? 'gray-800' : 'white'} text-${theme === 'dark' ? 'white' : 'black'}`}
           />
         </div>
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">Register</button>
+        <div className="flex justify-center mt-6">
+          <button
+            type="submit"
+            className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline hover:bg-blue-600"
+          >
+            Register
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -2,8 +2,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcrypt';
 import prisma from '../../../utils/prisma';
 import { generateAccessToken, generateRefreshToken } from '../../../utils/jwt';
-import cookie from 'cookie';
 import applyCors from '../../../utils/cors';
+
+const cookie = require('cookie');
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   // Apply CORS
@@ -26,8 +27,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Invalid password' });
     }
 
-    const accessToken = generateAccessToken({ uid: admin.aid, role: 'ADMIN' });
-    const refreshToken = generateRefreshToken({ uid: admin.aid, role: 'ADMIN' });
+    const accessToken = generateAccessToken({ uid: admin.aid, role: "ADMIN" });
+    const refreshToken = generateRefreshToken({ uid: admin.aid, role: "ADMIN" });
 
     res.setHeader('Set-Cookie', [
       cookie.serialize('accessToken', accessToken, {
@@ -44,8 +45,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }),
     ]);
 
+    // console.log(cookie)
+
     res.status(200).json({ message: 'Admin login successful', accessToken, refreshToken });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: error.message });
   }
 }
