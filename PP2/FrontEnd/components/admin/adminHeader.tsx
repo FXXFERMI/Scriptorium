@@ -51,7 +51,7 @@ const AdminHeader: React.FC = () => {
         <div className="flex flex-row items-center justify-between p-3 md:p-1">
           <Link href="/admin/dashboard" className="flex text-3xl text-white font-medium mb-4 md:mb-0">
             <img
-              src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+              src="/favicon.png"
               alt="Logo"
               className="w-16 h-8 mr-2" // Adjust size and spacing as needed
             />

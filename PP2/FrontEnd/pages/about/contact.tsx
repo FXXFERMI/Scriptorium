@@ -56,7 +56,7 @@ const Contact: FC = () => {
                     ].map((member, index) => (
                         <div key={index} className="flex flex-col items-center text-center">
                             <img
-                                src={`${process.env.NEXT_PUBLIC_BASE_URL}${member.imgSrc}`}
+                                src={`${member.imgSrc}`}
                                 alt={member.name}
                                 className="w-32 h-32 rounded-full mb-4 border shadow-md"
                             />

@@ -245,7 +245,7 @@ const Home: FC = () => {
             >
               <img
                 className="w-10"
-                src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+                src="/favicon.png"
                 alt="icon"
               />
               <h3 className={`pt-3 font-semibold text-lg text-${theme === 'dark' ? 'white' : 'white'}`}>
@@ -344,7 +344,7 @@ const Home: FC = () => {
               onClick={() => window.location.href = `/blogs/blog?id=${blog.bid}`}
             >
               <img
-                src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+                src="/favicon.png"
                 alt="feature image"
               />
               <h3 className={`pt-3 font-semibold text-lg text-${theme === 'dark' ? 'white' : 'white'}`}>

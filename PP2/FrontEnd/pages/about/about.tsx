@@ -159,7 +159,8 @@ const About: FC = () => {
 
                 <div className="container flex flex-col items-center justify-center mx-auto">
                     <img
-                        src={`${process.env.NEXT_PUBLIC_BASE_URL}/images/team.jpg`}
+                        // src={`${process.env.NEXT_PUBLIC_BASE_URL}/images/team.jpg`}
+                        src="/images/team.jpg"
                         alt="Our Team"
                         className="object-cover object-center w-3/4 mb-10 border shadow-md g327"
                     />
@@ -190,7 +191,7 @@ const About: FC = () => {
                         <div key={index} className="ktq4">
                             <img
                                 className={"w-10"}
-                                src={`${process.env.NEXT_PUBLIC_BASE_URL}${item.imgSrc}`}
+                                src={`${item.imgSrc}`}
                                 alt={`${item.title} Icon`}
                             />
                             <h3 className={`pt-3 font-semibold text-lg text-${theme === 'dark' ? 'white' : 'white'}`}>
@@ -218,7 +219,7 @@ const About: FC = () => {
                     ].map((item, index) => (
                         <div key={index} className="ktq4">
                             <img
-                                src={`${process.env.NEXT_PUBLIC_BASE_URL}${item.imgSrc}`}
+                                src={`${item.imgSrc}`}
                                 alt={item.title}
                                 className="w-80 h-40 object-cover"
                             />
