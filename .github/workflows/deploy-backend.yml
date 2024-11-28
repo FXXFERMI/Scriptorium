@@ -17,14 +17,18 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '18.17.0'
+
     - name: Clean npm Cache
       run: npm cache clean --force
+
+    - name: Update npm
+      run: npm install -g npm@latest
 
     - name: Install Dependencies
       working-directory: PP2/BackEnd
       run: npm install
 
-    - name: Install Prisma Client
+    - name: Generate Prisma Client
       working-directory: PP2/BackEnd
       run: npx prisma generate
 
