@@ -248,7 +248,7 @@ const Header: React.FC = () => {
                                                     <input
                                                         type="text"
                                                         name="username"
-                                                        className="w-full p-2 border rounded-md"
+                                                        className="w-full p-2 border text-black rounded-md"
                                                         required
                                                     />
                                                 </div>
@@ -257,7 +257,7 @@ const Header: React.FC = () => {
                                                     <input
                                                         type="password"
                                                         name="password"
-                                                        className="w-full p-2 border rounded-md"
+                                                        className="w-full p-2 border text-black rounded-md"
                                                         required
                                                     />
                                                 </div>
