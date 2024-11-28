@@ -13,6 +13,6 @@ npm install
 
 echo "writing to .env..."
 cat <<EOL > .env
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_BASE_URL=https://scriptorium-bz1zq7s9j-fermis-projects-2c4f8d3f.vercel.app/
+NEXT_PUBLIC_API_URL=https://black-sky-0d553331e.5.azurestaticapps.net
 EOL
