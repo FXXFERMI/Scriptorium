@@ -1300,7 +1300,7 @@ const DisplayBlog = () => {
                   </button>
                 </span>
               )}
-              {isLoggedIn && (
+              {isLoggedIn && profile && (
                 <div className="flex items-start gap-4 rounded-lg p-4 shadow-sm">
                   {/* User Avatar */}
                   <img

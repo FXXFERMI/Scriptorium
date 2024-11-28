@@ -54,7 +54,7 @@ export default function ViewCodeTemplates() {
         );
 
         setTemplates(response.data.codeTemplates);
-        console.log(response.data);
+        // console.log(response.data);
         setTotalTemplates(response.data.totalTemplates);
         setTotalPages(response.data.totalPages);
         setLoading(false);

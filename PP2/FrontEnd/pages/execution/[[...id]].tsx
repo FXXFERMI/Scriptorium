@@ -546,7 +546,7 @@ const CodeExecution: React.FC = () => {
           >
             {ctNameInput ? (
               <input
-                className="mt-2 text-black max-w-10"
+                className="mt-2 text-black w-30"
                 onChange={(e) => setTitle(e.target.value)}
               />
             ) : (
@@ -594,9 +594,9 @@ const CodeExecution: React.FC = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />{" "}
                 <line x1="12" y1="8" x2="12" y2="16" />{" "}
