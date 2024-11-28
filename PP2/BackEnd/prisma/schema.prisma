@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -10,16 +10,16 @@ generator client {
 model User {
   uid      Int      @id @default(autoincrement())
   username String   @unique
-  email   String   @unique
-  password    String 
+  email    String   @unique
+  password String 
   profile  Profile?
   codeTemplates CodeTemplate[]
-  blog Blog[]
+  blog     Blog[]
   comments Comment[]
-  ratings Rating[]
-  reports Report[]
+  ratings  Rating[]
+  reports  Report[]
   ownedReplies   Reply[]  @relation("owner") 
-  replies Reply[] @relation("replier")
+  replies  Reply[] @relation("replier")
 }
 
 model AdminRegistrationRequest {
@@ -32,135 +32,131 @@ model AdminRegistrationRequest {
 
 model SystemAdmin {
   aid      Int      @id @default(autoincrement())
-  email   String   @unique
-  password    String 
+  email    String   @unique
+  password String 
 }
 
-model Profile{
-  pid      Int      @id @default(autoincrement())
-  email String
-  firstName String 
-  lastName String 
-  avatar String // URL to the profile picture
+model Profile {
+  pid         Int     @id @default(autoincrement())
+  email       String
+  firstName   String 
+  lastName    String 
+  avatar      String // URL to the profile picture
   phoneNumber String
-  uid      Int     @unique
+  uid         Int     @unique
   user        User    @relation(fields: [uid], references: [uid], onDelete: Cascade)
-  
 }
 
-model CodeTemplate{
-  cid Int  @id @default(autoincrement())
-  title String
-  explanation String?
-  language String 
-  tags Tag[] @relation("TagCodeTemplates")
-  code String
-  uid Int
+model CodeTemplate {
+  cid          Int      @id @default(autoincrement())
+  title        String
+  explanation  String?
+  language     String 
+  tags         Tag[]    @relation("TagCodeTemplates")
+  code         String
+  uid          Int
   
-  user        User    @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  user         User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
   
-  isForked Boolean @default(false)
+  isForked     Boolean  @default(false)
   ogTemplateId Int?
-  forks CodeTemplate[] @relation("ogTemplate")
+  forks        CodeTemplate[] @relation("ogTemplate")
   
-  ogTemplate CodeTemplate? @relation("ogTemplate", fields: [ogTemplateId], references: [cid], onDelete: SetNull)
+  ogTemplate   CodeTemplate? @relation("ogTemplate", fields: [ogTemplateId], references: [cid], onDelete: SetNull)
 
-  blogs Blog[] @relation("BlogCodeTemplates")
+  blogs        Blog[]   @relation("BlogCodeTemplates")
 }
 
+model Blog {
+  bid            Int      @id @default(autoincrement())
+  title          String
+  description    String
+  tags           Tag[]    @relation("TagBlog")
+  Hidden         Boolean  @default(false)
+  uid            Int
 
-model Blog{
-  bid Int  @id @default(autoincrement())
-  title String
-  description String
-  tags Tag[] @relation("TagBlog")
-  Hidden Boolean @default(false)
-  uid Int
+  user           User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
 
-  user        User    @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  comments       Comment[]
+  ratings        Rating[]
+  reports        Report[]
 
-  comments Comment[]
-  ratings Rating[]
-  reports Report[]
-
-  codeTemplates CodeTemplate[] @relation("BlogCodeTemplates")
+  codeTemplates  CodeTemplate[] @relation("BlogCodeTemplates")
 }
 
-model Tag{
-  tagId Int @id @default(autoincrement())
-  name String 
+model Tag {
+  tagId          Int      @id @default(autoincrement())
+  name           String 
 
-  blogs Blog[] @relation("TagBlog")
-  codeTemplates CodeTemplate[] @relation("TagCodeTemplates")
-
+  blogs          Blog[]   @relation("TagBlog")
+  codeTemplates  CodeTemplate[] @relation("TagCodeTemplates")
 }
 
-model Comment{
-  commentId Int @id @default(autoincrement())
-  bid Int
-  uid Int
-  content String
-  Hidden Boolean @default(false)
+model Comment {
+  commentId Int      @id @default(autoincrement())
+  bid       Int
+  uid       Int
+  content   String
+  Hidden    Boolean  @default(false)
 
-  blog Blog @relation(fields: [bid], references: [bid], onDelete: Cascade)
-  user User @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  blog      Blog     @relation(fields: [bid], references: [bid], onDelete: Cascade)
+  user      User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
 
-  ratings Rating[]
-  reports Report[]
-  replies Reply[]
+  ratings   Rating[]
+  reports   Report[]
+  replies   Reply[]
 }
 
-model Reply{
-  replyId Int @id @default(autoincrement())
-  ownerId Int
-  commentId Int
-  replierId Int
-  content     String 
-  Hidden Boolean @default(false)
+model Reply {
+  replyId    Int      @id @default(autoincrement())
+  ownerId    Int
+  commentId  Int
+  replierId  Int
+  content    String 
+  Hidden     Boolean  @default(false)
 
-  comment   Comment @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
+  comment    Comment  @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
 
-  owner User? @relation("owner", fields: [ownerId], references: [uid], onDelete: Cascade)
-  replier User? @relation("replier", fields: [replierId], references: [uid], onDelete: Cascade)
+  owner      User?    @relation("owner", fields: [ownerId], references: [uid], onDelete: Cascade)
+  replier    User?    @relation("replier", fields: [replierId], references: [uid], onDelete: Cascade)
 
-  ratings     Rating[]
-  reports     Report[]
+  ratings    Rating[]
+  reports    Report[]
 }
 
-model Rating{
-  rateId Int @id @default(autoincrement())
-  upvote Boolean @default(false)
-  downvote Boolean @default(false)
-  uid Int
+model Rating {
+  rateId     Int      @id @default(autoincrement())
+  upvote     Boolean  @default(false)
+  downvote   Boolean  @default(false)
+  uid        Int
 
-  bid Int?
-  commentId Int?
-  replyId Int?
+  bid        Int?
+  commentId  Int?
+  replyId    Int?
 
-  user User @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  user       User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
 
-  blog Blog? @relation(fields: [bid], references: [bid], onDelete: Cascade)
-  comment Comment? @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
-  reply Reply? @relation(fields: [replyId], references: [replyId], onDelete: Cascade)
+  blog       Blog?    @relation(fields: [bid], references: [bid], onDelete: Cascade)
+  comment    Comment? @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
+  reply      Reply?   @relation(fields: [replyId], references: [replyId], onDelete: Cascade)
 
-  
   @@unique([uid, bid])
   @@unique([uid, commentId])
   @@unique([uid, replyId])
 }
 
-model Report{
-  reportId Int @id @default(autoincrement())
-  uid Int
+model Report {
+  reportId   Int      @id @default(autoincrement())
+  uid        Int
 
-  bid Int?
-  commentId Int?
-  replyId Int?
+  bid        Int?
+  commentId  Int?
+  replyId    Int?
   explanation String?
 
-  user User @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  user       User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
 
-  blog Blog? @relation(fields: [bid], references: [bid], onDelete: Cascade)
-  comment Comment? @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
-  reply Reply? @relation(fields: [replyId], references: [replyId], onDelete: Cascade)
+  blog       Blog?    @relation(fields: [bid], references: [bid], onDelete: Cascade)
+  comment    Comment? @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
+  reply      Reply?   @relation(fields: [replyId], references: [replyId], onDelete: Cascade)
 }
