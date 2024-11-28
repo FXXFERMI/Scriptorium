@@ -108,10 +108,10 @@ const Home: FC = () => {
                 <span className="justify-center">Start Coding Now</span>
               </div>
             </a>
-            
+
             {!isLoggedIn && (
               <a
-                className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent mr-5 ml-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline "
+                className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent mr-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline "
                 href="/users/register"
               >
                 <div className="flex text-lg">
@@ -129,10 +129,10 @@ const Home: FC = () => {
                 />
             </div> */}
 
-        <div className="container flex flex-col items-center justify-center mx-auto">
+        {/* <div className="container flex flex-col items-center justify-center mx-auto">
           <video
             className="object-cover object-center w-3/4 mb-10 border shadow-md g327"
-            src="/videos/HomePageVideo.mp4"
+            src="https://youtu.be/QKVPOSb0D0Y"
             controls
             autoPlay
             loop
@@ -141,7 +141,22 @@ const Home: FC = () => {
           >
             Your browser does not support the video tag.
           </video>
+        </div> */}
+
+        <div className="container flex flex-col items-center justify-center mx-auto">
+          <iframe
+            className="object-cover object-center w-3/4 mb-10 border shadow-md g327"
+            width="960"  // Set your desired width (adjust accordingly)
+            height="540"
+            src="https://www.youtube.com/embed/QKVPOSb0D0Y"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          >
+            Your browser does not support iframes.
+          </iframe>
         </div>
+
 
         {/* <h2 className="pt-40 mb-1 text-2xl font-semibold tracking-tighter text-center text-gray-200 lg:text-7xl md:text-6xl">
           Clean and tidy code.
@@ -234,7 +249,7 @@ const Home: FC = () => {
                 alt="icon"
               />
               <h3 className={`pt-3 font-semibold text-lg text-${theme === 'dark' ? 'white' : 'white'}`}>
-              {template.title}
+                {template.title}
               </h3>
               <p className={`pt-2 value-text text-md text-${theme === 'dark' ? 'gray-200' : 'gray-100'} fkrr1`}>
                 {/* {template.explanation} */}
@@ -333,7 +348,7 @@ const Home: FC = () => {
                 alt="feature image"
               />
               <h3 className={`pt-3 font-semibold text-lg text-${theme === 'dark' ? 'white' : 'white'}`}>
-              {blog.title}
+                {blog.title}
               </h3>
               <p className={`pt-2 value-text text-md text-${theme === 'dark' ? 'gray-200' : 'gray-100'} fkrr1`}>
                 {blog.description.length > 100 ? `${blog.description.slice(0, 100)}...` : blog.description}
