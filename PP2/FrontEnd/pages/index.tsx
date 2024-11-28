@@ -100,6 +100,15 @@ const Home: FC = () => {
               </div>
             </a>
 
+            <a
+              className={`inline-flex items-center py-3 font-semibold text-${theme === 'dark' ? 'black' : 'black'} transition duration-500 ease-in-out transform bg-transparent bg-${theme === 'dark' ? 'white' : 'black'} px-7 text-md hover:text-${theme === 'dark' ? 'black' : 'white'} hover:bg-${theme === 'dark' ? 'white' : 'black'} focus:shadow-outline`}
+              href="/execution"
+            >
+              <div className="flex text-lg">
+                <span className="justify-center">Start Coding Now</span>
+              </div>
+            </a>
+            
             {!isLoggedIn && (
               <a
                 className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent mr-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline "
@@ -110,14 +119,6 @@ const Home: FC = () => {
                 </div>
               </a>
             )}
-            <a
-              className={`inline-flex items-center py-3 font-semibold text-${theme === 'dark' ? 'black' : 'black'} transition duration-500 ease-in-out transform bg-transparent bg-${theme === 'dark' ? 'white' : 'black'} px-7 text-md hover:text-${theme === 'dark' ? 'black' : 'white'} hover:bg-${theme === 'dark' ? 'white' : 'black'} focus:shadow-outline`}
-              href="/users/register"
-            >
-              <div className="flex text-lg">
-                <span className="justify-center">Start Coding Now</span>
-              </div>
-            </a>
           </div>
         </div>
         {/* <div className="container flex flex-col items-center justify-center mx-auto">
