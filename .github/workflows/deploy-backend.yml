@@ -21,12 +21,9 @@ jobs:
     - name: Clean npm Cache
       run: npm cache clean --force
 
-    - name: Update npm
-      run: npm install -g npm@latest
-
     - name: Install Dependencies
       working-directory: PP2/BackEnd
-      run: npm install
+      run: npm install --legacy-peer-deps
 
     - name: Generate Prisma Client
       working-directory: PP2/BackEnd
@@ -42,3 +39,4 @@ jobs:
         app-name: SFJScriptorium
         slot-name: production
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
