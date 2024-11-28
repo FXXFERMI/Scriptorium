@@ -19,11 +19,11 @@ jobs:
         node-version: '16'
 
     - name: Install Dependencies
-      working-directory: pp2/backend
+      working-directory: PP2/BackEnd
       run: npm install
 
     - name: Build Backend
-      working-directory: pp2/backend
+      working-directory: PP2/BackEnd
       run: npm run build
 
     - name: Deploy to Azure
