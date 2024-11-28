@@ -111,7 +111,7 @@ const Home: FC = () => {
             
             {!isLoggedIn && (
               <a
-                className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent mr-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline "
+                className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out transform bg-transparent mr-5 ml-5 bg-gradient-to-r from-blue-500 to-blue-800 px-14 text-md focus:shadow-outline "
                 href="/users/register"
               >
                 <div className="flex text-lg">

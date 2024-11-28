@@ -13,7 +13,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     // Check cookie value on initial load
-    const storedTheme = Cookies.get("theme") || "light";
+    const storedTheme = Cookies.get("theme") || "dark";
     setTheme(storedTheme);
   }, []);
 
