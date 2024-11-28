@@ -78,19 +78,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 
       // Create new tags if needed
-      await prisma.tag.createMany({
+      const newTagsArray = await prisma.tag.createManyAndReturn({
         data: newTagNames.map(tag => ({ name: tag })),
-      });
-
-
-      const newTagsArray = await prisma.tag.findMany({
-        where: {
-          OR: newTagNames.map(tag => ({
-            name: tag.toLowerCase(),
-          })), // Check for existing tags
-        },
-
-
       });
 
 
