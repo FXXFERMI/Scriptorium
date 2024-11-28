@@ -960,15 +960,19 @@ const DisplayBlog = () => {
                   {blog.codeTemplates.map((template) => (
                     <li
                       key={template.cid}
-                      className={`flex items-center justify-between p-4 rounded-lg transition duration-300 ease-in-out ${
+                      className={`p-4 rounded-lg transition duration-300 ease-in-out ${
                         lightMode
                           ? "text-gray-600 hover:text-gray-800"
                           : "text-white hover:bg-gray-700"
                       }`}
                     >
-                      <Link href={`/execution/${template.cid}`}>
+                      <Link
+                        href={`/execution/${template.cid}`}
+                        className="block text-lg font-semibold"
+                      >
                         {template.title}
                       </Link>
+                      <div className="mt-2 text-sm">{template.explanation}</div>
                     </li>
                   ))}
                 </ul>
