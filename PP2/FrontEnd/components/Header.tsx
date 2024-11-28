@@ -5,9 +5,12 @@ import { useRouter } from 'next/router';
 // import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/axiosInstance';
+import MuiSwitch from "./MuiSwitch";
+import { useTheme } from '../contexts/ThemeContext';
 // import ModalLogin from './ModalLogin';
 
 const Header: React.FC = () => {
+    const { theme, toggleTheme } = useTheme();
     const [navbarOpen, setNavbarOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [adminDropdownOpen, setAdminDropdownOpen] = useState(false);
@@ -97,7 +100,7 @@ const Header: React.FC = () => {
 
     return (
         <header className="fixed top-0 w-full clearNav z-50">
-            <div className="max-w-5xl mx-auto flex flex-wrap p-5 flex-col md:flex-row">
+            <div className="max-w-7xl mx-auto flex flex-wrap p-5 flex-col md:flex-row">
                 <div className="flex flex-row items-center justify-between p-3 md:p-1">
                     <Link href="/" className="flex text-3xl text-white font-medium mb-4 md:mb-0">
                         <img
@@ -130,9 +133,20 @@ const Header: React.FC = () => {
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </button>
+                    {/* <div className="flex items-center justify-between w-full">
+                        {/* Dark/Light Mode Switch */}
+                        {/* <div className="md:ml-5 ml-auto flex items-center">
+                            <MuiSwitch checked={theme === 'dark'} onChange={toggleTheme} />
+                        </div>
+                    </div>  */}
                 </div>
                 <div className={`md:flex flex-grow items-center ${navbarOpen ? "flex" : "hidden"}`}>
                     <div className="md:ml-auto md:mr-auto font-4 pt-1 md:pl-14 pl-1 flex flex-wrap items-center md:text-base text-1xl md:justify-center justify-items-start">
+                        <a
+                            className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04"
+                        >
+                            <MuiSwitch checked={theme === 'dark'} onChange={toggleTheme} />
+                        </a>
                         <Link href="/about/about" className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04">
                             {/* <a className="mr-11 pr-2 cursor-pointer text-gray-300 hover:text-white font-semibold tr04"> */}
                             About

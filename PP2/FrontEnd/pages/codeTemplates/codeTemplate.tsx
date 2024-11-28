@@ -6,6 +6,7 @@ import { codeTemplateType } from "../../interfaces/codeTemplate";
 import Cookies from "js-cookie";
 import api from "../../utils/axiosInstance";
 import Link from "next/link";
+import {useTheme} from "../../contexts/ThemeContext"
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
 
@@ -18,6 +19,7 @@ type ProfileType = {
 };
 
 const DisplayCodeTemplate = () => {
+  const { theme } = useTheme();
   const router = useRouter();
   const { id } = router.query; // Get the codeTemplate ID from the URL
   const [codeTemplate, setCodeTemplate] = useState<codeTemplateType>(null); // State for storing codeTemplate data
@@ -110,22 +112,22 @@ const DisplayCodeTemplate = () => {
 
   if (loading) return <div>Loading...</div>; // Show loading state
 
-  if (error) return <div className="text-red-500">{error}</div>; // Show error message if failed to fetch
+  if (error) return <div className={`text-${theme === "dark" ? "red-500" : "red-700"}`}>{error}</div>; // Show error message if failed to fetch
 
   return (
-    <div>
+    <div className={`bg-${theme === "dark" ? "black" : "white"} text-${theme === "dark" ? "white" : "black"}`}>
       <Header />
       <div className="container mx-auto p-8 mt-20">
         {/* <h1 className="text-3xl font-bold mb-4 text-white">Code Template #{id}</h1> */}
         {codeTemplate ? (
           <>
             <div className="flex flex-col lg:flex-row gap-6">
-              <div className="flex-1 bg-gray-800 p-6 rounded-lg shadow-md flex flex-col lg:flex-row justify-between items-start">
-                <div className="flex-1">
-                  <h1 className="text-3xl font-bold mb-4 text-white">
-                    Code Template #{id}  {codeTemplate.title}
+            <div className={`flex-1 bg-${theme === "dark" ? "gray-800" : "gray-200"} p-6 rounded-lg shadow-md flex flex-col lg:flex-row justify-between items-start`}>
+            <div className="flex-1">
+            <h1 className={`text-3xl font-bold mb-4 text-${theme === "dark" ? "white" : "black"}`}>
+                    Code Template #{id} {codeTemplate.title}
                   </h1>
-                  <div className="text-gray-300 flex flex-wrap font-bold mb-6">
+                  <div className={`text-${theme === "dark" ? "gray-300" : "gray-700"} flex flex-wrap font-bold mb-6`}>
                     Tags:
                     {codeTemplate.tags && codeTemplate.tags.length > 0 ? (
                       codeTemplate.tags.map((tag, index) => (
@@ -137,14 +139,14 @@ const DisplayCodeTemplate = () => {
                         </span>
                       ))
                     ) : (
-                      <span className="text-gray-500">No tags available</span>
+                      <span className={`text-${theme === "dark" ? "gray-500" : "gray-600"}`}>No tags available</span>
                     )}
                   </div>
                   {/* add author section */}
-                  <h1 className="text-gray-300 text-1.5xl font-bold mb-6">
+                  <h1 className={`text-${theme === "dark" ? "gray-300" : "gray-700"} text-1.5xl font-bold mb-6`}>
                     Author:
                   </h1>
-                  <div className="text-gray-200 flex flex-row items-center mb-6">
+                  <div className={`text-${theme === "dark" ? "gray-200" : "gray-600"} flex flex-row items-center mb-6`}>
                     <img
                       src={
                         codeTemplate.user.profile.avatar.startsWith("/uploads/")
@@ -168,11 +170,11 @@ const DisplayCodeTemplate = () => {
                     </div>
                   </div>
 
-                  <h1 className="text-gray-300 text-1.5xl font-bold mb-6">
+                  <h1 className={`text-${theme === "dark" ? "gray-300" : "gray-700"} text-1.5xl font-bold mb-6`}>
                     Introduction:
                   </h1>
                   <p
-                    className="text-gray-300 text-lg font-normal"
+                    className={`text-${theme === "dark" ? "gray-300" : "gray-700"} text-lg font-normal`}
                     style={{ whiteSpace: "pre-wrap" }}
                   >
                     {codeTemplate.explanation}
@@ -195,7 +197,8 @@ const DisplayCodeTemplate = () => {
                 <div className="mt-8 lg:mt-0 lg:ml-8">
                   <button
                     onClick={() => router.push(`/execution/${id}`)}
-                    className="bg-white text-black border border-black py-3 px-6 rounded-md hover:bg-black hover:text-white transition duration-300"                  >
+                    className={`bg-${theme === "dark" ? "white" : "black"} text-${theme === "dark" ? "black" : "white"} border border-${theme === "dark" ? "black" : "white"} py-3 px-6 rounded-md hover:bg-${theme === "dark" ? "black" : "white"} hover:text-${theme === "dark" ? "white" : "black"} transition duration-300`}
+                    >
                     Check Code Details
                   </button>
                 </div>
@@ -203,7 +206,7 @@ const DisplayCodeTemplate = () => {
             </div>
           </>
         ) : (
-          <div className="text-center text-xl text-gray-500">
+          <div className={`text-center text-xl text-${theme === "dark" ? "gray-500" : "gray-600"}`}>
             Code Templates not found
           </div>
         )}

@@ -9,6 +9,9 @@ import Cookies from "js-cookie";
 import CreateBlogButton from "../../components/blogs/CreateBlogButton";
 import BlogMenu from "../../components/blogs/BlogMenu";
 import Pagination from "../../components/pagination"
+import { useTheme } from "../../contexts/ThemeContext";
+import Head from "next/head";
+import { NextSeo } from "next-seo";
 
 interface Blog {
   bid: number;
@@ -19,6 +22,7 @@ interface Blog {
 }
 
 const MyBlogs: React.FC = () => {
+  const { theme } = useTheme();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,36 +108,56 @@ const MyBlogs: React.FC = () => {
   };
 
   return (
-    <div>
-      {/* <Header /> */}
+    <div className={`text-${theme === "dark" ? "black" : "white"} bg-${theme === "dark" ? "black" : "white"}`}>
+      <NextSeo
+        title="My Blogs - SFJ Scriptorium"
+        description="View and manage your blogs on SFJ Scriptorium."
+        canonical={`${process.env.NEXT_PUBLIC_BASE_URL}/blogs/myBlogs`}
+        openGraph={{
+          url: `${process.env.NEXT_PUBLIC_BASE_URL}/blogs/myBlogs`,
+        }}
+      />
+      <Head>
+        <title>My Blogs - SFJ Scriptorium</title>
+        <link rel="icon" href={theme === "dark" ? "/favicon.png" : "/logo_light.PNG"} />
+      </Head>
       <main className="container max-w-screen-lg mx-auto mt-10 p-4">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl text-white font-bold">My Blogs</h1>
+          <h1 className={`text-${theme === "dark" ? "white" : "black"} text-4xl font-bold`}>My Blogs</h1>
           <CreateBlogButton />
         </div>
         {loading ? (
-          <p>Loading...</p>
+          <p className="text-center">Loading...</p>
         ) : error ? (
-          <p className="text-gray-700">No blogs found.</p>
+          <p className="text-center text-red-500">{error}</p>
         ) : blogs.length > 0 ? (
-          <div className="space-y-6">
+          <div className={`space-y-6`}>
             {blogs.map((blog) => (
-              <div key={blog.bid}
-                className="bg-black p-6 shadow-md flex justify-between border border-white text-white"
+              <div
+                key={blog.bid}
+                className={`bg-${theme === "dark" ? "gray-800" : "gray-200"} p-6 shadow-md flex justify-between border border-gray-700 text-white rounded-lg hover:shadow-lg transition-transform transform hover:scale-105`}
               >
                 <div>
-                  <h2 className="text-2xl font-bold mb-2 cursor-pointer transition hover:bg-gray-300 hover:shadow-lg hover:scale-105"
-                    onClick={() => handleViewBlog(blog.bid)}>
+                  <h2
+                    className="text-2xl font-bold mb-2 cursor-pointer transition hover:text-blue-400"
+                    onClick={() => handleViewBlog(blog.bid)}
+                  >
                     {blog.title}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className={`text-sm text-${theme === "dark" ? "gray-300" : "gray-600"}`}>
                     Tags: {blog.tags.map((tag) => tag.name).join(", ")}
                   </p>
                   {blog.Hidden && (
-                    <p className="text-red-500 font-bold mt-2">Hidden</p>
+                    <p className="text-red-500 font-semibold mt-2 bg-gray-700 px-2 py-1 rounded-md w-max">
+                      Hidden
+                    </p>
                   )}
                 </div>
-                <BlogMenu bid={blog.bid} hidden={blog.Hidden} onSuccess={() => setBlogs((prev) => prev.filter((b) => b.bid !== blog.bid))} />
+                <BlogMenu
+                  bid={blog.bid}
+                  hidden={blog.Hidden}
+                  onSuccess={() => setBlogs((prev) => prev.filter((b) => b.bid !== blog.bid))}
+                />
               </div>
             ))}
           </div>
@@ -148,7 +172,6 @@ const MyBlogs: React.FC = () => {
           itemsPerPage={10}
         />
       </main>
-      {/* <Footer /> */}
     </div>
   );
 };

@@ -7,8 +7,10 @@ import Header from "../../components/Header";
 import Pagination from "../../components/pagination";
 import CreateBlogButton from "../../components/blogs/CreateBlogButton";
 import api from "../../utils/axiosInstance";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function Example() {
+  const { theme } = useTheme();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [error, setError] = useState<string>(""); // Error state
@@ -318,11 +320,11 @@ export default function Example() {
   return (
     <>
       <Header />
-      <div className="bg-black mt-20 py-24 sm:py-12 ">
+      <div className={`bg-${theme === 'dark' ? 'black' : 'white'} mt-20 py-24 sm:py-12`}>
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex items-center justify-between mt-2">
             <div className="mx-auto max-w-2xl lg:mx-0">
-              <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white ">
+              <h2 className={`text-4xl font-semibold tracking-tight text-${theme === 'dark' ? 'white' : 'black'}`}>
                 Blogs
               </h2>
             </div>
@@ -337,7 +339,7 @@ export default function Example() {
                 placeholder="Search by title"
                 value={filter.title === null ? "" : filter.title}
                 onChange={handleFilterChange}
-                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className={`basis-64 p-2 bg-${theme === 'dark' ? 'gray-900' : 'gray-200'} border border-gray-600 rounded-md text-${theme === 'dark' ? 'gray-300' : 'gray-900'}`}
               />
               <input
                 type="text"
@@ -345,7 +347,7 @@ export default function Example() {
                 placeholder="Search by description"
                 value={filter.description}
                 onChange={handleFilterChange}
-                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className={`basis-64 p-2 bg-${theme === 'dark' ? 'gray-900' : 'gray-200'} border border-gray-600 rounded-md text-${theme === 'dark' ? 'gray-300' : 'gray-900'}`}
               />
               <input
                 type="text"
@@ -353,13 +355,13 @@ export default function Example() {
                 placeholder="Search by tags"
                 value={filter.tags}
                 onChange={handleFilterChange}
-                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className={`basis-64 p-2 bg-${theme === 'dark' ? 'gray-900' : 'gray-200'} border border-gray-600 rounded-md text-${theme === 'dark' ? 'gray-300' : 'gray-900'}`}
               />
               <select
                 name="sortBy"
                 value={sort}
                 onChange={handleSortChange}
-                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                className={`basis-64 p-2 bg-${theme === 'dark' ? 'gray-900' : 'gray-200'} border border-gray-600 rounded-md text-${theme === 'dark' ? 'gray-300' : 'gray-900'}`}
               >
                 <option value="default">Sort by default</option>
                 <option value="rating_desc">Sort by rating (descending)</option>
@@ -373,13 +375,13 @@ export default function Example() {
               onClick={() => setFilterOpen(!filterOpen)}
               className="flex items-center justify-between w-full py-4 text-left"
             >
-              <span className="text-lg font-medium text-white">
+              <span className={`text-lg font-medium text-${theme === 'dark' ? 'white' : 'black'}`}>
                 Filter By Code Templates
               </span>
               {filterOpen ? (
-                <span className="text-lg font-medium text-white"> - </span>
+                <span className={`text-lg font-medium text-${theme === 'dark' ? 'white' : 'black'}`}> - </span>
               ) : (
-                <span className="text-lg font-medium text-white"> + </span>
+                <span className={`text-lg font-medium text-${theme === 'dark' ? 'white' : 'black'}`}> + </span>
               )}
             </button>
 
@@ -387,7 +389,7 @@ export default function Example() {
               <div>
                 <div className="mb-3">
                   {codeTemplates.map((template, index) => (
-                    <div key={index} className="flex items-center text-white">
+                    <div key={index} className={`flex items-center text-${theme === 'dark' ? 'white' : 'black'}`}>
                       <input
                         type="checkbox"
                         id={`template-${template}`}
@@ -395,10 +397,7 @@ export default function Example() {
                         onChange={() => handleCheckboxChange(template)}
                         className="mr-2"
                       />
-                      <label
-                        htmlFor={`template-${template}`}
-                        className="text-white"
-                      >
+                      <label htmlFor={`template-${template}`} className={`text-${theme === 'dark' ? 'white' : 'black'}`}>
                         {template}
                       </label>
                     </div>
@@ -427,18 +426,18 @@ export default function Example() {
             )}
           </div>
 
-          <div className="mx-auto mt-3 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 pt-3 sm:mt-3 sm:pt-3 lg:mx-0 lg:max-w-none lg:grid-cols-3 mb-6 pb-4">
+          <div className={`mx-auto mt-3 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 pt-3 sm:mt-3 sm:pt-3 lg:mx-0 lg:max-w-none lg:grid-cols-3 mb-6 pb-4`}>
             {loading ? (
-              <div className="text-white">Loading...</div>
+              <div className={`text-${theme === 'dark' ? 'white' : 'black'}`}>Loading...</div>
             ) : error ? (
-              <div className="text-white">{error}</div>
+              <div className={`text-${theme === 'dark' ? 'white' : 'black'}`}>{error}</div>
             ) : posts.length > 0 ? (
               posts.map((post) => (
                 <article
                   key={post.bid}
-                  className="flex max-w-xl flex-col items-start justify-between border border-gray-600 rounded-md p-5 bg-gray-900"
+                  className={`flex max-w-xl flex-col items-start justify-between border border-gray-600 rounded-md p-5 bg-${theme === 'dark' ? 'gray-900' : 'gray-100'}`}
                 >
-                  <div className="flex flex-wrap items-center gap-x-4 text-xs ">
+                  <div className="flex flex-wrap items-center gap-x-4 text-xs">
                     {/* <time dateTime={post.datetime} className="text-gray-500">
                   {post.date}
                 </time> */}
@@ -446,7 +445,7 @@ export default function Example() {
                       post.tags.map((tag, index) => (
                         <span
                           key={index}
-                          className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm ml-2 mr-2 mb-2"
+                          className={`bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm ml-2 mr-2 mb-2`}
                         >
                           {tag.name.charAt(0).toUpperCase() + tag.name.slice(1)}
                         </span>
@@ -456,7 +455,7 @@ export default function Example() {
                     )}
                   </div>
                   <div className="group relative ">
-                    <h3 className="mt-3 text-lg/6 font-semibold text-gray-100 group-hover:text-gray-600">
+                    <h3 className={`mt-3 text-lg/6 font-semibold text-${theme === 'dark' ? 'gray-100' : 'black'} group-hover:text-${theme === 'dark' ? 'gray-600' : 'gray-800'}`}>
                       <button
                         onClick={() => {
                           handleClick(post.bid);
@@ -467,7 +466,7 @@ export default function Example() {
                         {post.title}
                       </button>
                     </h3>
-                    <p className="mt-5 line-clamp-3 text-sm/6 text-gray-200">
+                    <p className={`mt-5 line-clamp-3 text-sm/6 text-${theme === 'dark' ? 'gray-200' : 'gray-800'}`}>
                       {post.description}
                     </p>
                   </div>
@@ -482,20 +481,20 @@ export default function Example() {
                       className="h-10 w-10 rounded-full bg-gray-50"
                     />
                     <div className="text-sm/6">
-                      <p className="font-semibold text-gray-200">
+                      <p className={`font-semibold text-${theme === 'dark' ? 'gray-200' : 'gray-800'}`}>
                         <a>
                           <span className="absolute inset-0" />
                           {post.user.profile.firstName}{" "}
                           {post.user.profile.lastName}
                         </a>
                       </p>
-                      <p className="text-gray-200">@{post.user.username}</p>
+                      <p className={`text-${theme === 'dark' ? 'gray-200' : 'gray-800'}`}>@{post.user.username}</p>
                     </div>
                   </div>
                 </article>
               ))
             ) : (
-              <div className="text-white mb-6 pb-4">No blogs available</div>
+              <div className={`text-${theme === 'dark' ? 'white' : 'black'} mb-6 pb-4`}>No blogs available</div>
             )}
           </div>
           {/* Pagination Controls */}

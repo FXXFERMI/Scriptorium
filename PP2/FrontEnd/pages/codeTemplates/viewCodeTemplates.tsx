@@ -7,9 +7,10 @@ import Header from "../../components/Header";
 import Pagination from "../../components/pagination";
 import api from "../../utils/axiosInstance";
 import CreateCodeTemplateButton from "../../components/codeTemplates/CreateCodeTemplatsButton"; // Import the button component
-
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function ViewCodeTemplates() {
+    const { theme } = useTheme();
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState<boolean>(true); // Loading state
     const [error, setError] = useState<string>(""); // Error state
@@ -105,11 +106,11 @@ export default function ViewCodeTemplates() {
     return (
         <>
             <Header />
-            <div className="bg-black mt-20 py-24 sm:py-12">
+            <div className={`bg-${theme === "dark" ? "black" : "white"} mt-20 py-24 sm:py-12`}>
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="flex flex-col sm:flex-row items-center justify-between mt-2 space-y-4 sm:space-y-0">
                         <div className="mx-auto max-w-2xl lg:mx-0">
-                            <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white">
+                            <h2 className={`text-pretty text-4xl font-semibold tracking-tight text-${theme === "dark" ? "white" : "black"}`}>
                                 Code Templates
                             </h2>
                         </div>
@@ -127,7 +128,7 @@ export default function ViewCodeTemplates() {
                                 placeholder="Search by title"
                                 value={filter.title}
                                 onChange={handleFilterChange}
-                                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                                className={`basis-64 p-2 bg-${theme === "dark" ? "gray-900" : "gray-200"} border border-gray-600 rounded-md text-${theme === "dark" ? "gray-300" : "gray-700"}`}
                             />
                             <input
                                 type="text"
@@ -135,7 +136,7 @@ export default function ViewCodeTemplates() {
                                 placeholder="Search by language"
                                 value={filter.language}
                                 onChange={handleFilterChange}
-                                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                                className={`basis-64 p-2 bg-${theme === "dark" ? "gray-900" : "gray-200"} border border-gray-600 rounded-md text-${theme === "dark" ? "gray-300" : "gray-700"}`}
                             />
                             <input
                                 type="text"
@@ -143,7 +144,7 @@ export default function ViewCodeTemplates() {
                                 placeholder="Search by tags"
                                 value={filter.tags}
                                 onChange={handleFilterChange}
-                                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                                className={`basis-64 p-2 bg-${theme === "dark" ? "gray-900" : "gray-200"} border border-gray-600 rounded-md text-${theme === "dark" ? "gray-300" : "gray-700"}`}
                             />
 
                             <input
@@ -152,21 +153,21 @@ export default function ViewCodeTemplates() {
                                 placeholder="Search by code content"
                                 value={filter.code}
                                 onChange={handleFilterChange}
-                                className="basis-64 p-2 bg-gray-900 border border-gray-600 rounded-md text-gray-300"
+                                className={`basis-64 p-2 bg-${theme === "dark" ? "gray-900" : "gray-200"} border border-gray-600 rounded-md text-${theme === "dark" ? "gray-300" : "gray-700"}`}
                             />
                         </div>
                     </div>
 
                     <div className="mx-auto mt-3 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 pt-3 sm:mt-3 sm:pt-3 lg:mx-0 lg:max-w-none lg:grid-cols-3 mb-6 pb-4">
                         {loading ? (
-                            <div className="text-white">Loading...</div>
+                            <div className={`text-${theme === "dark" ? "white" : "black"}`}>Loading...</div>
                         ) : error ? (
-                            <div className="text-white">{error}</div>
+                            <div className={`text-${theme === "dark" ? "white" : "black"}`}>{error}</div>
                         ) : templates.length > 0 ? (
                             templates.map((template) => (
                                 <article
                                     key={template.cid}
-                                    className="flex max-w-xl flex-col items-start justify-between border border-gray-600 rounded-md p-5 bg-gray-900"
+                                    className={`flex max-w-xl flex-col items-start justify-between border border-gray-600 rounded-md p-5 bg-${theme === "dark" ? "gray-900" : "gray-100"}`}
                                 >
                                     <div className="flex flex-wrap items-center gap-x-4 text-xs ">
                                         {template.tags && template.tags.length > 0 ? (
@@ -179,11 +180,11 @@ export default function ViewCodeTemplates() {
                                                 </span>
                                             ))
                                         ) : (
-                                            <span className="text-gray-500"></span>
+                                            <span className={`text-${theme === "dark" ? "gray-500" : "gray-700"}`}></span>
                                         )}
                                     </div>
                                     <div className="group relative ">
-                                        <h3 className="mt-3 text-lg/6 font-semibold text-gray-100 group-hover:text-gray-600">
+                                        <h3 className={`mt-3 text-lg/6 font-semibold text-${theme === "dark" ? "gray-100" : "gray-800"} group-hover:text-gray-600`}>
                                             <button
                                                 onClick={() => {
                                                     handleClick(template.cid);
@@ -194,7 +195,7 @@ export default function ViewCodeTemplates() {
                                                 {template.title}
                                             </button>
                                         </h3>
-                                        <p className="mt-5 line-clamp-3 text-sm/6 text-gray-200">
+                                        <p className={`mt-5 line-clamp-3 text-sm/6 text-${theme === "dark" ? "gray-200" : "gray-700"}`}>
                                             {template.explanation}
                                         </p>
                                     </div>
@@ -209,19 +210,19 @@ export default function ViewCodeTemplates() {
                                             className="h-10 w-10 rounded-full bg-gray-50"
                                         />
                                         <div className="text-sm/6">
-                                            <p className="font-semibold text-gray-200">
+                                            <p className={`font-semibold text-${theme === "dark" ? "gray-200" : "gray-800"}`}>
                                                 <a>
                                                     <span className="absolute inset-0" />
                                                     {template.user.profile.firstName} {template.user.profile.lastName}
                                                 </a>
                                             </p>
-                                            <p className="text-gray-200">@{template.user.username}</p>
+                                            <p className={`text-${theme === "dark" ? "gray-200" : "gray-700"}`}>@{template.user.username}</p>
                                         </div>
                                     </div>
                                 </article>
                             ))
                         ) : (
-                            <div className="text-white mb-6 pb-4">No code templates available</div>
+                            <div className={`text-${theme === "dark" ? "white" : "black"} mb-6 pb-4`}>No code templates available</div>
                         )}
                     </div>
                     {/* Pagination Controls */}

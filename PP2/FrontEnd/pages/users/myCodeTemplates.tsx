@@ -8,6 +8,9 @@ import Cookies from "js-cookie";
 import Pagination from "../../components/pagination";
 import CodeTemplateMenu from "../../components/codeTemplates/CodeTemplatesMenu";
 import CreateCodeTemplateButton from "../../components/codeTemplates/CreateCodeTemplatsButton";
+import { useTheme } from "../../contexts/ThemeContext";
+import Head from "next/head";
+import { NextSeo } from "next-seo";
 
 interface CodeTemplate {
   cid: number;
@@ -18,6 +21,7 @@ interface CodeTemplate {
 }
 
 const MyCodeTemplates: React.FC = () => {
+  const { theme } = useTheme();
   const [codeTemplates, setCodeTemplates] = useState<CodeTemplate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,11 +98,22 @@ const MyCodeTemplates: React.FC = () => {
   };
 
   return (
-    <div>
-      {/* <Header /> */}
+    <div className={`text-${theme === "dark" ? "black" : "white"} bg-${theme === "dark" ? "black" : "white"}`}>
+      <NextSeo
+        title="My Code Templates - SFJ Scriptorium"
+        description="View and manage your code templates on SFJ Scriptorium."
+        canonical={`${process.env.NEXT_PUBLIC_BASE_URL}/codeTemplates/myCodeTemplates`}
+        openGraph={{
+          url: `${process.env.NEXT_PUBLIC_BASE_URL}/codeTemplates/myCodeTemplates`,
+        }}
+      />
+      <Head>
+        <title>My Code Templates - SFJ Scriptorium</title>
+        <link rel="icon" href={theme === "dark" ? "/favicon.png" : "/logo_light.PNG"} />
+      </Head>
       <main className="container max-w-screen-lg mx-auto mt-10 p-4">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl text-white font-bold">My Code Templates</h1>
+          <h1 className="text-4xl font-bold">My Code Templates</h1>
           <CreateCodeTemplateButton />
         </div>
 
@@ -110,7 +125,7 @@ const MyCodeTemplates: React.FC = () => {
             placeholder="Filter by title"
             value={filter.title}
             onChange={handleFilterChange}
-            className="p-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+            className={`p-2 bg-${theme === "dark" ? "gray-800" : "gray-200"} border border-gray-600 rounded-md text-${theme === "dark" ? "white" : "black"}`}
           />
           <input
             type="text"
@@ -118,7 +133,7 @@ const MyCodeTemplates: React.FC = () => {
             placeholder="Filter by language"
             value={filter.language}
             onChange={handleFilterChange}
-            className="p-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+            className={`p-2 bg-${theme === "dark" ? "gray-800" : "gray-200"} border border-gray-600 rounded-md text-${theme === "dark" ? "white" : "black"}`}
           />
           <input
             type="text"
@@ -126,7 +141,7 @@ const MyCodeTemplates: React.FC = () => {
             placeholder="Filter by tags (comma separated)"
             value={filter.tags}
             onChange={handleFilterChange}
-            className="p-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+            className={`p-2 bg-${theme === "dark" ? "gray-800" : "gray-200"} border border-gray-600 rounded-md text-${theme === "dark" ? "white" : "black"}`}
           />
           <input
             type="text"
@@ -134,28 +149,26 @@ const MyCodeTemplates: React.FC = () => {
             placeholder="Filter by code content"
             value={filter.code}
             onChange={handleFilterChange}
-            className="p-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+            className={`p-2 bg-${theme === "dark" ? "gray-800" : "gray-200"} border border-gray-600 rounded-md text-${theme === "dark" ? "white" : "black"}`}
           />
         </div>
 
         {loading ? (
-          <p>Loading...</p>
+          <p className="text-center">Loading...</p>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <p className="text-center text-red-500">{error}</p>
         ) : codeTemplates.length > 0 ? (
           <div className="space-y-6">
             {codeTemplates.map((template) => (
               <div
                 key={template.cid}
-                className="bg-black p-6 shadow-md flex justify-between border border-white text-white"
+                className={`bg-${theme === "dark" ? "gray-800" : "gray-200"} p-6 shadow-md flex justify-between border border-gray-700 text-${theme === "dark" ? "white" : "black"} rounded-lg hover:shadow-lg transition-transform transform hover:scale-105`}
               >
                 <div>
-                  <h2
-                    className="text-2xl font-bold mb-2 cursor-pointer transition hover:bg-gray-300 hover:shadow-lg hover:scale-105"
-                  >
+                  <h2 className="text-2xl font-bold mb-2 cursor-pointer transition hover:text-blue-400">
                     {template.title}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className={`text-sm text-${theme === "dark" ? "gray-300" : "gray-600"}`}>
                     Tags: {template.tags.map((tag) => tag.name).join(", ")}
                   </p>
                 </div>
@@ -179,7 +192,6 @@ const MyCodeTemplates: React.FC = () => {
           itemsPerPage={10}
         />
       </main>
-      {/* <Footer /> */}
     </div>
   );
 };

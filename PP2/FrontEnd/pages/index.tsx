@@ -12,9 +12,13 @@ import { blogType } from "../interfaces/blog";
 import dotenv from "dotenv";
 dotenv.config();
 
+import { useTheme } from "../contexts/ThemeContext"; // Import useTheme
+
+
 const Header = dynamic(() => import("../components/Header"), { ssr: false }); // Dynamic import for client-side rendering only
 
 const Home: FC = () => {
+  const { theme } = useTheme();
   const [newestTemplates, setNewestTemplates] = useState<codeTemplateType[]>([]);
   const [topRatedBlogs, setTopRatedBlogs] = useState<blogType[]>([]);
 
@@ -51,7 +55,8 @@ const Home: FC = () => {
   }, []);
 
   return (
-    <div className="text-black bg-black">
+    // <div className="text-black bg-black">
+    <div className={`text-${theme === 'dark' ? 'white' : 'black'} bg-${theme === 'dark' ? 'black' : 'white'}`}>
       <NextSeo
         title="Home: SFJ Scriptorium "
         description="Welcome to SFJ Scriptorium homepage."
@@ -65,18 +70,18 @@ const Home: FC = () => {
         <link rel="icon" href="/favicon.png" />
       </Head>
       <Header />
-      <section className="text-gray-600 body-font">
+      <section className={`text-${theme === 'dark' ? 'gray-400' : 'gray-600'} body-font`}>
         <div className="max-w-5xl pt-52 pb-24 mx-auto">
-          <h1 className="text-80 text-center font-4 lh-6 ld-04 font-bold text-white mb-6">
+          <h1 className={`text-80 text-center font-4 lh-6 ld-04 font-bold text-${theme === 'dark' ? 'white' : 'black'} mb-6`}>
             Welcome to SFJ: the new way of writing code!
           </h1>
-          <h2 className="text-2xl font-4 font-semibold lh-6 ld-04 pb-11 text-gray-700 text-center">
+          <h2 className={`text-2xl font-4 font-semibold lh-6 ld-04 pb-11 text-${theme === 'dark' ? 'gray-400' : 'gray-700'} text-center`}>
             Crafting Code, Inspiring Creativity, Empowering Innovation.
           </h2>
           {/* <div className="ml-6 text-center flex flex-col md:flex-row md:justify-center md:space-x-8 space-y-4 md:space-y-0"> */}
           <div className="ml-6 text-center">
             <a
-              className="inline-flex items-center py-3 font-semibold text-black transition duration-500 ease-in-out transform bg-transparent bg-white px-7 text-md md:mt-0 hover:text-black hover:bg-white focus:shadow-outline"
+              className={`inline-flex items-center py-3 font-semibold text-${theme === 'dark' ? 'black' : 'black'} transition duration-500 ease-in-out transform bg-transparent bg-${theme === 'dark' ? 'white' : 'black'} px-7 text-md md:mt-0 hover:text-${theme === 'dark' ? 'black' : 'white'} hover:bg-${theme === 'dark' ? 'white' : 'black'} focus:shadow-outline`}
               href="/codeTemplates/viewCodeTemplates"
             >
               <div className="flex text-lg">
@@ -92,7 +97,7 @@ const Home: FC = () => {
               </div>
             </a>
             <a
-              className="inline-flex items-center py-3 font-semibold text-black transition duration-500 ease-in-out transform bg-transparent bg-white px-7 text-md hover:text-black hover:bg-white focus:shadow-outline"
+              className={`inline-flex items-center py-3 font-semibold text-${theme === 'dark' ? 'black' : 'black'} transition duration-500 ease-in-out transform bg-transparent bg-${theme === 'dark' ? 'white' : 'black'} px-7 text-md hover:text-${theme === 'dark' ? 'black' : 'white'} hover:bg-${theme === 'dark' ? 'white' : 'black'} focus:shadow-outline`}
               href="/users/register"
             >
               <div className="flex text-lg">
@@ -198,15 +203,14 @@ const Home: FC = () => {
           Clean and tidy code.
         </h2>
         <br />
-        <p className="mx-auto text-xl text-center text-gray-300 font-normal leading-relaxed fs521 lg:w-2/3">
-          Discover beautifully crafted, ready-to-use code templates to kickstart
-          your next project effortlessly.
+        <p className={`mx-auto text-xl text-center font-normal leading-relaxed fs521 lg:w-2/3 text-${theme === 'dark' ? 'gray-300' : 'gray-700'}`}>
+          Discover beautifully crafted, ready-to-use code templates to kickstart your next project effortlessly.
         </p>
         <div className="pt-12 pb-24 max-w-4xl mx-auto fsac4 md:px-1 px-3 grid gap-8 grid-cols-1 md:grid-cols-2">
           {newestTemplates.map((template) => (
             <div
               key={template.cid}
-              className="ktq4 bg-gray-800 p-6 rounded-lg cursor-pointer"
+              className={`ktq4 bg-${theme === 'dark' ? 'gray-800' : 'gray-100'} p-6 rounded-lg cursor-pointer`}
               onClick={() => window.location.href = `/execution/${template.cid}`}
             >
               <img
@@ -214,10 +218,10 @@ const Home: FC = () => {
                 src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
                 alt="icon"
               />
-              <h3 className="pt-3 font-semibold text-lg text-white">
-                {template.title}
+              <h3 className={`pt-3 font-semibold text-lg text-${theme === 'dark' ? 'white' : 'white'}`}>
+              {template.title}
               </h3>
-              <p className="pt-2 value-text text-md text-gray-200 fkrr1">
+              <p className={`pt-2 value-text text-md text-${theme === 'dark' ? 'gray-200' : 'gray-100'} fkrr1`}>
                 {/* {template.explanation} */}
                 {template.explanation.length > 100 ? `${template.explanation.slice(0, 100)}...` : template.explanation}
               </p>
@@ -297,26 +301,26 @@ const Home: FC = () => {
           Ideas that Inspire.
         </h2>
         <br />
-        <p className="mx-auto text-xl text-center text-gray-300 font-normal leading-relaxed fs521 lg:w-2/3">
-          Dive into expert-written blogs for insights, tips, and the latest
-          trends in the world of coding and development.
+        <p className={`mx-auto text-xl text-center font-normal leading-relaxed fs521 lg:w-2/3 text-${theme === 'dark' ? 'gray-300' : 'gray-700'}`}>
+          Dive into expert-written blogs for insights, tips, and the latest trends in the world of coding and development.
         </p>
         <div className="pt-32 pb-32 max-w-6xl mx-auto fsac4 md:px-1 px-3 grid gap-8 grid-cols-1 md:grid-cols-2">
           {topRatedBlogs.map((blog) => (
             <div
               key={blog.bid}
-              className="ktq4 bg-gray-800 p-6 rounded-lg cursor-pointer"
+              className={`ktq4 bg-${theme === 'dark' ? 'gray-800' : 'gray-100'} p-6 rounded-lg cursor-pointer`}
               onClick={() => window.location.href = `/blogs/blog?id=${blog.bid}`}
             >
               <img
                 src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
                 alt="feature image"
               />
-              <h3 className="pt-3 font-semibold text-lg text-white">
-                {blog.title}
+              <h3 className={`pt-3 font-semibold text-lg text-${theme === 'dark' ? 'white' : 'white'}`}>
+              {blog.title}
               </h3>
-              <p className="pt-2 value-text text-md text-gray-200 fkrr1">
-                {blog.description.length > 100 ? `${blog.description.slice(0, 100)}...` : blog.description}              </p>
+              <p className={`pt-2 value-text text-md text-${theme === 'dark' ? 'gray-200' : 'gray-100'} fkrr1`}>
+                {blog.description.length > 100 ? `${blog.description.slice(0, 100)}...` : blog.description}
+              </p>
             </div>
           ))}
         </div>

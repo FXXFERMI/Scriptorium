@@ -9,6 +9,7 @@ import api from "../../utils/axiosInstance";
 import Pagination from "../../components/pagination";
 import ReportButton from "../../components/reports/reportButton";
 import Link from "next/link";
+import { useTheme } from "../../contexts/ThemeContext";
 
 // https://tailwindui.com/components/application-ui/navigation/pagination
 
@@ -21,6 +22,7 @@ type ProfileType = {
 };
 
 const DisplayBlog = () => {
+  const { theme } = useTheme();
   const router = useRouter();
   const { id } = router.query; // Get the blog ID from the URL
   const [blog, setBlog] = useState<blogType>(null); // State for storing blog data
@@ -242,7 +244,7 @@ const DisplayBlog = () => {
         if (
           comments[replyingToCommentIndex].replies &&
           updatedComments[replyingToCommentIndex]._count.replies <=
-            comments[replyingToCommentIndex].replies.length
+          comments[replyingToCommentIndex].replies.length
         ) {
           comments[replyingToCommentIndex].replies.push(response.data);
         } else if (
@@ -753,17 +755,17 @@ const DisplayBlog = () => {
   if (error) return <div className="text-red-500">{error}</div>; // Show error message if failed to fetch
 
   return (
-    <div>
+    <div className={`bg-${theme === 'dark' ? 'black' : 'white'}`}>
       <Header />
       <div className="container mx-auto p-8 mt-20">
         {blog ? (
           <>
             <div className="flex flex-col lg:flex-row gap-6">
-              <div className="flex-1 bg-gray-800 p-6 rounded-lg shadow-md">
-                <h1 className="text-5xl font-4 lh-6 ld-04 font-bold text-white mb-6">
+              <div className={`flex-1 bg-${theme === 'dark' ? 'gray-800' : 'gray-100'} p-6 rounded-lg shadow-md`}>
+                <h1 className={`text-5xl font-bold text-${theme === 'dark' ? 'white' : 'black'} mb-6`}>
                   {blog.title}
                 </h1>
-                <div className="text-gray-300 flex flex-wrap mb-6">
+                <div className={`text-${theme === 'dark' ? 'gray-300' : 'gray-700'} flex flex-wrap mb-6`}>
                   tags:
                   {blog.tags && blog.tags.length > 0 ? (
                     blog.tags.map((tag, index) => (
@@ -775,15 +777,15 @@ const DisplayBlog = () => {
                       </span>
                     ))
                   ) : (
-                    <span className="text-gray-500">No tags available</span>
+                    <span className={`text-${theme === 'dark' ? 'gray-500' : 'gray-400'}`}>No tags available</span>
                   )}
                 </div>
                 {/* add author section*/}
-                <h1 className="text-gray-200 text-1.5xl font-bold mb-4">
+                <h1 className={`text-${theme === 'dark' ? 'gray-200' : 'gray-800'} text-1.5xl font-bold mb-4`}>
                   {" "}
                   Written by:
                 </h1>
-                <div className="text-gray-200 flex flex-row items-center mb-6">
+                <div className={`text-${theme === 'dark' ? 'gray-200' : 'gray-800'} flex flex-row items-center mb-6`}>
                   <img
                     src={
                       blog.user.profile.avatar.startsWith("/uploads/")
@@ -805,12 +807,14 @@ const DisplayBlog = () => {
                       {" "}
                       {blog.user.profile.firstName} {blog.user.profile.lastName}{" "}
                     </h2>
-                    <p className="text-lg"> @{blog.user.username} </p>
+                    <p className={`text-lg text-${theme === 'dark' ? 'gray-300' : 'gray-700'}`}>
+                      @{blog.user.username}
+                    </p>
                   </div>
                 </div>
 
                 <p
-                  className="text-gray-300 text-lg font-normal"
+                  className={`text-${theme === 'dark' ? 'gray-300' : 'gray-800'} text-lg font-normal`}
                   style={{ whiteSpace: "pre-wrap" }}
                 >
                   {blog.description}
@@ -820,28 +824,26 @@ const DisplayBlog = () => {
                     {/* Upvote button */}
                     <button
                       onClick={() => handleBlogUpvote(blog.bid)}
-                      className={`mr-2 ${
-                        blog.hasUpvoted
-                          ? "text-blue-500 font-bold" // Highlighted when upvoted
-                          : "text-gray-500 hover:text-blue-500" // Default state
-                      }`}
+                      className={`mr-2 ${blog.hasUpvoted
+                        ? "text-blue-500 font-bold" // Highlighted when upvoted
+                        : `text-${theme === 'dark' ? 'gray-500' : 'gray-400'} hover:text-blue-500` // Default state
+                        }`}
                     >
                       ▲
                     </button>
-                    <span className="text-gray-100">{blog.upvotes}</span>
+                    <span className={`text-${theme === 'dark' ? 'gray-100' : 'gray-700'}`}>{blog.upvotes}</span>
 
                     {/* Downvote button */}
                     <button
                       onClick={() => handleBlogDownvote(blog.bid)}
-                      className={`mr-2 ml-2 ${
-                        blog.hasDownvoted
-                          ? "text-red-500 font-bold" // Highlighted when downvoted
-                          : "text-gray-500 hover:text-red-500" // Default state
-                      }`}
+                      className={`mr-2 ml-2 ${blog.hasDownvoted
+                        ? "text-red-500 font-bold" // Highlighted when downvoted
+                        : `text-${theme === 'dark' ? 'gray-500' : 'gray-400'} hover:text-red-500`
+                        }`}
                     >
                       ▼
                     </button>
-                    <span className="text-gray-100">{blog.downvotes}</span>
+                    <span className={`text-${theme === 'dark' ? 'gray-100' : 'gray-700'}`}>{blog.downvotes}</span>
                   </div>
 
                   {/* Report button aligned to the right */}
@@ -849,8 +851,8 @@ const DisplayBlog = () => {
                 </div>
               </div>
 
-              <div className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold text-white mb-4">
+              <div className={`max-w-md mx-auto bg-${theme === 'dark' ? 'gray-800' : 'gray-100'} p-6 rounded-lg shadow-md`}>
+                <h2 className={`text-2xl font-bold text-${theme === 'dark' ? 'white' : 'black'} mb-4`}>
                   Code Templates:{" "}
                 </h2>
                 <ul className="space-y-4">
@@ -859,8 +861,7 @@ const DisplayBlog = () => {
                   {blog.codeTemplates.map((template) => (
                     <li
                       key={template.cid}
-                      className="flex items-center justify-between p-4 text-white hover:bg-gray-700 rounded-lg transition duration-300 ease-in-out"
-                    >
+                      className={`flex items-center justify-between p-4 text-${theme === 'dark' ? 'white' : 'black'} hover:bg-${theme === 'dark' ? 'gray-700' : 'gray-300'} rounded-lg transition duration-300 ease-in-out`}                    >
                       <Link href={`/execution/${template.cid}`}>
                         {template.title}
                       </Link>
@@ -873,7 +874,7 @@ const DisplayBlog = () => {
             <hr className="mt-8" />
             {/* Add comments */}
             <div className="mt-8">
-              <h2 className="text-xl text-gray-100 font-semibold mb-4">
+              <h2 className={`text-xl text-${theme === 'dark' ? 'gray-100' : 'black'} font-semibold mb-4`}>
                 Comments
               </h2>
               {/* Sort by ratings */}
@@ -882,7 +883,7 @@ const DisplayBlog = () => {
                   name="sortBy"
                   value={sortComment}
                   onChange={handleSortCommentChange}
-                  className="border p-2 mb-4 bg-gray-900 text-gray-300 rounded-md "
+                  className={`border p-2 mb-4 bg-${theme === 'dark' ? 'gray-900' : 'gray-200'} text-${theme === 'dark' ? 'gray-300' : 'gray-700'} rounded-md`}
                 >
                   <option value="default">Sort comments by default</option>
                   <option value="rating_desc">
@@ -893,7 +894,7 @@ const DisplayBlog = () => {
                   name="sortBy"
                   value={sortReply}
                   onChange={handleSortReplyChange}
-                  className="border p-2 mb-4 bg-gray-900 text-gray-300 rounded-md "
+                  className={`border p-2 mb-4 bg-${theme === 'dark' ? 'gray-900' : 'gray-200'} text-${theme === 'dark' ? 'gray-300' : 'gray-700'} rounded-md`}
                 >
                   <option value="default">Sort replies by default</option>
                   <option value="rating_desc">
@@ -905,7 +906,7 @@ const DisplayBlog = () => {
                 comments.map((comment, index) => (
                   <div
                     key={comment.commentId}
-                    className="border-b border-gray-300 mb-6 pb-4"
+                    className={`border-b border-${theme === 'dark' ? 'gray-300' : 'gray-400'} mb-6 pb-4`}
                   >
                     <div className="flex flex-row justify-between items-center mb-4">
                       {/* Left Section: Avatar and Comment Content */}
@@ -923,10 +924,10 @@ const DisplayBlog = () => {
                           className="w-14 h-14 rounded-full"
                         />
                         <div className="flex flex-col ml-4 w-full">
-                          <p className="text-m text-gray-200">
+                          <p className={`text-m text-${theme === 'dark' ? 'gray-200' : 'black'}`}>
                             {comment.user.username}
                           </p>
-                          <p className="break-words text-gray-200">
+                          <p className={`break-words text-${theme === 'dark' ? 'gray-200' : 'gray-800'}`}>
                             {comment.content}
                           </p>
 
@@ -939,7 +940,7 @@ const DisplayBlog = () => {
                                 comment.user.username
                               )
                             }
-                            className="mt-2 px-0.5 py-0.5 w-12 text-white hover:text-blue-500 text-sm rounded"
+                            className={`mt-2 px-0.5 py-0.5 w-12 text-${theme === 'dark' ? 'white' : 'black'} hover:text-blue-500 text-sm rounded`}
                           >
                             Reply
                           </button>
@@ -953,30 +954,28 @@ const DisplayBlog = () => {
                             onClick={() =>
                               handleCommentUpvote(comment.commentId, index)
                             }
-                            className={`mr-2 ${
-                              comment.hasUpvoted
-                                ? "text-blue-500 font-bold" // Highlighted when upvoted
-                                : "text-gray-500 hover:text-blue-500" // Default state
-                            }`}
+                            className={`mr-2 ${comment.hasUpvoted
+                              ? "text-blue-500 font-bold" // Highlighted when upvoted
+                              : `text-${theme === 'dark' ? 'gray-500' : 'gray-400'} hover:text-blue-500`
+                              }`}
                           >
                             ▲
                           </button>
-                          <span className="text-gray-100">
+                          <span className={`text-${theme === 'dark' ? 'gray-100' : 'gray-700'}`}>
                             {comment.upvotes}
                           </span>
                           <button
                             onClick={() =>
                               handleCommentDownvote(comment.commentId, index)
                             }
-                            className={`mr-2 ml-2 ${
-                              comment.hasDownvoted
-                                ? "text-red-500 font-bold" // Highlighted when downvoted
-                                : "text-gray-500 hover:text-red-500" // Default state
-                            }`}
+                            className={`mr-2 ml-2 ${comment.hasDownvoted
+                              ? "text-red-500 font-bold" // Highlighted when downvoted
+                              : `text-${theme === 'dark' ? 'gray-500' : 'gray-400'} hover:text-red-500`
+                              }`}
                           >
                             ▼
                           </button>
-                          <span className="text-gray-100 mr-2">
+                          <span className={`text-${theme === 'dark' ? 'gray-100' : 'gray-700'} mr-2`}>
                             {comment.downvotes}
                           </span>
                           {isLoggedIn && (
@@ -1048,11 +1047,10 @@ const DisplayBlog = () => {
                                       index
                                     )
                                   }
-                                  className={`mr-2 ${
-                                    reply.hasUpvoted
-                                      ? "text-blue-500 font-bold" // Highlighted when upvoted
-                                      : "text-gray-500 hover:text-blue-500" // Default state
-                                  }`}
+                                  className={`mr-2 ${reply.hasUpvoted
+                                    ? "text-blue-500 font-bold" // Highlighted when upvoted
+                                    : "text-gray-500 hover:text-blue-500" // Default state
+                                    }`}
                                 >
                                   ▲
                                 </button>
@@ -1068,11 +1066,10 @@ const DisplayBlog = () => {
                                       index
                                     )
                                   }
-                                  className={`mr-2 ml-2 ${
-                                    reply.hasDownvoted
-                                      ? "text-red-500 font-bold" // Highlighted when downvoted
-                                      : "text-gray-500 hover:text-red-500" // Default state
-                                  }`}
+                                  className={`mr-2 ml-2 ${reply.hasDownvoted
+                                    ? "text-red-500 font-bold" // Highlighted when downvoted
+                                    : "text-gray-500 hover:text-red-500" // Default state
+                                    }`}
                                 >
                                   ▼
                                 </button>
@@ -1119,7 +1116,9 @@ const DisplayBlog = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 mb-6 pb-4">No comments available</p>
+                <p className={`text-${theme === 'dark' ? 'gray-500' : 'gray-400'} mb-6 pb-4`}>
+                  No comments available
+                </p>
               )}
 
               {/* Pagination Controls */}
@@ -1144,7 +1143,7 @@ const DisplayBlog = () => {
                 </span>
               )}
               {isLoggedIn && (
-                <div className="flex items-start gap-4 rounded-lg p-4 shadow-sm">
+                <div className={`flex items-start gap-4 rounded-lg p-4 shadow-sm bg-${theme === 'dark' ? 'gray-900' : 'gray-100'}`}>
                   {/* User Avatar */}
                   <img
                     src={profile.avatarUrl}
@@ -1160,7 +1159,7 @@ const DisplayBlog = () => {
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Add your comment..."
-                      className="w-full h-16 p-3 border border-gray-300 bg-gray-900 rounded-lg resize-none text-white focus:outline-none focus:ring focus:ring-blue-300"
+                      className={`w-full h-16 p-3 border border-gray-300 bg-${theme === 'dark' ? 'gray-900' : 'gray-200'} rounded-lg resize-none text-${theme === 'dark' ? 'white' : 'black'} focus:outline-none focus:ring focus:ring-blue-300`}
                     ></textarea>
                     <div className="mt-2 flex justify-between items-center">
                       {/* Icons */}
@@ -1180,7 +1179,7 @@ const DisplayBlog = () => {
             </div>
           </>
         ) : (
-          <div className="text-center text-xl text-gray-500">
+          <div className={`text-center text-xl text-${theme === 'dark' ? 'gray-500' : 'gray-800'}`}>
             Blog not found
           </div>
         )}

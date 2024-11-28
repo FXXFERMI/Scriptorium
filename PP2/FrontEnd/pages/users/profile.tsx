@@ -5,6 +5,7 @@ import Head from "next/head";
 // import Footer from "../../components/Footer";
 import { NextSeo } from "next-seo";
 import api from '../../utils/axiosInstance';
+import { useTheme } from "../../contexts/ThemeContext";
 
 const availableAvatars = [
     '/avatars/avatar1.png',
@@ -25,6 +26,7 @@ type ProfileType = {
 };
 
 const Profile = () => {
+    const { theme } = useTheme();
     const [profile, setProfile] = useState<ProfileType | null>(null);
     const [showAvatarSelection, setShowAvatarSelection] = useState<boolean>(false);
     const [selectedAvatar, setSelectedAvatar] = useState<string>('');
@@ -176,10 +178,10 @@ const Profile = () => {
     if (!profile) return <p className="text-center text-gray-300">Loading...</p>;
 
     return (
-        <div className="text-black bg-black">
+        <div className={`text-${theme === "dark" ? "black" : "white"} bg-${theme === "dark" ? "black" : "white"}`}>
             <NextSeo
-                title="About Us: SFJ Scriptorium"
-                description="Learn more about SFJ Scriptorium: the new way of writing code."
+                title="Profile: SFJ Scriptorium"
+                description="View and update your profile on SFJ Scriptorium."
                 canonical={`${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`}
                 openGraph={{
                     url: `${process.env.NEXT_PUBLIC_BASE_URL}/users/profile`,
@@ -187,13 +189,15 @@ const Profile = () => {
             />
             <Head>
                 <title>Profile - SFJ Scriptorium</title>
-                <link rel="icon" href="/favicon.png" />
-            </Head>
+                <link
+                    rel="icon"
+                    href={theme === "dark" ? "/favicon.png" : "/logo_light.PNG"}
+                />            </Head>
             {/* <Header /> */}
             <section className="text-gray-600 body-font">
 
                 <div className="max-w-5xl pt-40 pb-24 mx-auto">
-                    <h1 className="text-4xl font-bold text-center mb-6" >
+                    <h1 className="text-4xl font-bold text-center mb-6">
                         {profile.firstName} {profile.lastName}
                     </h1>
                     {/* < div className="flex flex-col items-center mb-6" >
@@ -288,14 +292,15 @@ const Profile = () => {
                                         key={avatar}
                                         src={avatar}
                                         alt="Available Avatar"
-                                        className={`w-16 h-16 rounded-full cursor-pointer border-2 ${avatar === selectedAvatar ? 'border-blue-500' : 'border-transparent'}`}
+                                        className={`w-16 h-16 rounded-full cursor-pointer border-2 ${avatar === selectedAvatar ? "border-blue-500" : "border-transparent"
+                                            }`}
                                         onClick={() => setSelectedAvatar(avatar)}
                                     />
                                 ))}
                             </div>
 
-                            < div className="mt-4 flex justify-end gap-4" >
-                                {/* <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleAvatarUpdate} disabled={!selectedAvatar}> Save Selected Avatar </button>
+                            <div className="mt-4 flex justify-end gap-4">
+                            {/* <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={handleAvatarUpdate} disabled={!selectedAvatar}> Save Selected Avatar </button>
                                 < button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400" onClick={() => setShowAvatarSelection(false)}> Cancel </button> */}
                                 <button
                                     className="inline-flex items-center py-3 font-semibold tracking-tighter text-white transition duration-500 ease-in-out bg-gradient-to-r from-green-500 to-green-600 px-14 text-md focus:shadow-outline"

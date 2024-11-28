@@ -3,8 +3,10 @@ import Header from "../components/Header";
 // import Footer from "../components/Footer";
 import { NextSeo } from "next-seo";
 import { FC } from "react";
+import { useTheme } from "../contexts/ThemeContext";
 
 const Contact: FC = () => {
+  const { theme } = useTheme();
   return (
     <div className="text-black bg-black">
       <NextSeo

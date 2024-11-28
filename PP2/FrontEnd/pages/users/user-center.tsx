@@ -6,6 +6,7 @@ import MyBlogs from './myBlogs';
 import MyCodeTemplates from './myCodeTemplates';
 // import Footer from "../../components/Footer";
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from "../../contexts/ThemeContext";
 
 
 // Dummy components for different pages
@@ -15,6 +16,7 @@ import { useAuth } from '../../contexts/AuthContext';
 // const Settings = () => <div className="text-white text-2xl font-semibold"><h2>Settings Page</h2><p>Get in touch with us here.</p></div>;
 
 const UserCenter: React.FC = () => {
+  const { theme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Profile');
   const router = useRouter();
@@ -54,18 +56,24 @@ const UserCenter: React.FC = () => {
 
   return (
     // <div className="bg-gray-100 h-screen flex overflow-hidden" onClick={closeSidebar}>
-    <div className="bg-black h-screen flex overflow-hidden" onClick={closeSidebar}>
+    <div
+      className={`bg-${theme === "dark" ? "black" : "white"} h-screen flex overflow-hidden`}
+      onClick={closeSidebar}
+    >
       {/* Sidebar */}
       <div
-        id="sidebar"
-        className={`absolute z-50 bg-gray-800 text-white w-56 min-h-screen overflow-y-auto transition-transform transform ease-in-out duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`absolute z-50 bg-${theme === "dark" ? "gray-800" : "gray-200"} text-${theme === "dark" ? "white" : "black"
+          } w-56 min-h-screen overflow-y-auto transition-transform transform ease-in-out duration-300 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         <div className="p-4">
           <h1 className="text-2xl font-semibold">User Center</h1>
           <ul className="mt-4">
             <li className="mb-2">
-              <button onClick={() => setSelectedOption('Profile')} className="block hover:text-indigo-400 w-full text-left">
+              <button
+                onClick={() => setSelectedOption("Profile")}
+                className="block hover:text-indigo-400 w-full text-left"
+              >
                 My Profile
               </button>
             </li>
@@ -75,12 +83,18 @@ const UserCenter: React.FC = () => {
               </button>
             </li> */}
             <li className="mb-2">
-              <button onClick={() => setSelectedOption('MyBlogs')} className="block hover:text-indigo-400 w-full text-left">
+              <button
+                onClick={() => setSelectedOption("MyBlogs")}
+                className="block hover:text-indigo-400 w-full text-left"
+              >
                 My Blogs
               </button>
             </li>
             <li className="mb-2">
-              <button onClick={() => setSelectedOption('MyCodeTemplates')} className="block hover:text-indigo-400 w-full text-left">
+              <button
+                onClick={() => setSelectedOption("MyCodeTemplates")}
+                className="block hover:text-indigo-400 w-full text-left"
+              >
                 My Code Templates
               </button>
             </li>
@@ -93,7 +107,10 @@ const UserCenter: React.FC = () => {
               </button>
             </li> */}
             <li className="mb-2">
-              <button onClick={() => handleLogout()} className="block hover:text-indigo-400 w-full text-left">
+              <button
+                onClick={() => handleLogout()}
+                className="block hover:text-indigo-400 w-full text-left"
+              >
                 Logout
               </button>
             </li>
@@ -104,12 +121,18 @@ const UserCenter: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Navbar */}
-        <div className="bg-black shadow">
+        <div className={`bg-${theme === "dark" ? "black" : "white"} shadow`}>
           <div className="container mx-auto">
             <div className="flex justify-between items-center py-4 px-2">
-              <Link href="/" className="flex text-3xl text-white font-medium mb-4 md:mb-0">
+              <Link
+                href="/"
+                className={`flex text-3xl text-${theme === "dark" ? "white" : "black"} font-medium mb-4 md:mb-0`}
+              >
                 <img
-                  src={`${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`}
+                  src={`${theme === "dark"
+                      ? `${process.env.NEXT_PUBLIC_BASE_URL}/favicon.png`
+                      : `${process.env.NEXT_PUBLIC_BASE_URL}/logo_light.PNG`
+                    }`}
                   alt="Logo"
                   className="w-16 h-8 mr-2" // Adjust size and spacing as needed
                 />
@@ -117,7 +140,7 @@ const UserCenter: React.FC = () => {
               </Link>
               {/* <h1 className="text-white text-xl font-semibold">User Center</h1> */}
               <button
-                className="text-gray-500 hover:text-gray-600"
+                className={`text-${theme === "dark" ? "gray-500" : "gray-700"} hover:text-gray-600`}
                 id="open-sidebar"
                 onClick={toggleSidebar}
               >
@@ -141,9 +164,8 @@ const UserCenter: React.FC = () => {
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-auto">
-          {renderContent()}
-        </div>
+        <div className="flex-1 overflow-auto">{renderContent()}</div>
+
       </div>
     </div>
   );
