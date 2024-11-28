@@ -214,6 +214,8 @@ const Header: React.FC = () => {
                                                     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
 
                                                     try {
+                                                        console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+
                                                         const response = await api.post(
                                                             `${process.env.NEXT_PUBLIC_API_URL}/api/users/login`,
                                                             { username, password },
